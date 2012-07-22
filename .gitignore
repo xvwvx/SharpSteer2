@@ -1,0 +1,13 @@
+*.suo
+*.user
+*.cachefile
+*.xnb
+*.sln.docstates
+*.cache
+SharpSteer2/bin
+SharpSteer2/obj
+SharpSteer2.WinDemo/SharpSteer2.WinDemo/bin
+SharpSteer2.WinDemo/SharpSteer2.WinDemo/obj
+SharpSteer2.WinDemo/SharpSteer2.WinDemoContent/bin
+SharpSteer2.WinDemo/SharpSteer2.WinDemoContent/obj
+_Resharper.*
