@@ -8,8 +8,6 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
-using System;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
 namespace SharpSteer2
@@ -24,56 +22,56 @@ namespace SharpSteer2
 		// origin of the local space.  These correspond to the "rows" of
 		// a 3x4 transformation matrix with [0 0 0 1] as the final column
 
-        Vector3 side;     //    side-pointing unit basis vector
-        Vector3 up;       //  upward-pointing unit basis vector
-        Vector3 forward;  // forward-pointing unit basis vector
-        Vector3 position; // origin of local space
+        Vector3 _side;     //    side-pointing unit basis vector
+        Vector3 _up;       //  upward-pointing unit basis vector
+        Vector3 _forward;  // forward-pointing unit basis vector
+        Vector3 _position; // origin of local space
 
 		// accessors (get and set) for side, up, forward and position
         public Vector3 Side
 		{
-			get { return side; }
-			set { side = value; }
+			get { return _side; }
+			set { _side = value; }
 		}
         public Vector3 Up
 		{
-			get { return up; }
-			set { up = value; }
+			get { return _up; }
+			set { _up = value; }
 		}
         public Vector3 Forward
 		{
-			get { return forward; }
-			set { forward = value; }
+			get { return _forward; }
+			set { _forward = value; }
 		}
         public Vector3 Position
 		{
-			get { return position; }
-			set { position = value; }
+			get { return _position; }
+			set { _position = value; }
 		}
 
         public Vector3 SetUp(float x, float y, float z)
 		{
-            up.X = x;
-            up.Y = y;
-            up.Z = z;
+            _up.X = x;
+            _up.Y = y;
+            _up.Z = z;
 
-			return up;
+			return _up;
 		}
         public Vector3 SetForward(float x, float y, float z)
 		{
-            forward.X = x;
-            forward.Y = y;
-            forward.Z = z;
+            _forward.X = x;
+            _forward.Y = y;
+            _forward.Z = z;
 
-			return forward;
+			return _forward;
 		}
         public Vector3 SetPosition(float x, float y, float z)
 		{
-            position.X = x;
-            position.Y = y;
-            position.Z = z;
+            _position.X = x;
+            _position.Y = y;
+            _position.Z = z;
 
-			return position;
+			return _position;
 		}
 
 		// ------------------------------------------------------------------------
@@ -89,19 +87,19 @@ namespace SharpSteer2
 			ResetLocalSpace();
 		}
 
-        public LocalSpace(Vector3 Side, Vector3 Up, Vector3 Forward, Vector3 Position)
+        public LocalSpace(Vector3 side, Vector3 up, Vector3 forward, Vector3 position)
 		{
-			side = Side;
-			up = Up;
-			forward = Forward;
-			position = Position;
+			_side = side;
+			_up = up;
+			_forward = forward;
+			_position = position;
 		}
 
-        public LocalSpace(Vector3 Up, Vector3 Forward, Vector3 Position)
+        public LocalSpace(Vector3 up, Vector3 forward, Vector3 position)
 		{
-			up = Up;
-			forward = Forward;
-			position = Position;
+			_up = up;
+			_forward = forward;
+			_position = position;
 			SetUnitSideFromForwardAndUp();
 		}
 
@@ -117,10 +115,10 @@ namespace SharpSteer2
 		// where X is 1 for a left-handed system and -1 for a right-handed system.
 		public void ResetLocalSpace()
 		{
-			forward = Vector3.Backward;
-			side = LocalRotateForwardToSide(Forward);
-			up = Vector3.Up;
-			position = Vector3.Zero;
+			_forward = Vector3.Backward;
+			_side = LocalRotateForwardToSide(Forward);
+			_up = Vector3.Up;
+			_position = Vector3.Zero;
 		}
 
 		// ------------------------------------------------------------------------
@@ -128,7 +126,7 @@ namespace SharpSteer2
         public Vector3 LocalizeDirection(Vector3 globalDirection)
         {
 			// dot offset with local basis vectors to obtain local coordiantes
-            return new Vector3(Vector3.Dot(globalDirection, side), Vector3.Dot(globalDirection, up), Vector3.Dot(globalDirection, forward));
+            return new Vector3(Vector3.Dot(globalDirection, _side), Vector3.Dot(globalDirection, _up), Vector3.Dot(globalDirection, _forward));
 		}
 
 		// ------------------------------------------------------------------------
@@ -136,7 +134,7 @@ namespace SharpSteer2
         public Vector3 LocalizePosition(Vector3 globalPosition)
 		{
 			// global offset from local origin
-            Vector3 globalOffset = globalPosition - position;
+            Vector3 globalOffset = globalPosition - _position;
 
 			// dot offset with local basis vectors to obtain local coordiantes
 			return LocalizeDirection(globalOffset);
@@ -146,16 +144,16 @@ namespace SharpSteer2
 		// transform a point in local space to its equivalent in global space
         public Vector3 GlobalizePosition(Vector3 localPosition)
 		{
-			return position + GlobalizeDirection(localPosition);
+			return _position + GlobalizeDirection(localPosition);
 		}
 
 		// ------------------------------------------------------------------------
 		// transform a direction in local space to its equivalent in global space
         public Vector3 GlobalizeDirection(Vector3 localDirection)
 		{
-			return ((side * localDirection.X) +
-					(up * localDirection.Y) +
-					(forward * localDirection.Z));
+			return ((_side * localDirection.X) +
+					(_up * localDirection.Y) +
+					(_forward * localDirection.Z));
 		}
 
 		// ------------------------------------------------------------------------
@@ -164,11 +162,11 @@ namespace SharpSteer2
 		{
 			// derive new unit side basis vector from forward and up
 			if (IsRightHanded)
-				side = Vector3.Cross(forward, up);
+				_side = Vector3.Cross(_forward, _up);
 			else
-                side = Vector3.Cross(up, forward);
+                _side = Vector3.Cross(_up, _forward);
 			
-            side.Normalize();
+            _side.Normalize();
 		}
 
 		// ------------------------------------------------------------------------
@@ -176,7 +174,7 @@ namespace SharpSteer2
 		//(which is expected to have unit length)
         public void RegenerateOrthonormalBasisUF(Vector3 newUnitForward)
 		{
-			forward = newUnitForward;
+			_forward = newUnitForward;
 
 			// derive new side basis vector from NEW forward and OLD up
 			SetUnitSideFromForwardAndUp();
@@ -185,9 +183,9 @@ namespace SharpSteer2
 			//(should have unit length since Side and Forward are
 			// perpendicular and unit length)
 			if (IsRightHanded)
-                up = Vector3.Cross(side, forward);
+                _up = Vector3.Cross(_side, _forward);
 			else
-                up = Vector3.Cross(forward, side);
+                _up = Vector3.Cross(_forward, _side);
 		}
 
 		// for when the new forward is NOT know to have unit length
@@ -201,7 +199,7 @@ namespace SharpSteer2
 		// for supplying both a new forward and and new up
         public void RegenerateOrthonormalBasis(Vector3 newForward, Vector3 newUp)
 		{
-			up = newUp;
+			_up = newUp;
             newForward.Normalize();
 			RegenerateOrthonormalBasis(newForward);
 		}

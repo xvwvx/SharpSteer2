@@ -20,18 +20,18 @@ namespace SharpSteer2
 		// "token" to represent objects stored in the database
 		public class TokenType : ITokenForProximityDatabase<ContentType>
 		{
-			BruteForceProximityDatabase<ContentType> bfpd;
-			ContentType obj;
-            Vector3 position;
+		    readonly BruteForceProximityDatabase<ContentType> _bfpd;
+			ContentType _obj;
+            Vector3 _position;
 
 			// constructor
 			public TokenType(ContentType parentObject, BruteForceProximityDatabase<ContentType> pd)
 			{
 				// store pointer to our associated database and the obj this
 				// token represents, and store this token on the database's vector
-				bfpd = pd;
-				obj = parentObject;
-				bfpd.group.Add(this);
+				_bfpd = pd;
+				_obj = parentObject;
+				_bfpd._group.Add(this);
 			}
 
 			// destructor
@@ -44,18 +44,18 @@ namespace SharpSteer2
 			}
 			protected virtual void Dispose(bool disposing)
 			{
-				if (obj != null)
-				{
-					// remove this token from the database's vector
-					bfpd.group.Find(delegate(TokenType item) { return item == this; });
-					obj = null;
-				}
+			    if (_obj == null)
+			        return;
+
+			    // remove this token from the database's vector
+			    _bfpd._group.RemoveAt(_bfpd._group.FindIndex(item => item == this));
+			    _obj = null;
 			}
 
 			// the client obj calls this each time its position changes
             public void UpdateForNewPosition(Vector3 newPosition)
 			{
-				position = newPosition;
+				_position = newPosition;
 			}
 
 			// find all neighbors within the given sphere (as center and radius)
@@ -63,24 +63,24 @@ namespace SharpSteer2
 			{
 				// loop over all tokens
 				float r2 = radius * radius;
-				for (int i = 0; i < bfpd.group.Count; i++)
+				for (int i = 0; i < _bfpd._group.Count; i++)
 				{
-                    Vector3 offset = center - bfpd.group[i].position;
+                    Vector3 offset = center - _bfpd._group[i]._position;
 					float d2 = offset.LengthSquared();
 
 					// push onto result vector when within given radius
-					if (d2 < r2) results.Add(bfpd.group[i].obj);
+					if (d2 < r2) results.Add(_bfpd._group[i]._obj);
 				}
 			}
 		}
 
 		// Contains all tokens in database
-		List<TokenType> group;
+	    readonly List<TokenType> _group;
 
 		// constructor
 		public BruteForceProximityDatabase()
 		{
-			group = new List<TokenType>();
+			_group = new List<TokenType>();
 		}
 
 		// allocate a token to represent a given client object in this database
@@ -92,7 +92,7 @@ namespace SharpSteer2
 		// return the number of tokens currently in the database
 		public int Count
 		{
-			get { return group.Count; }
+			get { return _group.Count; }
 		}
 	}
 }

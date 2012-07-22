@@ -8,9 +8,7 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
-using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace SharpSteer2
 {
@@ -129,8 +127,8 @@ namespace SharpSteer2
 		/// <param name="color">The color of the circle/disk.</param>
 		/// <param name="segments">The number of segments to use to draw the circle/disk.</param>
 		/// <param name="filled">Flag indicating whether to draw a disk or circle.</param>
-		/// <param name="in3d">Flag indicating whether to draw the disk/circle in 3D or the XZ plane.</param>
-		void CircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3d);
+		/// <param name="in3D">Flag indicating whether to draw the disk/circle in 3D or the XZ plane.</param>
+		void CircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3D);
 
 		/// <summary>
 		/// Called when steerToAvoidObstacles decides steering is required.

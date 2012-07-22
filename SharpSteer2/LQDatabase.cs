@@ -9,7 +9,6 @@
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace SharpSteer2
@@ -56,19 +55,19 @@ namespace SharpSteer2
 		}
 
 		// the origin is the super-brick corner minimum coordinates
-		Vector3 Origin;
+		Vector3 _origin;
 
 		// length of the edges of the super-brick
-		Vector3 Size;
+		Vector3 _size;
 
 		// number of sub-brick divisions in each direction
-		int DivX;
-		int DivY;
-		int DivZ;
+	    readonly int _divX;
+	    readonly int _divY;
+	    readonly int _divZ;
 
 		// pointer to an array of pointers, one for each bin
 		// The last index is the extra bin for "everything else" (points outside super-brick)
-		ClientProxy[] bins;
+	    readonly ClientProxy[] _bins;
 
 		// extra bin for "everything else" (points outside super-brick)
 		//ClientProxy other;
@@ -86,25 +85,25 @@ namespace SharpSteer2
 		 */
 		public LocalityQueryDB(Vector3 origin, Vector3 size, int divx, int divy, int divz)
 		{
-			Origin = origin;
-			Size = size;
-			DivX = divx;
-			DivY = divy;
-			DivZ = divz;
+			_origin = origin;
+			_size = size;
+			_divX = divx;
+			_divY = divy;
+			_divZ = divz;
 
 			// The last index is the "other" bin
 			int bincount = divx * divy * divz + 1;
-			bins = new ClientProxy[bincount];
-			for (int i = 0; i < bins.Length; i++)
+			_bins = new ClientProxy[bincount];
+			for (int i = 0; i < _bins.Length; i++)
 			{
-				bins[i] = null;
+				_bins[i] = null;
 			}
 		}
 
 		/* Determine index into linear bin array given 3D bin indices */
 		public int BinCoordsToBinIndex(int ix, int iy, int iz)
 		{
-			return ((ix * DivY * DivZ) + (iy * DivZ) + iz);
+			return ((ix * _divY * _divZ) + (iy * _divZ) + iz);
 		}
 
 		/* Call for each client obj every time its location changes.  For
@@ -131,7 +130,7 @@ namespace SharpSteer2
 		public void AddToBin(ref ClientProxy obj, int binIndex)
 		{
 			/* if bin is currently empty */
-			if (bins[binIndex] == null)
+			if (_bins[binIndex] == null)
 			{
 				obj.Prev = null;
 				obj.Next = null;
@@ -139,11 +138,11 @@ namespace SharpSteer2
 			else
 			{
 				obj.Prev = null;
-				obj.Next = bins[binIndex];
-				bins[binIndex].Prev = obj;
+				obj.Next = _bins[binIndex];
+				_bins[binIndex].Prev = obj;
 			}
 
-			bins[binIndex] = obj;
+			_bins[binIndex] = obj;
 
 			/* record bin ID in proxy obj */
 			obj.Bin = binIndex;
@@ -155,16 +154,16 @@ namespace SharpSteer2
 		public /*lqClientProxy*/int BinForLocation(Vector3 position)
 		{
 			/* if point outside super-brick, return the "other" bin */
-			if (position.X < Origin.X || position.Y < Origin.Y || position.Z < Origin.Z ||
-				position.X >= Origin.X + Size.X || position.Y >= Origin.Y + Size.Y || position.Z >= Origin.Z + Size.Z)
+			if (position.X < _origin.X || position.Y < _origin.Y || position.Z < _origin.Z ||
+				position.X >= _origin.X + _size.X || position.Y >= _origin.Y + _size.Y || position.Z >= _origin.Z + _size.Z)
 			{
-				return bins.Length - 1;
+				return _bins.Length - 1;
 			}
 
 			/* if point inside super-brick, compute the bin coordinates */
-			int ix = (int)(((position.X - Origin.X) / Size.X) * DivX);
-			int iy = (int)(((position.Y - Origin.Y) / Size.Y) * DivY);
-			int iz = (int)(((position.Z - Origin.Z) / Size.Z) * DivZ);
+			int ix = (int)(((position.X - _origin.X) / _size.X) * _divX);
+			int iy = (int)(((position.Y - _origin.Y) / _size.Y) * _divY);
+			int iz = (int)(((position.Z - _origin.Z) / _size.Z) * _divZ);
 
 			/* convert to linear bin number */
 			int i = BinCoordsToBinIndex(ix, iy, iz);
@@ -194,15 +193,14 @@ namespace SharpSteer2
 		{
 			int partlyOut = 0;
 			bool completelyOutside =
-				(((center.X + radius) < Origin.X) ||
-				 ((center.Y + radius) < Origin.Y) ||
-				 ((center.Z + radius) < Origin.Z) ||
-				 ((center.X - radius) >= Origin.X + Size.X) ||
-				 ((center.Y - radius) >= Origin.Y + Size.Y) ||
-				 ((center.Z - radius) >= Origin.Z + Size.Z));
-			int minBinX, minBinY, minBinZ, maxBinX, maxBinY, maxBinZ;
+				(((center.X + radius) < _origin.X) ||
+				 ((center.Y + radius) < _origin.Y) ||
+				 ((center.Z + radius) < _origin.Z) ||
+				 ((center.X - radius) >= _origin.X + _size.X) ||
+				 ((center.Y - radius) >= _origin.Y + _size.Y) ||
+				 ((center.Z - radius) >= _origin.Z + _size.Z));
 
-			/* is the sphere completely outside the "super brick"? */
+		    /* is the sphere completely outside the "super brick"? */
 			if (completelyOutside)
 			{
 				MapOverAllOutsideObjects(center, radius, func, clientQueryState);
@@ -210,20 +208,20 @@ namespace SharpSteer2
 			}
 
 			/* compute min and max bin coordinates for each dimension */
-			minBinX = (int)((((center.X - radius) - Origin.X) / Size.X) * DivX);
-			minBinY = (int)((((center.Y - radius) - Origin.Y) / Size.Y) * DivY);
-			minBinZ = (int)((((center.Z - radius) - Origin.Z) / Size.Z) * DivZ);
-			maxBinX = (int)((((center.X + radius) - Origin.X) / Size.X) * DivX);
-			maxBinY = (int)((((center.Y + radius) - Origin.Y) / Size.Y) * DivY);
-			maxBinZ = (int)((((center.Z + radius) - Origin.Z) / Size.Z) * DivZ);
+			int minBinX = (int)((((center.X - radius) - _origin.X) / _size.X) * _divX);
+			int minBinY = (int)((((center.Y - radius) - _origin.Y) / _size.Y) * _divY);
+			int minBinZ = (int)((((center.Z - radius) - _origin.Z) / _size.Z) * _divZ);
+			int maxBinX = (int)((((center.X + radius) - _origin.X) / _size.X) * _divX);
+			int maxBinY = (int)((((center.Y + radius) - _origin.Y) / _size.Y) * _divY);
+			int maxBinZ = (int)((((center.Z + radius) - _origin.Z) / _size.Z) * _divZ);
 
 			/* clip bin coordinates */
 			if (minBinX < 0) { partlyOut = 1; minBinX = 0; }
 			if (minBinY < 0) { partlyOut = 1; minBinY = 0; }
 			if (minBinZ < 0) { partlyOut = 1; minBinZ = 0; }
-			if (maxBinX >= DivX) { partlyOut = 1; maxBinX = DivX - 1; }
-			if (maxBinY >= DivY) { partlyOut = 1; maxBinY = DivY - 1; }
-			if (maxBinZ >= DivZ) { partlyOut = 1; maxBinZ = DivZ - 1; }
+			if (maxBinX >= _divX) { partlyOut = 1; maxBinX = _divX - 1; }
+			if (maxBinY >= _divY) { partlyOut = 1; maxBinY = _divY - 1; }
+			if (maxBinZ >= _divZ) { partlyOut = 1; maxBinZ = _divZ - 1; }
 
 			/* map function over outside objects if necessary (if clipped) */
 			if (partlyOut != 0)
@@ -268,32 +266,31 @@ namespace SharpSteer2
 							   int minBinX, int minBinY, int minBinZ,
 							   int maxBinX, int maxBinY, int maxBinZ)
 		{
-			int i, j, k;
-			int iindex, jindex, kindex;
-			int slab = DivY * DivZ;
-			int row = DivZ;
+		    int i;
+		    int slab = _divY * _divZ;
+			int row = _divZ;
 			int istart = minBinX * slab;
 			int jstart = minBinY * row;
 			int kstart = minBinZ;
-			ClientProxy co;
-			ClientProxy bin;
-			float radiusSquared = radius * radius;
+		    float radiusSquared = radius * radius;
 
 			/* loop for x bins across diameter of sphere */
-			iindex = istart;
+			int iindex = istart;
 			for (i = minBinX; i <= maxBinX; i++)
 			{
 				/* loop for y bins across diameter of sphere */
-				jindex = jstart;
-				for (j = minBinY; j <= maxBinY; j++)
+				int jindex = jstart;
+			    int j;
+			    for (j = minBinY; j <= maxBinY; j++)
 				{
 					/* loop for z bins across diameter of sphere */
-					kindex = kstart;
-					for (k = minBinZ; k <= maxBinZ; k++)
+					int kindex = kstart;
+				    int k;
+				    for (k = minBinZ; k <= maxBinZ; k++)
 					{
 						/* get current bin's client obj list */
-						bin = bins[iindex + jindex + kindex];
-						co = bin;
+						ClientProxy bin = _bins[iindex + jindex + kindex];
+						ClientProxy co = bin;
 
 						/* traverse current bin's client obj list */
 						TraverseBinClientObjectList(ref co,
@@ -314,7 +311,7 @@ namespace SharpSteer2
 		   holds any object which are not inside the regular sub-bricks  */
 		public void MapOverAllOutsideObjects(Vector3 center, float radius, LQCallBackFunction func, Object clientQueryState)
 		{
-			ClientProxy co = bins[bins.Length - 1];
+			ClientProxy co = _bins[_bins.Length - 1];
 			float radiusSquared = radius * radius;
 
 			// traverse the "other" bin's client object list
@@ -336,9 +333,9 @@ namespace SharpSteer2
 		   regardless of locality (cf lqMapOverAllObjectsInLocality) */
 		public void MapOverAllObjects(LQCallBackFunction func, Object clientQueryState)
 		{
-			for (int i = 0; i < bins.Length; i++)
+			for (int i = 0; i < _bins.Length; i++)
 			{
-				MapOverAllObjectsInBin(bins[i], func, clientQueryState);
+				MapOverAllObjectsInBin(_bins[i], func, clientQueryState);
 			}
 			//MapOverAllObjectsInBin(other, func, clientQueryState);
 		}
@@ -352,8 +349,8 @@ namespace SharpSteer2
 			{
 				/* If this obj is at the head of the list, move the bin
 				   pointer to the next item in the list (might be null). */
-				if (bins[obj.Bin.Value] == obj)
-					bins[obj.Bin.Value] = obj.Next;
+				if (_bins[obj.Bin.Value] == obj)
+					_bins[obj.Bin.Value] = obj.Next;
 
 				/* If there is a prev obj, link its "next" pointer to the
 				   obj after this one. */
@@ -375,9 +372,9 @@ namespace SharpSteer2
 		/* Removes (all proxies for) all objects from all bins */
 		public void RemoveAllObjects()
 		{
-			for (int i = 0; i < bins.Length; i++)
+			for (int i = 0; i < _bins.Length; i++)
 			{
-				RemoveAllObjectsInBin(ref bins[i]);
+				RemoveAllObjectsInBin(ref _bins[i]);
 			}
 			//RemoveAllObjectsInBin(ref other);
 		}
@@ -394,9 +391,9 @@ namespace SharpSteer2
 		/* public helper function */
 		struct FindNearestState
 		{
-			public Object ignoreObject;
-			public Object nearestObject;
-			public float minDistanceSquared;
+			public Object IgnoreObject;
+			public Object NearestObject;
+			public float MinDistanceSquared;
 
 		}
 
@@ -405,13 +402,13 @@ namespace SharpSteer2
 			FindNearestState fns = (FindNearestState)clientQueryState;
 
 			/* do nothing if this is the "ignoreObject" */
-			if (fns.ignoreObject != clientObject)
+			if (fns.IgnoreObject != clientObject)
 			{
 				/* record this object if it is the nearest one so far */
-				if (fns.minDistanceSquared > distanceSquared)
+				if (fns.MinDistanceSquared > distanceSquared)
 				{
-					fns.nearestObject = clientObject;
-					fns.minDistanceSquared = distanceSquared;
+					fns.NearestObject = clientObject;
+					fns.MinDistanceSquared = distanceSquared;
 				}
 			}
 		}
@@ -429,15 +426,15 @@ namespace SharpSteer2
 		{
 			/* initialize search state */
 			FindNearestState lqFNS;
-			lqFNS.nearestObject = null;
-			lqFNS.ignoreObject = ignoreObject;
-			lqFNS.minDistanceSquared = float.MaxValue;
+			lqFNS.NearestObject = null;
+			lqFNS.IgnoreObject = ignoreObject;
+			lqFNS.MinDistanceSquared = float.MaxValue;
 
 			/* map search helper function over all objects within radius */
 			MapOverAllObjectsInLocality(center, radius, FindNearestHelper, lqFNS);
 
 			/* return nearest object found, if any */
-			return lqFNS.nearestObject;
+			return lqFNS.NearestObject;
 		}
 	}
 }

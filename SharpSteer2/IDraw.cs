@@ -6,9 +6,7 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
-using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace SharpSteer2
 {
@@ -16,6 +14,6 @@ namespace SharpSteer2
 	{
         void Line(Vector3 startPoint, Vector3 endPoint, Color color);
         void LineAlpha(Vector3 startPoint, Vector3 endPoint, Color color, float alpha);
-        void CircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3d);
+        void CircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3D);
 	}
 }

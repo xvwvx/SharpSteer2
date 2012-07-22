@@ -123,11 +123,11 @@ namespace SharpSteer2.WinDemo
 			CircleOrDisk(radius, axis, center, color, segments, filled, true);
 		}
 
-		public virtual void CircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3d)
+		public virtual void CircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3D)
 		{
 			if (isEnabled == true && drawer != null)
 			{
-				drawer.CircleOrDisk(radius, axis, center, color, segments, filled, in3d);
+				drawer.CircleOrDisk(radius, axis, center, color, segments, filled, in3D);
 			}
 		}
 

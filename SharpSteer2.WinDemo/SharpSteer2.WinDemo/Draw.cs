@@ -131,9 +131,9 @@ namespace SharpSteer2.WinDemo
 			DrawLineAlpha(startPoint, endPoint, color, alpha);
 		}
 
-		public void CircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3d)
+		public void CircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3D)
 		{
-			DrawCircleOrDisk(radius, axis, center, color, segments, filled, in3d);
+			DrawCircleOrDisk(radius, axis, center, color, segments, filled, in3D);
 		}
 
 		public static void DrawLine(Vector3 startPoint, Vector3 endPoint, Color color)

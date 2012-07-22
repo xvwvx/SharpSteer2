@@ -62,7 +62,9 @@ namespace SharpSteer2
         public static Vector3 RotateAboutGlobalY(Vector3 vector, float angle, ref float sin, ref float cos)
         {
             // is both are zero, they have not be initialized yet
+// ReSharper disable CompareOfFloatsByEqualityOperator
             if (sin == 0 && cos == 0)
+// ReSharper restore CompareOfFloatsByEqualityOperator
             {
                 sin = (float)Math.Sin(angle);
                 cos = (float)Math.Cos(angle);
@@ -144,12 +146,12 @@ namespace SharpSteer2
 
         // ----------------------------------------------------------------------------
         // used by limitMaxDeviationAngle / limitMinDeviationAngle below
-        public static Vector3 LimitDeviationAngleUtility(bool insideOrOutside, Vector3 source, float cosineOfConeAngle, Vector3 basis)
+        private static Vector3 LimitDeviationAngleUtility(bool insideOrOutside, Vector3 source, float cosineOfConeAngle, Vector3 basis)
         {
             // immediately return zero length input vectors
             float sourceLength = source.Length();
 
-            if (sourceLength == 0)
+            if (Math.Abs(sourceLength - 0) < float.Epsilon)
                 return source;
 
             // measure the angular diviation of "source" from "basis"
@@ -215,7 +217,7 @@ namespace SharpSteer2
         public static float DistanceFromLine(Vector3 point, Vector3 lineOrigin, Vector3 lineUnitTangent)
         {
             Vector3 offset = point - lineOrigin;
-            Vector3 perp = Vector3Helpers.PerpendicularComponent(offset, lineUnitTangent);
+            Vector3 perp = PerpendicularComponent(offset, lineUnitTangent);
             return perp.Length();
         }
 
@@ -226,7 +228,7 @@ namespace SharpSteer2
         {
             // to be filled in:
             Vector3 quasiPerp;  // a direction which is "almost perpendicular"
-            Vector3 result = new Vector3();     // the computed perpendicular to be returned
+            Vector3 result;     // the computed perpendicular to be returned
 
             // three mutually perpendicular basis vectors
             Vector3 i = Vector3.Right;

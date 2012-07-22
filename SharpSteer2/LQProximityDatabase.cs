@@ -69,7 +69,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace SharpSteer2
 {
@@ -82,14 +81,14 @@ namespace SharpSteer2
 		// "token" to represent objects stored in the database
 		public class TokenType : ITokenForProximityDatabase<ContentType>
 		{
-			LocalityQueryDB.ClientProxy proxy;
-			LocalityQueryDB lq;
+			LocalityQueryDB.ClientProxy _proxy;
+		    readonly LocalityQueryDB _lq;
 
 			// constructor
 			public TokenType(ContentType parentObject, LocalityQueryProximityDatabase<ContentType> lqsd)
 			{
-				proxy = new LocalityQueryDB.ClientProxy(parentObject);
-				lq = lqsd.lq;
+				_proxy = new LocalityQueryDB.ClientProxy(parentObject);
+				_lq = lqsd._lq;
 			}
 
 			public void Dispose()
@@ -99,26 +98,26 @@ namespace SharpSteer2
 			}
 			protected virtual void Dispose(bool disposing)
 			{
-				if (proxy != null)
+				if (_proxy != null)
 				{
-					System.Diagnostics.Debug.Assert(disposing == true);
+					System.Diagnostics.Debug.Assert(disposing);
 
 					// remove this token from the database's vector
-					lq.RemoveFromBin(ref proxy);
-					proxy = null;
+					_lq.RemoveFromBin(ref _proxy);
+					_proxy = null;
 				}
 			}
 
 			// the client obj calls this each time its position changes
             public void UpdateForNewPosition(Vector3 p)
 			{
-				lq.UpdateForNewLocation(ref proxy, p);
+				_lq.UpdateForNewLocation(ref _proxy, p);
 			}
 
 			// find all neighbors within the given sphere (as center and radius)
             public void FindNeighbors(Vector3 center, float radius, ref List<ContentType> results)
 			{
-				lq.MapOverAllObjectsInLocality(center, radius, perNeighborCallBackFunction, results);
+				_lq.MapOverAllObjectsInLocality(center, radius, perNeighborCallBackFunction, results);
 			}
 
 			// called by LQ for each clientObject in the specified neighborhood:
@@ -131,7 +130,7 @@ namespace SharpSteer2
 			}
 		}
 
-		LocalityQueryDB lq;
+	    readonly LocalityQueryDB _lq;
 
 		// constructor
         public LocalityQueryProximityDatabase(Vector3 center, Vector3 dimensions, Vector3 divisions)
@@ -139,7 +138,7 @@ namespace SharpSteer2
 			Vector3 halfsize = dimensions * 0.5f;
 			Vector3 origin = center - halfsize;
 
-			lq = new LocalityQueryDB(origin, dimensions, (int)Math.Round(divisions.X), (int)Math.Round(divisions.Y), (int)Math.Round(divisions.Z));
+			_lq = new LocalityQueryDB(origin, dimensions, (int)Math.Round(divisions.X), (int)Math.Round(divisions.Y), (int)Math.Round(divisions.Z));
 		}
 
 		// allocate a token to represent a given client obj in this database
@@ -154,7 +153,7 @@ namespace SharpSteer2
 			get
 			{
 				int count = 0;
-				lq.MapOverAllObjects(CounterCallBackFunction, count);
+				_lq.MapOverAllObjects(CounterCallBackFunction, count);
 				return count;
 			}
 		}

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace SharpSteer2
 {
     class NullAnnotationService
@@ -69,7 +65,7 @@ namespace SharpSteer2
 
         }
 
-        public void CircleOrDisk(float radius, Microsoft.Xna.Framework.Vector3 axis, Microsoft.Xna.Framework.Vector3 center, Microsoft.Xna.Framework.Color color, int segments, bool filled, bool in3d)
+        public void CircleOrDisk(float radius, Microsoft.Xna.Framework.Vector3 axis, Microsoft.Xna.Framework.Vector3 center, Microsoft.Xna.Framework.Color color, int segments, bool filled, bool in3D)
         {
 
         }

@@ -9,8 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace SharpSteer2
@@ -30,7 +28,7 @@ namespace SharpSteer2
 		public delegate void TimestepCallBackFunction(float currentTime, float elapsedTime);
 
 		// constructor
-		public PlugIn()
+	    protected PlugIn()
 		{
 			// save this new instance in the registry
 			AddToRegistry();

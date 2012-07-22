@@ -9,9 +9,7 @@
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace SharpSteer2
 {
@@ -19,33 +17,19 @@ namespace SharpSteer2
 	{
 		// give each vehicle a unique number
 		public readonly int SerialNumber;
-		static int serialNumberCounter = 0;
+		static int _serialNumberCounter = 0;
 
-		// Mass (defaults to unity so acceleration=force)
-		float mass;
-
-		// size of bounding sphere, for obstacle avoidance, etc.
-		float radius;
-
-		// speed along Forward direction. Because local space is
+	    // speed along Forward direction. Because local space is
 		// velocity-aligned, velocity = Forward * Speed
-		float speed;
+		float _speed;
 
-		// the maximum steering force this vehicle can apply
-		// (steering force is clipped to this magnitude)
-		float maxForce;
-
-		// the maximum speed this vehicle is allowed to move
-		// (velocity is clipped to this magnitude)
-		float maxSpeed;
-
-		float curvature;
-        Vector3 lastForward;
-        Vector3 lastPosition;
-        Vector3 smoothedPosition;
-		float smoothedCurvature;
+	    float _curvature;
+        Vector3 _lastForward;
+        Vector3 _lastPosition;
+        Vector3 _smoothedPosition;
+		float _smoothedCurvature;
 		// The acceleration is smoothed
-        Vector3 acceleration;
+        Vector3 _acceleration;
 
 		// constructor
 		public SimpleVehicle(IAnnotationService annotations = null)
@@ -55,7 +39,7 @@ namespace SharpSteer2
 			Reset();
 
 			// maintain unique serial numbers
-			SerialNumber = serialNumberCounter++;
+			SerialNumber = _serialNumberCounter++;
 		}
 
 		// reset vehicle state
@@ -83,47 +67,36 @@ namespace SharpSteer2
 		}
 
 		// get/set Mass
-		public override float Mass
-		{
-			get { return mass; }
-			set { mass = value; }
-		}
+        // Mass (defaults to unity so acceleration=force)
+	    public override float Mass { get; set; }
 
-		// get velocity of vehicle
+	    // get velocity of vehicle
         public override Vector3 Velocity
 		{
-			get { return Forward * speed; }
+			get { return Forward * _speed; }
 		}
 
 		// get/set speed of vehicle  (may be faster than taking mag of velocity)
 		public override float Speed
 		{
-			get { return speed; }
-			set { speed = value; }
+			get { return _speed; }
+			set { _speed = value; }
 		}
 
 		// size of bounding sphere, for obstacle avoidance, etc.
-		public override float Radius
-		{
-			get { return radius; }
-			set { radius = value; }
-		}
+	    public override float Radius { get; set; }
 
-		// get/set maxForce
-		public override float MaxForce
-		{
-			get { return maxForce; }
-			set { maxForce = value; }
-		}
+	    // get/set maxForce
+        // the maximum steering force this vehicle can apply
+        // (steering force is clipped to this magnitude)
+	    public override float MaxForce { get; set; }
 
-		// get/set maxSpeed
-		public override float MaxSpeed
-		{
-			get { return maxSpeed; }
-			set { maxSpeed = value; }
-		}
+	    // get/set maxSpeed
+        // the maximum speed this vehicle is allowed to move
+        // (velocity is clipped to this magnitude)
+	    public override float MaxSpeed { get; set; }
 
-		// apply a given steering force to our momentum,
+	    // apply a given steering force to our momentum,
 		// adjusting our orientation to maintain velocity-alignment.
         public void ApplySteeringForce(Vector3 force, float elapsedTime)
 		{
@@ -141,11 +114,11 @@ namespace SharpSteer2
 			if (elapsedTime > 0)
 			{
 				float smoothRate = Utilities.Clip(9 * elapsedTime, 0.15f, 0.4f);
-				Utilities.BlendIntoAccumulator(smoothRate, newAcceleration, ref acceleration);
+				Utilities.BlendIntoAccumulator(smoothRate, newAcceleration, ref _acceleration);
 			}
 
 			// Euler integrate (per frame) acceleration into velocity
-			newVelocity += acceleration * elapsedTime;
+			newVelocity += _acceleration * elapsedTime;
 
 			// enforce speed limit
             newVelocity = Vector3Helpers.TruncateLength(newVelocity, MaxSpeed);
@@ -166,7 +139,7 @@ namespace SharpSteer2
 			// running average of recent positions
 			Utilities.BlendIntoAccumulator(elapsedTime * 0.06f, // QQQ
 								  Position,
-								  ref smoothedPosition);
+								  ref _smoothedPosition);
 		}
 
 		// the default version: keep FORWARD parallel to velocity, change
@@ -191,7 +164,7 @@ namespace SharpSteer2
 
 			// acceleration points toward the center of local path curvature, the
 			// length determines how much the vehicle will roll while turning
-			Vector3 accelUp = acceleration * 0.05f;
+			Vector3 accelUp = _acceleration * 0.05f;
 
 			// combined banking, sum of UP due to turning and global UP
 			Vector3 bankUp = accelUp + globalUp;
@@ -251,13 +224,13 @@ namespace SharpSteer2
 		// get instantaneous curvature (since last update)
 		public float Curvature
 		{
-			get { return curvature; }
+			get { return _curvature; }
 		}
 
 		// get/reset smoothedCurvature, smoothedAcceleration and smoothedPosition
 		public float SmoothedCurvature
 		{
-			get { return smoothedCurvature; }
+			get { return _smoothedCurvature; }
 		}
 		public float ResetSmoothedCurvature()
 		{
@@ -265,14 +238,14 @@ namespace SharpSteer2
 		}
 		public float ResetSmoothedCurvature(float value)
 		{
-			lastForward = Vector3.Zero;
-			lastPosition = Vector3.Zero;
-			return smoothedCurvature = curvature = value;
+			_lastForward = Vector3.Zero;
+			_lastPosition = Vector3.Zero;
+			return _smoothedCurvature = _curvature = value;
 		}
 
 		public override Vector3 Acceleration
 		{
-			get { return acceleration; }
+			get { return _acceleration; }
 		}
         public Vector3 ResetAcceleration()
 		{
@@ -280,12 +253,12 @@ namespace SharpSteer2
 		}
         public Vector3 ResetAcceleration(Vector3 value)
 		{
-			return acceleration = value;
+			return _acceleration = value;
 		}
 
         public Vector3 SmoothedPosition
 		{
-			get { return smoothedPosition; }
+			get { return _smoothedPosition; }
 		}
         public Vector3 ResetSmoothedPosition()
 		{
@@ -293,7 +266,7 @@ namespace SharpSteer2
 		}
         public Vector3 ResetSmoothedPosition(Vector3 value)
 		{
-			return smoothedPosition = value;
+			return _smoothedPosition = value;
 		}
 
 		// set a random "2D" heading: set local Up to global Y, then effectively
@@ -310,14 +283,14 @@ namespace SharpSteer2
 		{
 			if (elapsedTime > 0)
 			{
-				Vector3 dP = lastPosition - Position;
-				Vector3 dF = (lastForward - Forward) / dP.Length();
+				Vector3 dP = _lastPosition - Position;
+				Vector3 dF = (_lastForward - Forward) / dP.Length();
                 Vector3 lateral = Vector3Helpers.PerpendicularComponent(dF, Forward);
                 float sign = (Vector3.Dot(lateral, Side) < 0) ? 1.0f : -1.0f;
-				curvature = lateral.Length() * sign;
-				Utilities.BlendIntoAccumulator(elapsedTime * 4.0f, curvature, ref smoothedCurvature);
-				lastForward = Forward;
-				lastPosition = Position;
+				_curvature = lateral.Length() * sign;
+				Utilities.BlendIntoAccumulator(elapsedTime * 4.0f, _curvature, ref _smoothedCurvature);
+				_lastForward = Forward;
+				_lastPosition = Position;
 			}
 		}
 	}

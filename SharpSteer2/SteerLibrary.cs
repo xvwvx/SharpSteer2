@@ -21,7 +21,7 @@ namespace SharpSteer2
 	    public IAnnotationService annotation { get; private set; }
 
 	    // Constructor: initializes state
-		public SteerLibrary(IAnnotationService annotationService = null)
+	    protected SteerLibrary(IAnnotationService annotationService = null)
 		{
             annotation = annotationService ?? new NullAnnotationService();
 
@@ -54,51 +54,51 @@ namespace SharpSteer2
 			WanderUp = Utilities.ScalarRandomWalk(WanderUp, speed, -1, +1);
 
 			// return a pure lateral steering vector: (+/-Side) + (+/-Up)
-			return (this.Side * WanderSide) + (this.Up * WanderUp);
+			return (Side * WanderSide) + (Up * WanderUp);
 		}
 
 		// Seek behavior
         public Vector3 SteerForSeek(Vector3 target)
 		{
-            Vector3 desiredVelocity = target - this.Position;
-			return desiredVelocity - this.Velocity;
+            Vector3 desiredVelocity = target - Position;
+			return desiredVelocity - Velocity;
 		}
 
 		// Flee behavior
         public Vector3 SteerForFlee(Vector3 target)
 		{
-            Vector3 desiredVelocity = this.Position - target;
-			return desiredVelocity - this.Velocity;
+            Vector3 desiredVelocity = Position - target;
+			return desiredVelocity - Velocity;
 		}
 
 		// xxx proposed, experimental new seek/flee [cwr 9-16-02]
         public Vector3 xxxSteerForFlee(Vector3 target)
 		{
 			//  const Vector3 offset = position - target;
-            Vector3 offset = this.Position - target;
-            Vector3 desiredVelocity = Vector3Helpers.TruncateLength(offset, this.MaxSpeed); //xxxnew
-			return desiredVelocity - this.Velocity;
+            Vector3 offset = Position - target;
+            Vector3 desiredVelocity = Vector3Helpers.TruncateLength(offset, MaxSpeed); //xxxnew
+			return desiredVelocity - Velocity;
 		}
 
         public Vector3 xxxSteerForSeek(Vector3 target)
 		{
 			//  const Vector3 offset = target - position;
-            Vector3 offset = target - this.Position;
-            Vector3 desiredVelocity = Vector3Helpers.TruncateLength(offset, this.MaxSpeed); //xxxnew
-			return desiredVelocity - this.Velocity;
+            Vector3 offset = target - Position;
+            Vector3 desiredVelocity = Vector3Helpers.TruncateLength(offset, MaxSpeed); //xxxnew
+			return desiredVelocity - Velocity;
 		}
 
 		// Path Following behaviors
         public Vector3 SteerToFollowPath(int direction, float predictionTime, Pathway path)
 		{
 			// our goal will be offset from our path distance by this amount
-			float pathDistanceOffset = direction * predictionTime * this.Speed;
+			float pathDistanceOffset = direction * predictionTime * Speed;
 
 			// predict our future position
-            Vector3 futurePosition = this.PredictFuturePosition(predictionTime);
+            Vector3 futurePosition = PredictFuturePosition(predictionTime);
 
 			// measure distance along path of our current and predicted positions
-			float nowPathDistance = path.MapPointToPathDistance(this.Position);
+			float nowPathDistance = path.MapPointToPathDistance(Position);
 			float futurePathDistance = path.MapPointToPathDistance(futurePosition);
 
 			// are we facing in the correction direction?
@@ -139,7 +139,7 @@ namespace SharpSteer2
         public Vector3 SteerToStayOnPath(float predictionTime, Pathway path)
 		{
 			// predict our future position
-            Vector3 futurePosition = this.PredictFuturePosition(predictionTime);
+            Vector3 futurePosition = PredictFuturePosition(predictionTime);
 
 			// find the point on the path nearest the predicted future position
             Vector3 tangent;
@@ -179,7 +179,7 @@ namespace SharpSteer2
 			// XXX more annotation modularity problems (assumes spherical obstacle)
 			if (avoidance != Vector3.Zero)
 			{
-				annotation.AvoidObstacle(minTimeToCollision * this.Speed);
+				annotation.AvoidObstacle(minTimeToCollision * Speed);
 			}
 			return avoidance;
 		}
@@ -191,10 +191,10 @@ namespace SharpSteer2
             Vector3 avoidance = Vector3.Zero;
 			PathIntersection nearest = new PathIntersection();
 			PathIntersection next = new PathIntersection();
-			float minDistanceToCollision = minTimeToCollision * this.Speed;
+			float minDistanceToCollision = minTimeToCollision * Speed;
 
-			next.intersect = false;
-			nearest.intersect = false;
+			next.Intersect = false;
+			nearest.Intersect = false;
 
 			// test all obstacles for intersection with my forward axis,
 			// select the one whose point of intersection is nearest
@@ -203,12 +203,12 @@ namespace SharpSteer2
 				//FIXME: this should be a generic call on Obstacle, rather than this code which presumes the obstacle is spherical
 				FindNextIntersectionWithSphere(o as SphericalObstacle, ref next);
 
-				if (nearest.intersect == false || (next.intersect != false && next.distance < nearest.distance))
+				if (nearest.Intersect == false || (next.Intersect && next.Distance < nearest.Distance))
 					nearest = next;
 			}
 
 			// when a nearest intersection was found
-			if ((nearest.intersect != false) && (nearest.distance < minDistanceToCollision))
+			if (nearest.Intersect && (nearest.Distance < minDistanceToCollision))
 			{
 				// show the corridor that was checked for collisions
 				annotation.AvoidObstacle(minDistanceToCollision);
@@ -217,11 +217,11 @@ namespace SharpSteer2
 				// take the component of that which is lateral (perpendicular to my
 				// forward direction), set length to maxForce, add a bit of forward
 				// component (in capture the flag, we never want to slow down)
-                Vector3 offset = this.Position - nearest.obstacle.Center;
-                avoidance = Vector3Helpers.PerpendicularComponent(offset, this.Forward);
+                Vector3 offset = Position - nearest.Obstacle.Center;
+                avoidance = Vector3Helpers.PerpendicularComponent(offset, Forward);
 				avoidance.Normalize();
-				avoidance *= this.MaxForce;
-				avoidance += this.Forward * this.MaxForce * 0.75f;
+				avoidance *= MaxForce;
+				avoidance += Forward * MaxForce * 0.75f;
 			}
 
 			return avoidance;
@@ -260,7 +260,7 @@ namespace SharpSteer2
 				if (other != this/*this*/)
 				{
 					// avoid when future positions are this close (or less)
-					float collisionDangerThreshold = this.Radius * 2;
+					float collisionDangerThreshold = Radius * 2;
 
 					// predicted time until nearest approach of "this" and "other"
 					float time = PredictNearestApproachTime(other);
@@ -275,8 +275,8 @@ namespace SharpSteer2
 						{
 							minTime = time;
 							threat = other;
-							xxxThreatPositionAtNearestApproach = hisPositionAtNearestApproach;
-							xxxOurPositionAtNearestApproach = ourPositionAtNearestApproach;
+							xxxThreatPositionAtNearestApproach = _hisPositionAtNearestApproach;
+							xxxOurPositionAtNearestApproach = _ourPositionAtNearestApproach;
 						}
 					}
 				}
@@ -286,15 +286,15 @@ namespace SharpSteer2
 			if (threat != null)
 			{
 				// parallel: +1, perpendicular: 0, anti-parallel: -1
-                float parallelness = Vector3.Dot(this.Forward, threat.Forward);
-				float angle = 0.707f;
+                float parallelness = Vector3.Dot(Forward, threat.Forward);
+				const float angle = 0.707f;
 
 				if (parallelness < -angle)
 				{
 					// anti-parallel "head on" paths:
 					// steer away from future threat position
-                    Vector3 offset = xxxThreatPositionAtNearestApproach - this.Position;
-                    float sideDot = Vector3.Dot(offset, this.Side);
+                    Vector3 offset = xxxThreatPositionAtNearestApproach - Position;
+                    float sideDot = Vector3.Dot(offset, Side);
 					steer = (sideDot > 0) ? -1.0f : 1.0f;
 				}
 				else
@@ -302,17 +302,17 @@ namespace SharpSteer2
 					if (parallelness > angle)
 					{
 						// parallel paths: steer away from threat
-						Vector3 offset = threat.Position - this.Position;
-                        float sideDot = Vector3.Dot(offset, this.Side);
+						Vector3 offset = threat.Position - Position;
+                        float sideDot = Vector3.Dot(offset, Side);
 						steer = (sideDot > 0) ? -1.0f : 1.0f;
 					}
 					else
 					{
 						// perpendicular paths: steer behind threat
 						// (only the slower of the two does this)
-						if (threat.Speed <= this.Speed)
+						if (threat.Speed <= Speed)
 						{
-                            float sideDot = Vector3.Dot(this.Side, threat.Velocity);
+                            float sideDot = Vector3.Dot(Side, threat.Velocity);
 							steer = (sideDot > 0) ? -1.0f : 1.0f;
 						}
 					}
@@ -321,7 +321,7 @@ namespace SharpSteer2
 				annotation.AvoidNeighbor(threat, steer, xxxOurPositionAtNearestApproach, xxxThreatPositionAtNearestApproach);
 			}
 
-			return this.Side * steer;
+			return Side * steer;
 		}
 
 		// Given two vehicles, based on their current positions and velocities,
@@ -330,14 +330,14 @@ namespace SharpSteer2
 		{
 			// imagine we are at the origin with no velocity,
 			// compute the relative velocity of the other this
-            Vector3 myVelocity = this.Velocity;
+            Vector3 myVelocity = Velocity;
             Vector3 otherVelocity = other.Velocity;
             Vector3 relVelocity = otherVelocity - myVelocity;
 			float relSpeed = relVelocity.Length();
 
 			// for parallel paths, the vehicles will always be at the same distance,
 			// so return 0 (aka "now") since "there is no time like the present"
-			if (relSpeed == 0) return 0;
+			if (Math.Abs(relSpeed - 0) < float.Epsilon) return 0;
 
 			// Now consider the path of the other this in this relative
 			// space, a line defined by the relative position and velocity.
@@ -349,7 +349,7 @@ namespace SharpSteer2
 
 			// find distance from its path to origin (compute offset from
 			// other to us, find length of projection onto path)
-            Vector3 relPosition = this.Position - other.Position;
+            Vector3 relPosition = Position - other.Position;
             float projection = Vector3.Dot(relTangent, relPosition);
 
 			return projection / relSpeed;
@@ -360,22 +360,22 @@ namespace SharpSteer2
 		// between them
 		public float ComputeNearestApproachPositions(IVehicle other, float time)
 		{
-            Vector3 myTravel = this.Forward * this.Speed * time;
+            Vector3 myTravel = Forward * Speed * time;
             Vector3 otherTravel = other.Forward * other.Speed * time;
 
-            Vector3 myFinal = this.Position + myTravel;
+            Vector3 myFinal = Position + myTravel;
             Vector3 otherFinal = other.Position + otherTravel;
 
 			// xxx for annotation
-			ourPositionAtNearestApproach = myFinal;
-			hisPositionAtNearestApproach = otherFinal;
+			_ourPositionAtNearestApproach = myFinal;
+			_hisPositionAtNearestApproach = otherFinal;
 
 			return Vector3.Distance(myFinal, otherFinal);
 		}
 
 		/// XXX globals only for the sake of graphical annotation
-        Vector3 hisPositionAtNearestApproach;
-        Vector3 ourPositionAtNearestApproach;
+        Vector3 _hisPositionAtNearestApproach;
+        Vector3 _ourPositionAtNearestApproach;
 
 		// ------------------------------------------------------------------------
 		// avoidance of "close neighbors" -- used only by steerToAvoidNeighbors
@@ -391,15 +391,15 @@ namespace SharpSteer2
 			{
 				if (other != this/*this*/)
 				{
-					float sumOfRadii = this.Radius + other.Radius;
+					float sumOfRadii = Radius + other.Radius;
 					float minCenterToCenter = minSeparationDistance + sumOfRadii;
-					Vector3 offset = other.Position - this.Position;
+					Vector3 offset = other.Position - Position;
 					float currentDistance = offset.Length();
 
 					if (currentDistance < minCenterToCenter)
 					{
 						annotation.AvoidCloseNeighbor(other, minSeparationDistance);
-                        return Vector3Helpers.PerpendicularComponent(-offset, this.Forward);
+                        return Vector3Helpers.PerpendicularComponent(-offset, Forward);
 					}
 				}
 			}
@@ -418,7 +418,7 @@ namespace SharpSteer2
 			}
 			else
 			{
-                Vector3 offset = other.Position - this.Position;
+                Vector3 offset = other.Position - Position;
 				float distanceSquared = offset.LengthSquared();
 
 				// definitely in neighborhood if inside minDistance sphere
@@ -437,7 +437,7 @@ namespace SharpSteer2
 					{
 						// otherwise, test angular offset from forward axis
                         Vector3 unitOffset = offset / (float)Math.Sqrt(distanceSquared);
-                        float forwardness = Vector3.Dot(this.Forward, unitOffset);
+                        float forwardness = Vector3.Dot(Forward, unitOffset);
 						return forwardness > cosMaxAngle;
 					}
 				}
@@ -456,18 +456,18 @@ namespace SharpSteer2
 			for (int i = 0; i < flock.Count; i++)
 			{
 				IVehicle other = flock[i];
-				if (IsInBoidNeighborhood(other, this.Radius * 3, maxDistance, cosMaxAngle))
-				{
-					// add in steering contribution
-					// (opposite of the offset direction, divided once by distance
-					// to normalize, divided another time to get 1/d falloff)
-					Vector3 offset = other.Position - this.Position;
-                    float distanceSquared = Vector3.Dot(offset, offset);
-					steering += (offset / -distanceSquared);
+			    if (!IsInBoidNeighborhood(other, Radius * 3, maxDistance, cosMaxAngle))
+			        continue;
 
-					// count neighbors
-					neighbors++;
-				}
+			    // add in steering contribution
+			    // (opposite of the offset direction, divided once by distance
+			    // to normalize, divided another time to get 1/d falloff)
+			    Vector3 offset = other.Position - Position;
+			    float distanceSquared = Vector3.Dot(offset, offset);
+			    steering += (offset / -distanceSquared);
+
+			    // count neighbors
+			    neighbors++;
 			}
 
 			// divide by neighbors, then normalize to pure direction
@@ -492,7 +492,7 @@ namespace SharpSteer2
 			for (int i = 0; i < flock.Count; i++)
 			{
 				IVehicle other = flock[i];
-				if (IsInBoidNeighborhood(other, this.Radius * 3, maxDistance, cosMaxAngle))
+				if (IsInBoidNeighborhood(other, Radius * 3, maxDistance, cosMaxAngle))
 				{
 					// accumulate sum of neighbor's heading
 					steering += other.Forward;
@@ -506,7 +506,7 @@ namespace SharpSteer2
 			// correcting direction, then normalize to pure direction
             if (neighbors > 0)
             {
-                steering = ((steering / (float)neighbors) - this.Forward);
+                steering = ((steering / neighbors) - Forward);
                 steering.Normalize();
             }
 
@@ -525,7 +525,7 @@ namespace SharpSteer2
 			for (int i = 0; i < flock.Count; i++)
 			{
 				IVehicle other = flock[i];
-				if (IsInBoidNeighborhood(other, this.Radius * 3, maxDistance, cosMaxAngle))
+				if (IsInBoidNeighborhood(other, Radius * 3, maxDistance, cosMaxAngle))
 				{
 					// accumulate sum of neighbor's positions
 					steering += other.Position;
@@ -539,7 +539,7 @@ namespace SharpSteer2
 			// correcting direction, then normalize to pure direction
 			if (neighbors > 0)
             {
-                steering = ((steering / (float)neighbors) - this.Position);
+                steering = ((steering / neighbors) - Position);
                 steering.Normalize();
             }
 
@@ -556,19 +556,19 @@ namespace SharpSteer2
         public Vector3 SteerForPursuit(IVehicle quarry, float maxPredictionTime)
 		{
 			// offset from this to quarry, that distance, unit vector toward quarry
-            Vector3 offset = quarry.Position - this.Position;
+            Vector3 offset = quarry.Position - Position;
 			float distance = offset.Length();
             Vector3 unitOffset = offset / distance;
 
 			// how parallel are the paths of "this" and the quarry
 			// (1 means parallel, 0 is pependicular, -1 is anti-parallel)
-            float parallelness = Vector3.Dot(this.Forward, quarry.Forward);
+            float parallelness = Vector3.Dot(Forward, quarry.Forward);
 
 			// how "forward" is the direction to the quarry
 			// (1 means dead ahead, 0 is directly to the side, -1 is straight back)
-            float forwardness = Vector3.Dot(this.Forward, unitOffset);
+            float forwardness = Vector3.Dot(Forward, unitOffset);
 
-			float directTravelTime = distance / this.Speed;
+			float directTravelTime = distance / Speed;
 			int f = Utilities.IntervalComparison(forwardness, -0.707f, 0.707f);
 			int p = Utilities.IntervalComparison(parallelness, -0.707f, 0.707f);
 
@@ -643,7 +643,7 @@ namespace SharpSteer2
 			Vector3 target = quarry.PredictFuturePosition(etl);
 
 			// annotation
-			annotation.Line(this.Position, target, GaudyPursuitAnnotation ? color : Color.DarkGray);
+			annotation.Line(Position, target, GaudyPursuitAnnotation ? color : Color.DarkGray);
 
 			return SteerForSeek(target);
 		}
@@ -656,7 +656,7 @@ namespace SharpSteer2
         public Vector3 SteerForEvasion(IVehicle menace, float maxPredictionTime)
 		{
 			// offset from this to menace, that distance, unit vector toward menace
-			Vector3 offset = menace.Position - this.Position;
+			Vector3 offset = menace.Position - Position;
 			float distance = offset.Length();
 
 			float roughTime = distance / menace.Speed;
@@ -672,9 +672,9 @@ namespace SharpSteer2
 		// force along the forward/backward axis
         public Vector3 SteerForTargetSpeed(float targetSpeed)
 		{
-			float mf = this.MaxForce;
-			float speedError = targetSpeed - this.Speed;
-			return this.Forward * Utilities.Clip(speedError, -mf, +mf);
+			float mf = MaxForce;
+			float speedError = targetSpeed - Speed;
+			return Forward * Utilities.Clip(speedError, -mf, +mf);
 		}
 
 		// ----------------------------------------------------------- utilities
@@ -698,32 +698,32 @@ namespace SharpSteer2
 
         public bool IsAhead(Vector3 target, float cosThreshold)
 		{
-			Vector3 targetDirection = (target - this.Position);
+			Vector3 targetDirection = (target - Position);
             targetDirection.Normalize();
-            return Vector3.Dot(this.Forward, targetDirection) > cosThreshold;
+            return Vector3.Dot(Forward, targetDirection) > cosThreshold;
 		}
         public bool IsAside(Vector3 target, float cosThreshold)
 		{
-			Vector3 targetDirection = (target - this.Position);
+			Vector3 targetDirection = (target - Position);
             targetDirection.Normalize();
-            float dp = Vector3.Dot(this.Forward, targetDirection);
+            float dp = Vector3.Dot(Forward, targetDirection);
 			return (dp < cosThreshold) && (dp > -cosThreshold);
 		}
         public bool IsBehind(Vector3 target, float cosThreshold)
 		{
-			Vector3 targetDirection = (target - this.Position);
+			Vector3 targetDirection = (target - Position);
             targetDirection.Normalize();
-            return Vector3.Dot(this.Forward, targetDirection) < cosThreshold;
+            return Vector3.Dot(Forward, targetDirection) < cosThreshold;
 		}
 
 		// xxx cwr 9-6-02 temporary to support old code
 		protected struct PathIntersection
 		{
-			public bool intersect;
-			public float distance;
-            public Vector3 surfacePoint;
-            public Vector3 surfaceNormal;
-			public SphericalObstacle obstacle;
+			public bool Intersect;
+			public float Distance;
+            public Vector3 SurfacePoint;
+            public Vector3 SurfaceNormal;
+			public SphericalObstacle Obstacle;
 		}
 
 		// xxx experiment cwr 9-6-02
@@ -733,21 +733,18 @@ namespace SharpSteer2
 			//   Intersection of a Line and a Sphere (or circle)
 			//   http://www.swin.edu.au/astronomy/pbourke/geometry/sphereline/
 
-			float b, c, d, p, q, s;
-			Vector3 lc;
-
-			// initialize pathIntersection object
-			intersection.intersect = false;
-			intersection.obstacle = obs;
+		    // initialize pathIntersection object
+			intersection.Intersect = false;
+			intersection.Obstacle = obs;
 
 			// find "local center" (lc) of sphere in boid's coordinate space
-			lc = this.LocalizePosition(obs.Center);
+			Vector3 lc = LocalizePosition(obs.Center);
 
 			// computer line-sphere intersection parameters
-			b = -2 * lc.Z;
-			c = Utilities.Square(lc.X) + Utilities.Square(lc.Y) + Utilities.Square(lc.Z) -
-				Utilities.Square(obs.Radius + this.Radius);
-			d = (b * b) - (4 * c);
+			float b = -2 * lc.Z;
+			float c = Utilities.Square(lc.X) + Utilities.Square(lc.Y) + Utilities.Square(lc.Z) -
+			          Utilities.Square(obs.Radius + Radius);
+			float d = (b * b) - (4 * c);
 
 			// when the path does not intersect the sphere
 			if (d < 0) return;
@@ -755,16 +752,16 @@ namespace SharpSteer2
 			// otherwise, the path intersects the sphere in two points with
 			// parametric coordinates of "p" and "q".
 			// (If "d" is zero the two points are coincident, the path is tangent)
-			s = (float)Math.Sqrt(d);
-			p = (-b + s) / 2;
-			q = (-b - s) / 2;
+			float s = (float)Math.Sqrt(d);
+			float p = (-b + s) / 2;
+			float q = (-b - s) / 2;
 
 			// both intersections are behind us, so no potential collisions
 			if ((p < 0) && (q < 0)) return;
 
 			// at least one intersection is in front of us
-			intersection.intersect = true;
-			intersection.distance =
+			intersection.Intersect = true;
+			intersection.Distance =
 				((p > 0) && (q > 0)) ?
 				// both intersections are in front of us, find nearest one
 				((p < q) ? p : q) :

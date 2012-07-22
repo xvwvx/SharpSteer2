@@ -9,16 +9,14 @@
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace SharpSteer2
 {
 	public class Utilities
 	{
         [ThreadStatic]
-        static Random _rng = null;
+        static Random _rng;
 	    private static Random rng
 	    {
             get
@@ -130,7 +128,6 @@ namespace SharpSteer2
 		/// if smoothRate is 1 the accumulator will be set to the new value with no
 		/// smoothing.  Useful values are "near zero".
 		/// </remarks>
-		/// <typeparam name="T"></typeparam>
 		/// <param name="smoothRate"></param>
 		/// <param name="newValue"></param>
 		/// <param name="smoothedAccumulator"></param>

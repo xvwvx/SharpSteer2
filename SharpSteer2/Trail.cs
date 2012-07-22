@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace SharpSteer2
 {
@@ -10,16 +8,16 @@ namespace SharpSteer2
 	/// </summary>
 	public class Trail
 	{
-		int currentIndex;			// Array index of most recently recorded point
-		float duration;				// Duration (in seconds) of entire trail
-		float sampleInterval;		// Desired interval between taking samples
-		float lastSampleTime;		// Global time when lat sample was taken
-		int dottedPhase;			// Dotted line: draw segment or not
-		Vector3 currentPosition;	// Last reported position of vehicle
-		Vector3[] vertices;			// Array (ring) of recent points along trail
-		byte[] flags;				// Array (ring) of flag bits for trail points
-		Color trailColor;			// Color of the trail
-		Color tickColor;			// Color of the ticks
+		int _currentIndex;			// Array index of most recently recorded point
+	    readonly float _duration;				// Duration (in seconds) of entire trail
+	    readonly float _sampleInterval;		// Desired interval between taking samples
+		float _lastSampleTime;		// Global time when lat sample was taken
+		int _dottedPhase;			// Dotted line: draw segment or not
+		Vector3 _currentPosition;	// Last reported position of vehicle
+	    readonly Vector3[] _vertices;			// Array (ring) of recent points along trail
+	    readonly byte[] _flags;				// Array (ring) of flag bits for trail points
+		Color _trailColor;			// Color of the trail
+		Color _tickColor;			// Color of the ticks
 
 		/// <summary>
 		/// Initializes a new instance of Trail.
@@ -36,20 +34,20 @@ namespace SharpSteer2
 		/// <param name="vertexCount">The number of smaples along the trails length.</param>
 		public Trail(float duration, int vertexCount)
 		{
-			this.duration = duration;
+			_duration = duration;
 
 			// Set internal trail state
-			this.currentIndex = 0;
-			this.lastSampleTime = 0;
-			this.sampleInterval = this.duration / vertexCount;
-			this.dottedPhase = 1;
+			_currentIndex = 0;
+			_lastSampleTime = 0;
+			_sampleInterval = _duration / vertexCount;
+			_dottedPhase = 1;
 
 			// Initialize ring buffers
-			this.vertices = new Vector3[vertexCount];
-			this.flags = new byte[vertexCount];
+			_vertices = new Vector3[vertexCount];
+			_flags = new byte[vertexCount];
 
-			trailColor = Color.LightGray;
-			tickColor = Color.White;
+			_trailColor = Color.LightGray;
+			_tickColor = Color.White;
 		}
 
 		/// <summary>
@@ -57,8 +55,8 @@ namespace SharpSteer2
 		/// </summary>
 		public Color TrailColor
 		{
-			get { return trailColor; }
-			set { trailColor = value; }
+			get { return _trailColor; }
+			set { _trailColor = value; }
 		}
 
 		/// <summary>
@@ -66,8 +64,8 @@ namespace SharpSteer2
 		/// </summary>
 		public Color TickColor
 		{
-			get { return tickColor; }
-			set { tickColor = value; }
+			get { return _tickColor; }
+			set { _tickColor = value; }
 		}
 
 		/// <summary>
@@ -77,17 +75,17 @@ namespace SharpSteer2
 		/// <param name="position"></param>
 		public void Record(float currentTime, Vector3 position)
 		{
-			float timeSinceLastTrailSample = currentTime - lastSampleTime;
-			if (timeSinceLastTrailSample > sampleInterval)
+			float timeSinceLastTrailSample = currentTime - _lastSampleTime;
+			if (timeSinceLastTrailSample > _sampleInterval)
 			{
-				currentIndex = (currentIndex + 1) % vertices.Length;
-				vertices[currentIndex] = position;
-				dottedPhase = (dottedPhase + 1) % 2;
-				bool tick = (Math.Floor(currentTime) > Math.Floor(lastSampleTime));
-				flags[currentIndex] = (byte)(dottedPhase | (tick ? 2 : 0));
-				lastSampleTime = currentTime;
+				_currentIndex = (_currentIndex + 1) % _vertices.Length;
+				_vertices[_currentIndex] = position;
+				_dottedPhase = (_dottedPhase + 1) % 2;
+				bool tick = (Math.Floor(currentTime) > Math.Floor(_lastSampleTime));
+				_flags[_currentIndex] = (byte)(_dottedPhase | (tick ? 2 : 0));
+				_lastSampleTime = currentTime;
 			}
-			currentPosition = position;
+			_currentPosition = position;
 		}
 
 		/// <summary>
@@ -95,31 +93,31 @@ namespace SharpSteer2
 		/// </summary>
 		public void Draw(IDraw drawer)
 		{
-			int index = currentIndex;
-			for (int j = 0; j < vertices.Length; j++)
+			int index = _currentIndex;
+			for (int j = 0; j < _vertices.Length; j++)
 			{
 				// index of the next vertex (mod around ring buffer)
-				int next = (index + 1) % vertices.Length;
+				int next = (index + 1) % _vertices.Length;
 
 				// "tick mark": every second, draw a segment in a different color
-				bool tick = ((flags[index] & 2) != 0 || (flags[next] & 2) != 0);
-				Color color = tick ? tickColor : trailColor;
+				bool tick = ((_flags[index] & 2) != 0 || (_flags[next] & 2) != 0);
+				Color color = tick ? _tickColor : _trailColor;
 
 				// draw every other segment
-				if ((flags[index] & 1) != 0)
+				if ((_flags[index] & 1) != 0)
 				{
 					if (j == 0)
 					{
 						// draw segment from current position to first trail point
-						drawer.LineAlpha(currentPosition, vertices[index], color, 1);
+						drawer.LineAlpha(_currentPosition, _vertices[index], color, 1);
 					}
 					else
 					{
 						// draw trail segments with opacity decreasing with age
 						const float minO = 0.05f; // minimum opacity
-						float fraction = (float)j / vertices.Length;
+						float fraction = (float)j / _vertices.Length;
 						float opacity = (fraction * (1 - minO)) + minO;
-						drawer.LineAlpha(vertices[index], vertices[next], color, opacity);
+						drawer.LineAlpha(_vertices[index], _vertices[next], color, opacity);
 					}
 				}
 				index = next;
@@ -131,14 +129,14 @@ namespace SharpSteer2
 		/// </summary>
 		public void Clear()
 		{
-			currentIndex = 0;
-			lastSampleTime = 0;
-			dottedPhase = 1;
+			_currentIndex = 0;
+			_lastSampleTime = 0;
+			_dottedPhase = 1;
 
-			for (int i = 0; i < vertices.Length; i++)
+			for (int i = 0; i < _vertices.Length; i++)
 			{
-				vertices[i] = Vector3.Zero;
-				flags[i] = 0;
+				_vertices[i] = Vector3.Zero;
+				_flags[i] = 0;
 			}
 		}
 	}
