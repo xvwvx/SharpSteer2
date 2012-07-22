@@ -88,7 +88,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		}
 
 		// constructor
-		public Pedestrian(IProximityDatabase<IVehicle> pd)
+        public Pedestrian(IProximityDatabase<IVehicle> pd, IAnnotationService annotations = null)
+            :base(annotations)
 		{
 			// allocate a token for this boid in the proximity database
 			proximityToken = null;

@@ -18,11 +18,13 @@ namespace SharpSteer2
 	public abstract class SteerLibrary : AbstractVehicle
 	{
 		//HACK: This should not be... Find a way to access Game.Services
-		public static IAnnotationService annotation = new Annotation();
+	    public IAnnotationService annotation { get; private set; }
 
-		// Constructor: initializes state
-		public SteerLibrary()
+	    // Constructor: initializes state
+		public SteerLibrary(IAnnotationService annotationService = null)
 		{
+            annotation = annotationService ?? new NullAnnotationService();
+
 			// set inital state
 			Reset();
 		}

@@ -17,8 +17,11 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 {
 	public class SoccerPlugIn : PlugIn
 	{
-		public SoccerPlugIn()
+        private readonly IAnnotationService _annotations;
+
+		public SoccerPlugIn(IAnnotationService annotations = null)
 		{
+            _annotations = annotations;
 			teamA = new List<Player>();
 			teamB = new List<Player>();
 			allPlayers = new List<Player>();
@@ -40,7 +43,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			const int PlayerCountA = 8;
 			for (int i = 0; i < PlayerCountA; i++)
 			{
-				Player pMicTest = new Player(teamA, allPlayers, ball, true, i);
+                Player pMicTest = new Player(teamA, allPlayers, ball, true, i, _annotations);
 				Demo.SelectedVehicle = pMicTest;
 				teamA.Add(pMicTest);
 				allPlayers.Add(pMicTest);
@@ -49,7 +52,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			const int PlayerCountB = 8;
 			for (int i = 0; i < PlayerCountB; i++)
 			{
-				Player pMicTest = new Player(teamB, allPlayers, ball, false, i);
+                Player pMicTest = new Player(teamB, allPlayers, ball, false, i, _annotations);
 				Demo.SelectedVehicle = pMicTest;
 				teamB.Add(pMicTest);
 				allPlayers.Add(pMicTest);

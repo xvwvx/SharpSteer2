@@ -18,8 +18,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 	public class CtfSeeker : CtfBase
 	{
 		// constructor
-		public CtfSeeker()
-			: base()
+		public CtfSeeker(IAnnotationService annotations = null)
+			: base(annotations)
 		{
 			Reset();
 		}

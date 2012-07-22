@@ -21,7 +21,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		protected Trail trail;
 
 		// constructor
-		public CtfBase()
+		public CtfBase(IAnnotationService annotations = null)
+            :base(annotations)
 		{
 			Reset();
 		}

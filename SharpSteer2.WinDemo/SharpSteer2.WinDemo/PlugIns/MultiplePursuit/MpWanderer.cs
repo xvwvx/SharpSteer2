@@ -15,7 +15,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 	public class MpWanderer : MpBase
 	{
 		// constructor
-		public MpWanderer()
+		public MpWanderer(IAnnotationService annotations = null)
+            :base(annotations)
 		{
 			Reset();
 		}

@@ -93,7 +93,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractVehicle.cs" />
-    <Compile Include="AnnotationService.cs" />
     <Compile Include="BruteForceProximityDatabase.cs" />
     <Compile Include="IAnnotationService.cs" />
     <Compile Include="IDraw.cs" />
@@ -105,6 +104,7 @@
     <Compile Include="LocalSpace.cs" />
     <Compile Include="LQDatabase.cs" />
     <Compile Include="LQProximityDatabase.cs" />
+    <Compile Include="NullAnnotationService.cs" />
     <Compile Include="Obstacle.cs" />
     <Compile Include="Pathway.cs" />
     <Compile Include="PlugIn.cs" />

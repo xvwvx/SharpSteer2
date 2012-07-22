@@ -19,7 +19,8 @@ namespace SharpSteer2.Ctf
 	public class CtfEnemy : CtfBase
 	{
 		// constructor
-		public CtfEnemy()
+		public CtfEnemy(IAnnotationService annotations = null)
+            :base(annotations)
 		{
 			Reset();
 		}

@@ -48,7 +48,8 @@ namespace SharpSteer2
         Vector3 acceleration;
 
 		// constructor
-		public SimpleVehicle()
+		public SimpleVehicle(IAnnotationService annotations = null)
+            :base(annotations)
 		{
 			// set inital state
 			Reset();

@@ -17,7 +17,8 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 		Trail trail;
 
 		// constructor
-		public LowSpeedTurn()
+        public LowSpeedTurn(IAnnotationService annotations = null)
+            :base(annotations)
 		{
 			Reset();
 		}

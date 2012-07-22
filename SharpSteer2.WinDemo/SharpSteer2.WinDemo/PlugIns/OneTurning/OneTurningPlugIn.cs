@@ -16,8 +16,11 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 {
 	public class OneTurningPlugIn : PlugIn
 	{
-		public OneTurningPlugIn()
+        private readonly IAnnotationService _annotations;
+
+		public OneTurningPlugIn(IAnnotationService annotations = null)
 		{
+            _annotations = annotations;
 			theVehicle = new List<WinDemo.PlugIns.OneTurning.OneTurning>();
 		}
 
@@ -27,7 +30,7 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 
 		public override void Open()
 		{
-			oneTurning = new WinDemo.PlugIns.OneTurning.OneTurning();
+            oneTurning = new OneTurning(_annotations);
 			Demo.SelectedVehicle = oneTurning;
 			theVehicle.Add(oneTurning);
 

@@ -8,12 +8,10 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
-using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
-namespace SharpSteer2
+namespace SharpSteer2.WinDemo
 {
 	public class Annotation : IAnnotationService
 	{

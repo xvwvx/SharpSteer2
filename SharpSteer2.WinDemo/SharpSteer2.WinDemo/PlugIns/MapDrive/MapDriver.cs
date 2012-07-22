@@ -18,7 +18,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		Trail trail;
 
 		// constructor
-		public MapDriver()
+        public MapDriver(IAnnotationService annotations = null)
+            :base(annotations)
 		{
 			map = MakeMap();
 			path = MakePath();

@@ -16,7 +16,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 	{
 		Trail trail;
 
-		public Ball(AABBox bbox)
+        public Ball(AABBox bbox, IAnnotationService annotations = null)
+            :base(annotations)
 		{
 			m_bbox = bbox;
 			Reset();

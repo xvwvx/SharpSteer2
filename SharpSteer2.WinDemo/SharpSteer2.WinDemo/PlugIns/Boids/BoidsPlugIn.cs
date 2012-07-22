@@ -19,9 +19,11 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 
 	public class BoidsPlugIn : PlugIn
 	{
-		public BoidsPlugIn()
-			: base()
+	    readonly IAnnotationService _annotations;
+
+		public BoidsPlugIn(IAnnotationService annotations)
 		{
+            _annotations = annotations;
 			flock = new List<Boid>();
 		}
 
@@ -192,7 +194,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		public void AddBoidToFlock()
 		{
 			population++;
-			Boid boid = new Boid(pd);
+			Boid boid = new Boid(pd, _annotations);
 			flock.Add(boid);
 			if (population == 1) Demo.SelectedVehicle = boid;
 		}

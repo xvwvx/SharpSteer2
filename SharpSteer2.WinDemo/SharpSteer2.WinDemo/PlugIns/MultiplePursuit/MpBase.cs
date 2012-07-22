@@ -16,7 +16,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 		protected Trail trail;
 
 		// constructor
-		public MpBase()
+        public MpBase(IAnnotationService annotations = null)
+            :base(annotations)
 		{
 			Reset();
 		}

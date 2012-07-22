@@ -18,7 +18,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 		Trail trail;
 
 		// constructor
-		public Player(List<Player> others, List<Player> allplayers, Ball ball, bool isTeamA, int id)
+        public Player(List<Player> others, List<Player> allplayers, Ball ball, bool isTeamA, int id, IAnnotationService annotations = null)
+            :base(annotations)
 		{
 			m_others = others;
 			m_AllPlayers = allplayers;

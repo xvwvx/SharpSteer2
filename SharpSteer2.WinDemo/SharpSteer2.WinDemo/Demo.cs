@@ -83,6 +83,8 @@ namespace SharpSteer2.WinDemo
 		public const float CameraTargetDistance = 13;
 		public static readonly Vector3 CameraTargetOffset = new Vector3(0, Camera2dElevation, 0);
 
+	    readonly Annotation annotations = new Annotation();
+
 		public Demo()
 		{
 			Drawing.game = this;
@@ -98,14 +100,14 @@ namespace SharpSteer2.WinDemo
 			//FIXME: eijeijei.
 			Annotation.drawer = new Drawing();
 
-			boids = new BoidsPlugIn();
-			lowSpeedTurn = new LowSpeedTurnPlugIn();
-			pedestrian = new PedestrianPlugIn();
-			ctf = new CtfPlugIn();
-			mapDrive = new MapDrivePlugIn();
-			multiplePersuit = new MpPlugIn();
-			soccer = new SoccerPlugIn();
-			oneTurning = new OneTurningPlugIn();
+			boids = new BoidsPlugIn(annotations);
+            lowSpeedTurn = new LowSpeedTurnPlugIn(annotations);
+            pedestrian = new PedestrianPlugIn(annotations);
+            ctf = new CtfPlugIn(annotations);
+            mapDrive = new MapDrivePlugIn(annotations);
+            multiplePersuit = new MpPlugIn(annotations);
+            soccer = new SoccerPlugIn(annotations);
+            oneTurning = new OneTurningPlugIn(annotations);
 
 			IsFixedTimeStep = false;
 		}
@@ -579,7 +581,7 @@ namespace SharpSteer2.WinDemo
 			}
 			if (IsKeyDown(keyState, Keys.A) == true)
 			{
-				SteerLibrary.annotation.IsEnabled = !SteerLibrary.annotation.IsEnabled;
+                annotations.IsEnabled = !annotations.IsEnabled;
 			}
 			if (IsKeyDown(keyState, Keys.Space) == true)
 			{

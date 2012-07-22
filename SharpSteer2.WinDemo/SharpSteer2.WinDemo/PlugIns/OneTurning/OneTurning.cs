@@ -17,7 +17,8 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 		Trail trail;
 
 		// constructor
-		public OneTurning()
+		public OneTurning(IAnnotationService annotations = null)
+            :base(annotations)
 		{
 			Reset();
 		}

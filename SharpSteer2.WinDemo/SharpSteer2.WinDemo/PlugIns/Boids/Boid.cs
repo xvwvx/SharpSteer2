@@ -31,7 +31,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		public const float worldRadius = 50;
 
 		// constructor
-		public Boid(IProximityDatabase<IVehicle> pd)
+		public Boid(IProximityDatabase<IVehicle> pd, IAnnotationService annotations = null)
+            :base(annotations)
 		{
 			// allocate a token for this boid in the proximity database
 			proximityToken = null;
