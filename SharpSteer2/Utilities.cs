@@ -42,21 +42,6 @@ namespace SharpSteer2
 			return lowerBound + (Random() * (upperBound - lowerBound));
 		}
 
-		/// <summary>
-		/// Constrain a given value (x) to be between two (ordered) bounds min
-		/// and max.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="min"></param>
-		/// <param name="max"></param>
-		/// <returns>Returns x if it is between the bounds, otherwise returns the nearer bound.</returns>
-		public static float Clip(float x, float min, float max)
-		{
-			if (x < min) return min;
-			if (x > max) return max;
-			return x;
-		}
-
 		// ----------------------------------------------------------------------------
 		// remap a value specified relative to a pair of bounding values
 		// to the corresponding value relative to another pair of bounds.
@@ -78,7 +63,7 @@ namespace SharpSteer2
 			float relative = (x - in0) / (in1 - in0);
 
 			// now interpolate between output interval based on relative x
-            return MathHelper.Lerp(out0, out1, Clip(relative, 0, 1));
+            return MathHelper.Lerp(out0, out1, MathHelper.Clamp(relative, 0, 1));
 		}
 
 		// ----------------------------------------------------------------------------
@@ -124,12 +109,12 @@ namespace SharpSteer2
 		/// <example>blendIntoAccumulator (dt * 0.4f, currentFPS, smoothedFPS)</example>
 		public static void BlendIntoAccumulator(float smoothRate, float newValue, ref float smoothedAccumulator)
 		{
-            smoothedAccumulator = MathHelper.Lerp(smoothedAccumulator, newValue, Clip(smoothRate, 0, 1));
+            smoothedAccumulator = MathHelper.Lerp(smoothedAccumulator, newValue, MathHelper.Clamp(smoothRate, 0, 1));
 		}
 
 		public static void BlendIntoAccumulator(float smoothRate, Vector3 newValue, ref Vector3 smoothedAccumulator)
 		{
-			smoothedAccumulator = Vector3.Lerp(smoothedAccumulator, newValue, Clip(smoothRate, 0, 1));
+            smoothedAccumulator = Vector3.Lerp(smoothedAccumulator, newValue, MathHelper.Clamp(smoothRate, 0, 1));
 		}
 	}
 }

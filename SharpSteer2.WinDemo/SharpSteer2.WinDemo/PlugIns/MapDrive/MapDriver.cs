@@ -1548,7 +1548,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				// compute an ad hoc "relative curvature"
 				float absC = Math.Abs(Curvature);
 				float maxC = 1 / MinimumTurningRadius();
-				float relativeCurvature = (float)Math.Sqrt(Utilities.Clip(absC / maxC, 0, 1));
+				float relativeCurvature = (float)Math.Sqrt(MathHelper.Clamp(absC / maxC, 0, 1));
 
 				// map from full throttle when straight to 10% at max curvature
 				float curveSpeed = MathHelper.Lerp(1.0f, 0.1f, relativeCurvature);

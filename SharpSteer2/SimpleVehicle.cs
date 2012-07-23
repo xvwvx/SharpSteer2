@@ -113,7 +113,7 @@ namespace SharpSteer2
 			// (rate is proportional to time step, then clipped into useful range)
 			if (elapsedTime > 0)
 			{
-				float smoothRate = Utilities.Clip(9 * elapsedTime, 0.15f, 0.4f);
+                float smoothRate = MathHelper.Clamp(9 * elapsedTime, 0.15f, 0.4f);
 				Utilities.BlendIntoAccumulator(smoothRate, newAcceleration, ref _acceleration);
 			}
 

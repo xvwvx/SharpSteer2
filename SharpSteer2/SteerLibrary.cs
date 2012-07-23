@@ -674,7 +674,7 @@ namespace SharpSteer2
 		{
 			float mf = MaxForce;
 			float speedError = targetSpeed - Speed;
-			return Forward * Utilities.Clip(speedError, -mf, +mf);
+            return Forward * MathHelper.Clamp(speedError, -mf, +mf);
 		}
 
 		// ----------------------------------------------------------- utilities
