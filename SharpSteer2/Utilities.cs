@@ -27,16 +27,6 @@ namespace SharpSteer2
             }
 	    }
 
-	    public static float Interpolate(float alpha, float x0, float x1)
-		{
-			return x0 + ((x1 - x0) * alpha);
-		}
-
-        public static Vector3 Interpolate(float alpha, Vector3 x0, Vector3 x1)
-		{
-			return x0 + ((x1 - x0) * alpha);
-		}
-
 		// ----------------------------------------------------------------------------
 		// Random number utilities
 
@@ -77,7 +67,7 @@ namespace SharpSteer2
 			float relative = (x - in0) / (in1 - in0);
 
 			// now interpolate between output interval based on relative x
-			return Interpolate(relative, out0, out1);
+			return MathHelper.Lerp(out0, out1, relative);
 		}
 
 		// Like remapInterval but the result is clipped to remain between
@@ -88,7 +78,7 @@ namespace SharpSteer2
 			float relative = (x - in0) / (in1 - in0);
 
 			// now interpolate between output interval based on relative x
-			return Interpolate(Clip(relative, 0, 1), out0, out1);
+            return MathHelper.Lerp(out0, out1, Clip(relative, 0, 1));
 		}
 
 		// ----------------------------------------------------------------------------
@@ -134,12 +124,12 @@ namespace SharpSteer2
 		/// <example>blendIntoAccumulator (dt * 0.4f, currentFPS, smoothedFPS)</example>
 		public static void BlendIntoAccumulator(float smoothRate, float newValue, ref float smoothedAccumulator)
 		{
-			smoothedAccumulator = Interpolate(Clip(smoothRate, 0, 1), smoothedAccumulator, newValue);
+            smoothedAccumulator = MathHelper.Lerp(smoothedAccumulator, newValue, Clip(smoothRate, 0, 1));
 		}
 
 		public static void BlendIntoAccumulator(float smoothRate, Vector3 newValue, ref Vector3 smoothedAccumulator)
 		{
-			smoothedAccumulator = Interpolate(Clip(smoothRate, 0, 1), smoothedAccumulator, newValue);
+			smoothedAccumulator = Vector3.Lerp(smoothedAccumulator, newValue, Clip(smoothRate, 0, 1));
 		}
 	}
 }

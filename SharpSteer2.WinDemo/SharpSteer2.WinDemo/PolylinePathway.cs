@@ -158,7 +158,7 @@ namespace SharpSteer2.WinDemo
 				else
 				{
 					float ratio = remaining / segmentLength;
-					result = Utilities.Interpolate(ratio, points[i - 1], points[i]);
+                    result = Vector3.Lerp(points[i - 1], points[i], ratio);
 					break;
 				}
 			}

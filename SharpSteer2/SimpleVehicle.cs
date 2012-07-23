@@ -200,7 +200,7 @@ namespace SharpSteer2
 			else
 			{
 				float range = Speed / maxAdjustedSpeed;
-				float cosine = Utilities.Interpolate((float)Math.Pow(range, 20), 1.0f, -1.0f);
+                float cosine = MathHelper.Lerp(1.0f, -1.0f, (float)Math.Pow(range, 20));
 				return Vector3Helpers.LimitMaxDeviationAngle(force, cosine, Forward);
 			}
 		}

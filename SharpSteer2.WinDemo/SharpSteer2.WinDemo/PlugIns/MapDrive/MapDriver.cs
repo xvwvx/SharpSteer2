@@ -15,7 +15,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 {
 	public class MapDriver : SimpleVehicle
 	{
-		Trail trail;
+		Trail _trail;
 
 		// constructor
         public MapDriver(IAnnotationService annotations = null)
@@ -86,10 +86,10 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			annotateAvoid = Vector3.Zero;
 
 			// 10 seconds with 200 points along the trail
-			if (trail == null) trail = new Trail(10, 200);
+			if (_trail == null) _trail = new Trail(10, 200);
 
 			// prevent long streaks due to teleportation 
-			trail.Clear();
+			_trail.Clear();
 
 			// first pass at detecting "stuck" state
 			stuck = false;
@@ -247,13 +247,13 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			// annotation
 			PerFrameAnnotation();
-			trail.Record(currentTime, Position);
+			_trail.Record(currentTime, Position);
 		}
 
 		public void AdjustVehicleRadiusForSpeed()
 		{
 			float minRadius = (float)Math.Sqrt(Utilities.Square(halfWidth) + Utilities.Square(halfLength));
-			float safetyMargin = (curvedSteering ? Utilities.Interpolate(RelativeSpeed(), 0.0f, 1.5f) : 0.0f);
+			float safetyMargin = (curvedSteering ? MathHelper.Lerp(0.0f, 1.5f, RelativeSpeed()) : 0.0f);
 			Radius = (minRadius + safetyMargin);
 		}
 
@@ -751,14 +751,13 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				spoke = Vector3Helpers.RotateAboutGlobalY(spoke, step, ref sin, ref cos);
 
 				// for spiral "ramps" of changing radius
-				float adjust = ((endRadiusChange == 0) ?
+				float adjust = ((Math.Abs(endRadiusChange - 0) < float.Epsilon) ?
 									  1.0f :
-									  Utilities.Interpolate((float)(i + 1) / (float)segments,
-												   1.0f,
+									  MathHelper.Lerp(1.0f,
 												   (Math.Max(0,
-															(startRadius +
-															 endRadiusChange))
-													/ startRadius)));
+												             (startRadius +
+												              endRadiusChange))
+												    / startRadius), (float)(i + 1) / (float)segments));
 
 				// construct new scan point: center point, offset by rotated
 				// spoke (possibly adjusting the radius if endRadiusChange!=0)
@@ -826,9 +825,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				float bevel = 0.3f;
 				float fraction = s / maxSide;
 				float scanDist = (halfLength +
-										Utilities.Interpolate(fraction,
-													 maxForward,
-													 maxForward * bevel));
+										MathHelper.Lerp(maxForward,
+													 maxForward * bevel, fraction));
 				float angle = (scanDist * twoPi * sign) / circumference;
 				int samples = (int)(scanDist / spacing);
 				int L = (curvedSteering ?
@@ -1167,9 +1165,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			// annotate trail
 			Color darkGreen = new Color(0, (byte)(255.0f * 0.6f), 0);
-			trail.TrailColor = darkGreen;
-			trail.TickColor = Color.Black;
-			trail.Draw(Annotation.drawer);
+			_trail.TrailColor = darkGreen;
+			_trail.TickColor = Color.Black;
+			_trail.Draw(Annotation.drawer);
 		}
 
 		// called when steerToFollowPath decides steering is required
@@ -1252,7 +1250,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		{
 			Vector3 pathColor = new Vector3(0, 0.5f, 0.5f);
 			Vector3 sandColor = new Vector3(0.8f, 0.7f, 0.5f);
-			Vector3 vColor = Utilities.Interpolate(0.1f, sandColor, pathColor);
+			Vector3 vColor = Vector3.Lerp(sandColor, pathColor, 0.1f);
 			Color color = new Color(vColor);
 
 			Vector3 down = new Vector3(0, -0.1f, 0);
@@ -1349,7 +1347,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					Demo.Camera.DoNotSmoothNextMove();
 
 					// prevent long streaks due to teleportation 
-					trail.Clear();
+					_trail.Clear();
 
 					return true;
 				}
@@ -1369,9 +1367,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 		public float WingSlope()
 		{
-			return Utilities.Interpolate(RelativeSpeed(),
-								(curvedSteering ? 0.3f : 0.35f),
-								0.06f);
+			return MathHelper.Lerp((curvedSteering ? 0.3f : 0.35f),
+								0.06f, RelativeSpeed());
 		}
 
 		public void ResetStuckCycleDetection()
@@ -1391,7 +1388,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		{
 			float minTime = (baseLookAheadTime *
 								   (curvedSteering ?
-									Utilities.Interpolate(RelativeSpeed(), 0.4f, 0.7f) :
+									MathHelper.Lerp(0.4f, 0.7f, RelativeSpeed()) :
 									0.66f));
 			return CombinedLookAheadTime(minTime, 3);
 		}
@@ -1554,7 +1551,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				float relativeCurvature = (float)Math.Sqrt(Utilities.Clip(absC / maxC, 0, 1));
 
 				// map from full throttle when straight to 10% at max curvature
-				float curveSpeed = Utilities.Interpolate(relativeCurvature, 1.0f, 0.1f);
+				float curveSpeed = MathHelper.Lerp(1.0f, 0.1f, relativeCurvature);
 				annoteMaxRelSpeedCurve = curveSpeed;
 
 				if (demoSelect != 2)
@@ -1571,7 +1568,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					// determine relative speed for this heading
 					float mw = 0.2f;
 					float headingSpeed = ((parallelness < 0) ? mw :
-												Utilities.Interpolate(parallelness, mw, 1.0f));
+												MathHelper.Lerp(mw, 1.0f, parallelness));
 					maxRelativeSpeed = Math.Min(curveSpeed, headingSpeed);
 					annoteMaxRelSpeedPath = headingSpeed;
 				}

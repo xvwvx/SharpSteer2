@@ -57,8 +57,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 						new Vector3 (h+gap,         0,  h+top/2)       // 6 g
 					};
 
-				Obstacle1.Center = Utilities.Interpolate(0.2f, pathPoints[0], pathPoints[1]);
-				Obstacle2.Center = Utilities.Interpolate(0.5f, pathPoints[2], pathPoints[3]);
+				Obstacle1.Center = Vector3.Lerp(pathPoints[0], pathPoints[1], 0.2f);
+                Obstacle2.Center = Vector3.Lerp(pathPoints[2], pathPoints[3], 0.5f);
 				Obstacle1.Radius = 3;
 				Obstacle2.Radius = 5;
 				Obstacles.Add(Obstacle1);

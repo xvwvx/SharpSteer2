@@ -107,7 +107,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			Vector3 cameraForward = Demo.Camera.xxxls().Forward;
             float goalDot = Vector3.Dot(cameraForward, goalDirection);
 			float blend = Utilities.RemapIntervalClip(goalDot, 1, 0, 0.5f, 0);
-			Vector3 gridCenter = Utilities.Interpolate(blend, selected.Position, Globals.HomeBaseCenter);
+            Vector3 gridCenter = Vector3.Lerp(selected.Position, Globals.HomeBaseCenter, blend);
 			Demo.GridUtility(gridCenter);
 
 			// draw the seeker, obstacles and home base
