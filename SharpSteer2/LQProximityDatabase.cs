@@ -103,7 +103,7 @@ namespace SharpSteer2
 					System.Diagnostics.Debug.Assert(disposing);
 
 					// remove this token from the database's vector
-					_lq.RemoveFromBin(ref _proxy);
+					_lq.RemoveFromBin(_proxy);
 					_proxy = null;
 				}
 			}
@@ -111,11 +111,11 @@ namespace SharpSteer2
 			// the client obj calls this each time its position changes
             public void UpdateForNewPosition(Vector3 p)
 			{
-				_lq.UpdateForNewLocation(ref _proxy, p);
+				_lq.UpdateForNewLocation(_proxy, p);
 			}
 
 			// find all neighbors within the given sphere (as center and radius)
-            public void FindNeighbors(Vector3 center, float radius, ref List<ContentType> results)
+            public void FindNeighbors(Vector3 center, float radius, List<ContentType> results)
 			{
 				_lq.MapOverAllObjectsInLocality(center, radius, perNeighborCallBackFunction, results);
 			}
@@ -153,15 +153,9 @@ namespace SharpSteer2
 			get
 			{
 				int count = 0;
-				_lq.MapOverAllObjects(CounterCallBackFunction, count);
+				_lq.MapOverAllObjects((a, b, c) => count++, count);
 				return count;
 			}
-		}
-
-		public static void CounterCallBackFunction(Object clientObject, float distanceSquared, Object clientQueryState)
-		{
-			int counter = (int)clientQueryState;
-			counter++;
 		}
 	}
 }

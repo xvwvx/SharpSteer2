@@ -649,7 +649,7 @@ namespace SharpSteer2
 		}
 
 		// for annotation
-		public bool GaudyPursuitAnnotation;
+	    protected bool GaudyPursuitAnnotation;
 
 		// ------------------------------------------------------------------------
 		// evasion of another this
@@ -674,7 +674,7 @@ namespace SharpSteer2
 		{
 			float mf = MaxForce;
 			float speedError = targetSpeed - Speed;
-            return Forward * MathHelper.Clamp(speedError, -mf, +mf);
+			return Forward * MathHelper.Clamp(speedError, -mf, +mf);
 		}
 
 		// ----------------------------------------------------------- utilities

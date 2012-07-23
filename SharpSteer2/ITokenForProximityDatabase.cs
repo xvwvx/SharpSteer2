@@ -20,6 +20,6 @@ namespace SharpSteer2
         void UpdateForNewPosition(Vector3 position);
 
 		// find all neighbors within the given sphere (as center and radius)
-        void FindNeighbors(Vector3 center, float radius, ref List<ContentType> results);
+        void FindNeighbors(Vector3 center, float radius, List<ContentType> results);
 	}
 }

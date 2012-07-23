@@ -43,7 +43,7 @@ namespace SharpSteer2
 			public int? Bin;
 
 			// pointer to client obj
-			public Object Obj;
+			public readonly Object Obj;
 
 			// the obj's location ("key point") used for spatial sorting
 			public Vector3 Position;
@@ -101,7 +101,8 @@ namespace SharpSteer2
 		}
 
 		/* Determine index into linear bin array given 3D bin indices */
-		public int BinCoordsToBinIndex(int ix, int iy, int iz)
+
+	    private int BinCoordsToBinIndex(int ix, int iy, int iz)
 		{
 			return ((ix * _divY * _divZ) + (iy * _divZ) + iz);
 		}
@@ -109,7 +110,7 @@ namespace SharpSteer2
 		/* Call for each client obj every time its location changes.  For
 		   example, in an animation application, this would be called each
 		   frame for every moving obj.  */
-		public void UpdateForNewLocation(ref ClientProxy obj, Vector3 position)
+		public void UpdateForNewLocation(ClientProxy obj, Vector3 position)
 		{
 			/* find bin for new location */
 			int newBin = BinForLocation(position);
@@ -120,14 +121,15 @@ namespace SharpSteer2
 			/* has obj moved into a new bin? */
 			if (newBin != obj.Bin)
 			{
-				RemoveFromBin(ref obj);
-				AddToBin(ref obj, newBin);
+				RemoveFromBin(obj);
+				AddToBin(obj, newBin);
 			}
 		}
 
 		/* Adds a given client obj to a given bin, linking it into the bin
 		   contents list. */
-		public void AddToBin(ref ClientProxy obj, int binIndex)
+
+	    private void AddToBin(ClientProxy obj, int binIndex)
 		{
 			/* if bin is currently empty */
 			if (_bins[binIndex] == null)
@@ -151,7 +153,8 @@ namespace SharpSteer2
 		/* Find the bin ID for a location in space.  The location is given in
 		   terms of its XYZ coordinates.  The bin ID is a pointer to a pointer
 		   to the bin contents list.  */
-		public /*lqClientProxy*/int BinForLocation(Vector3 position)
+
+	    private /*lqClientProxy*/int BinForLocation(Vector3 position)
 		{
 			/* if point outside super-brick, return the "other" bin */
 			if (position.X < _origin.X || position.Y < _origin.Y || position.Z < _origin.Z ||
@@ -239,7 +242,8 @@ namespace SharpSteer2
 		/* Given a bin's list of client proxies, traverse the list and invoke
 		the given lqCallBackFunction on each obj that falls within the
 		search radius.  */
-		public void TraverseBinClientObjectList(ref ClientProxy co, float radiusSquared, LQCallBackFunction func, Object state, Vector3 position)
+
+	    private void TraverseBinClientObjectList(ClientProxy co, float radiusSquared, LQCallBackFunction func, Object state, Vector3 position)
 		{
 			while (co != null)
 			{
@@ -260,7 +264,8 @@ namespace SharpSteer2
 		/* This subroutine of lqMapOverAllObjectsInLocality efficiently
 		   traverses of subset of bins specified by max and min bin
 		   coordinates. */
-		public void MapOverAllObjectsInLocalityClipped(Vector3 center, float radius,
+
+	    private void MapOverAllObjectsInLocalityClipped(Vector3 center, float radius,
 							   LQCallBackFunction func,
 							   Object clientQueryState,
 							   int minBinX, int minBinY, int minBinZ,
@@ -293,7 +298,7 @@ namespace SharpSteer2
 						ClientProxy co = bin;
 
 						/* traverse current bin's client obj list */
-						TraverseBinClientObjectList(ref co,
+						TraverseBinClientObjectList(co,
 							radiusSquared,
 							func,
 							clientQueryState,
@@ -309,17 +314,19 @@ namespace SharpSteer2
 		/* If the query region (sphere) extends outside of the "super-brick"
 		   we need to check for objects in the catch-all "other" bin which
 		   holds any object which are not inside the regular sub-bricks  */
-		public void MapOverAllOutsideObjects(Vector3 center, float radius, LQCallBackFunction func, Object clientQueryState)
+
+	    private void MapOverAllOutsideObjects(Vector3 center, float radius, LQCallBackFunction func, Object clientQueryState)
 		{
 			ClientProxy co = _bins[_bins.Length - 1];
 			float radiusSquared = radius * radius;
 
 			// traverse the "other" bin's client object list
-			TraverseBinClientObjectList(ref co, radiusSquared, func, clientQueryState, center);
+			TraverseBinClientObjectList(co, radiusSquared, func, clientQueryState, center);
 		}
 
 		/* public helper function */
-		public void MapOverAllObjectsInBin(ClientProxy binProxyList, LQCallBackFunction func, Object clientQueryState)
+
+	    private void MapOverAllObjectsInBin(ClientProxy binProxyList, LQCallBackFunction func, Object clientQueryState)
 		{
 			// walk down proxy list, applying call-back function to each one
 			while (binProxyList != null)
@@ -337,12 +344,11 @@ namespace SharpSteer2
 			{
 				MapOverAllObjectsInBin(_bins[i], func, clientQueryState);
 			}
-			//MapOverAllObjectsInBin(other, func, clientQueryState);
 		}
 
 		/* Removes a given client obj from its current bin, unlinking it
 		   from the bin contents list. */
-		public void RemoveFromBin(ref ClientProxy obj)
+		public void RemoveFromBin(ClientProxy obj)
 		{
 			/* adjust pointers if obj is currently in a bin */
 			if (obj.Bin != null)
@@ -367,74 +373,6 @@ namespace SharpSteer2
 			obj.Prev = null;
 			obj.Next = null;
 			obj.Bin = null;
-		}
-
-		/* Removes (all proxies for) all objects from all bins */
-		public void RemoveAllObjects()
-		{
-			for (int i = 0; i < _bins.Length; i++)
-			{
-				RemoveAllObjectsInBin(ref _bins[i]);
-			}
-			//RemoveAllObjectsInBin(ref other);
-		}
-
-		/* public helper function */
-		void RemoveAllObjectsInBin(ref ClientProxy bin)
-		{
-			while (bin != null)
-			{
-				RemoveFromBin(ref bin);
-			}
-		}
-
-		/* public helper function */
-		struct FindNearestState
-		{
-			public Object IgnoreObject;
-			public Object NearestObject;
-			public float MinDistanceSquared;
-
-		}
-
-		static void FindNearestHelper(Object clientObject, float distanceSquared, Object clientQueryState)
-		{
-			FindNearestState fns = (FindNearestState)clientQueryState;
-
-			/* do nothing if this is the "ignoreObject" */
-			if (fns.IgnoreObject != clientObject)
-			{
-				/* record this object if it is the nearest one so far */
-				if (fns.MinDistanceSquared > distanceSquared)
-				{
-					fns.NearestObject = clientObject;
-					fns.MinDistanceSquared = distanceSquared;
-				}
-			}
-		}
-
-		/* Search the database to find the object whose key-point is nearest
-		   to a given location yet within a given radius.  That is, it finds
-		   the object (if any) within a given search sphere which is nearest
-		   to the sphere's center.  The ignoreObject argument can be used to
-		   exclude an object from consideration (or it can be NULL).  This is
-		   useful when looking for the nearest neighbor of an object in the
-		   database, since otherwise it would be its own nearest neighbor.
-		   The function returns a void* pointer to the nearest object, or
-		   NULL if none is found.  */
-		public Object FindNearestNeighborWithinRadius(Vector3 center, float radius, Object ignoreObject)
-		{
-			/* initialize search state */
-			FindNearestState lqFNS;
-			lqFNS.NearestObject = null;
-			lqFNS.IgnoreObject = ignoreObject;
-			lqFNS.MinDistanceSquared = float.MaxValue;
-
-			/* map search helper function over all objects within radius */
-			MapOverAllObjectsInLocality(center, radius, FindNearestHelper, lqFNS);
-
-			/* return nearest object found, if any */
-			return lqFNS.NearestObject;
 		}
 	}
 }

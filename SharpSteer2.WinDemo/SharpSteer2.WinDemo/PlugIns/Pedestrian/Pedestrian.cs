@@ -203,7 +203,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 				// where a collision is possible within caLeadTime seconds.)
 				float maxRadius = caLeadTime * MaxSpeed * 2;
 				neighbors.Clear();
-				proximityToken.FindNeighbors(Position, maxRadius, ref neighbors);
+				proximityToken.FindNeighbors(Position, maxRadius, neighbors);
 
 				if (neighbors.Count > 0 && leakThrough < Utilities.Random())
 					collisionAvoidance = SteerToAvoidNeighbors(caLeadTime, neighbors) * 10;

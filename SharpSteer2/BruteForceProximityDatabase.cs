@@ -18,7 +18,7 @@ namespace SharpSteer2
 		where ContentType : class
 	{
 		// "token" to represent objects stored in the database
-		public class TokenType : ITokenForProximityDatabase<ContentType>
+	    private class TokenType : ITokenForProximityDatabase<ContentType>
 		{
 		    readonly BruteForceProximityDatabase<ContentType> _bfpd;
 			ContentType _obj;
@@ -34,14 +34,17 @@ namespace SharpSteer2
 				_bfpd._group.Add(this);
 			}
 
-			// destructor
-			//FIXME: need to move elsewhere
-			//~TokenType()
+            ~TokenType()
+            {
+                Dispose(false);
+            }
+
 			public void Dispose()
 			{
 				Dispose(true);
 				GC.SuppressFinalize(this);
 			}
+
 			protected virtual void Dispose(bool disposing)
 			{
 			    if (_obj == null)
@@ -59,7 +62,7 @@ namespace SharpSteer2
 			}
 
 			// find all neighbors within the given sphere (as center and radius)
-            public void FindNeighbors(Vector3 center, float radius, ref List<ContentType> results)
+            public void FindNeighbors(Vector3 center, float radius, List<ContentType> results)
 			{
 				// loop over all tokens
 				float r2 = radius * radius;

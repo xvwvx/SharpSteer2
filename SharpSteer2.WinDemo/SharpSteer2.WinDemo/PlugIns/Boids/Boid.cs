@@ -108,7 +108,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 
 			// find all flockmates within maxRadius using proximity database
 			neighbors.Clear();
-			proximityToken.FindNeighbors(Position, maxRadius, ref neighbors);
+			proximityToken.FindNeighbors(Position, maxRadius, neighbors);
 
 			// determine each of the three component behaviors of flocking
 			Vector3 separation = SteerForSeparation(separationRadius, separationAngle, neighbors);
