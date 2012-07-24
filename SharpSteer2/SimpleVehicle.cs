@@ -19,14 +19,8 @@ namespace SharpSteer2
 		public readonly int SerialNumber;
 		static int _serialNumberCounter = 0;
 
-	    // speed along Forward direction. Because local space is
-		// velocity-aligned, velocity = Forward * Speed
-		float _speed;
-
-	    float _curvature;
-        Vector3 _lastForward;
+	    Vector3 _lastForward;
         Vector3 _lastPosition;
-        Vector3 _smoothedPosition;
 		float _smoothedCurvature;
 		// The acceleration is smoothed
         Vector3 _acceleration;
@@ -73,17 +67,15 @@ namespace SharpSteer2
 	    // get velocity of vehicle
         public override Vector3 Velocity
 		{
-			get { return Forward * _speed; }
+			get { return Forward * Speed; }
 		}
 
 		// get/set speed of vehicle  (may be faster than taking mag of velocity)
-		public override float Speed
-		{
-			get { return _speed; }
-			set { _speed = value; }
-		}
+        // speed along Forward direction. Because local space is
+        // velocity-aligned, velocity = Forward * Speed
+	    public override float Speed { get; set; }
 
-		// size of bounding sphere, for obstacle avoidance, etc.
+	    // size of bounding sphere, for obstacle avoidance, etc.
 	    public override float Radius { get; set; }
 
 	    // get/set maxForce
@@ -98,7 +90,7 @@ namespace SharpSteer2
 
 	    // apply a given steering force to our momentum,
 		// adjusting our orientation to maintain velocity-alignment.
-        public void ApplySteeringForce(Vector3 force, float elapsedTime)
+	    public void ApplySteeringForce(Vector3 force, float elapsedTime)
 		{
 			Vector3 adjustedForce = AdjustRawSteeringForce(force, elapsedTime);
 
@@ -144,7 +136,7 @@ namespace SharpSteer2
 
 		// the default version: keep FORWARD parallel to velocity, change
 		// UP as little as possible.
-        public virtual void RegenerateLocalSpace(Vector3 newVelocity, float elapsedTime)
+	    protected virtual void RegenerateLocalSpace(Vector3 newVelocity, float elapsedTime)
 		{
 			// adjust orthonormal basis vectors to be aligned with new velocity
 			if (Speed > 0)
@@ -207,7 +199,7 @@ namespace SharpSteer2
 
 		// apply a given braking force (for a given dt) to our momentum.
 		// xxx experimental 9-6-02
-		public void ApplyBrakingForce(float rate, float deltaTime)
+	    public void ApplyBrakingForce(float rate, float deltaTime)
 		{
 			float rawBraking = Speed * rate;
 			float clipBraking = ((rawBraking < MaxForce) ? rawBraking : MaxForce);
@@ -222,56 +214,56 @@ namespace SharpSteer2
 		}
 
 		// get instantaneous curvature (since last update)
-		public float Curvature
-		{
-			get { return _curvature; }
-		}
+	    protected float Curvature { get; private set; }
 
-		// get/reset smoothedCurvature, smoothedAcceleration and smoothedPosition
+	    // get/reset smoothedCurvature, smoothedAcceleration and smoothedPosition
 		public float SmoothedCurvature
 		{
 			get { return _smoothedCurvature; }
 		}
-		public float ResetSmoothedCurvature()
-		{
-			return ResetSmoothedCurvature(0);
-		}
-		public float ResetSmoothedCurvature(float value)
+
+	    private void ResetSmoothedCurvature(float value = 0)
 		{
 			_lastForward = Vector3.Zero;
 			_lastPosition = Vector3.Zero;
-			return _smoothedCurvature = _curvature = value;
+	        _smoothedCurvature = value;
+            Curvature = value;
 		}
 
 		public override Vector3 Acceleration
 		{
 			get { return _acceleration; }
 		}
-        public Vector3 ResetAcceleration()
-		{
-			return ResetAcceleration(Vector3.Zero);
-		}
-        public Vector3 ResetAcceleration(Vector3 value)
-		{
-			return _acceleration = value;
-		}
 
-        public Vector3 SmoothedPosition
+	    protected void ResetAcceleration()
+	    {
+	        ResetAcceleration(Vector3.Zero);
+	    }
+
+	    private void ResetAcceleration(Vector3 value)
+	    {
+	        _acceleration = value;
+	    }
+
+        Vector3 _smoothedPosition;
+	    public Vector3 SmoothedPosition
 		{
 			get { return _smoothedPosition; }
 		}
-        public Vector3 ResetSmoothedPosition()
-		{
-			return ResetSmoothedPosition(Vector3.Zero);
-		}
-        public Vector3 ResetSmoothedPosition(Vector3 value)
-		{
-			return _smoothedPosition = value;
-		}
 
-		// set a random "2D" heading: set local Up to global Y, then effectively
+	    private void ResetSmoothedPosition()
+	    {
+	        ResetSmoothedPosition(Vector3.Zero);
+	    }
+
+	    protected void ResetSmoothedPosition(Vector3 value)
+	    {
+	        _smoothedPosition = value;
+	    }
+
+	    // set a random "2D" heading: set local Up to global Y, then effectively
 		// rotate about it by a random angle (pick random forward, derive side).
-		public void RandomizeHeadingOnXZPlane()
+	    protected void RandomizeHeadingOnXZPlane()
 		{
 			Up = Vector3.Up;
             Forward = Vector3Helpers.RandomUnitVectorOnXZPlane();
@@ -287,8 +279,8 @@ namespace SharpSteer2
 				Vector3 dF = (_lastForward - Forward) / dP.Length();
                 Vector3 lateral = Vector3Helpers.PerpendicularComponent(dF, Forward);
                 float sign = (Vector3.Dot(lateral, Side) < 0) ? 1.0f : -1.0f;
-				_curvature = lateral.Length() * sign;
-				Utilities.BlendIntoAccumulator(elapsedTime * 4.0f, _curvature, ref _smoothedCurvature);
+				Curvature = lateral.Length() * sign;
+				Utilities.BlendIntoAccumulator(elapsedTime * 4.0f, Curvature, ref _smoothedCurvature);
 				_lastForward = Forward;
 				_lastPosition = Position;
 			}

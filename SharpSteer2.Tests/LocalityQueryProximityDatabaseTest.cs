@@ -36,7 +36,8 @@ namespace SharpSteer2.Tests
         {
             var obj = new object();
 
-            lookup.Add(obj, position);
+            if (lookup != null)
+                lookup.Add(obj, position);
 
             var token = db.AllocateToken(obj);
             token.UpdateForNewPosition(position);
@@ -63,14 +64,14 @@ namespace SharpSteer2.Tests
             Assert.AreEqual(1, list.Count(a => positionLookup[a] == new Vector3(1, 0, 0)));
 
             //Check tokens handle being disposed twice
-            x1y0z0.Dispose();
-            x1y0z0.Dispose();
+            x0y0z0.Dispose();
+            x0y0z0.Dispose();
 
             list.Clear();
-            x0y0z0.FindNeighbors(Vector3.Zero, 2, list);
+            x1y0z0.FindNeighbors(Vector3.Zero, 1.5f, list);
 
             Assert.AreEqual(1, list.Count);
-            Assert.AreEqual(new Vector3(0, 0, 0), positionLookup[list[0]]);
+            Assert.AreEqual(new Vector3(1, 0, 0), positionLookup[list[0]]);
         }
 
         [TestMethod]
@@ -95,6 +96,25 @@ namespace SharpSteer2.Tests
             list.Clear();
             x0y0z0.FindNeighbors(new Vector3(3, 0, 0),1.1f, list);
             Assert.AreEqual(2, list.Count);
+        }
+
+        [TestMethod]
+        private void RemoveItem()
+        {
+            var db = new LocalityQueryProximityDatabase<object>(Vector3.Zero, new Vector3(100, 100, 100), new Vector3(1, 1, 1));
+
+            var a = CreateToken(db, new Vector3(1, 0, 0), null);
+            var b = CreateToken(db, new Vector3(2, 0, 0), null);
+
+            Assert.AreEqual(2, db.Count);
+
+            b.Dispose();
+
+            Assert.AreEqual(1, db.Count);
+
+            a.Dispose();
+
+            Assert.AreEqual(0, db.Count);
         }
     }
 }

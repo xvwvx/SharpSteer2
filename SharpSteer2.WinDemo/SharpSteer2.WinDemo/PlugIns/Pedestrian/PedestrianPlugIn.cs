@@ -157,8 +157,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		{
 			// draw a line along each segment of path
 			PolylinePathway path = Globals.GetTestPath();
-			for (int i = 0; i < path.pointCount; i++)
-				if (i > 0) Drawing.DrawLine(path.points[i], path.points[i - 1], Color.Red);
+			for (int i = 0; i < path.PointCount; i++)
+				if (i > 0) Drawing.DrawLine(path.Points[i], path.Points[i - 1], Color.Red);
 
 			// draw obstacles
 			Drawing.DrawXZCircle(Globals.Obstacle1.Radius, Globals.Obstacle1.Center, Color.White, 40);

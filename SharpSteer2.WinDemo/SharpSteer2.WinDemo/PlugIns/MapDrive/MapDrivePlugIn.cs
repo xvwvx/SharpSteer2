@@ -349,7 +349,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			// randomize path widths
 			if (MapDriver.demoSelect == 2)
 			{
-				int count = vehicle.path.pointCount;
+				int count = vehicle.path.PointCount;
 				bool upstream = vehicle.pathFollowDirection > 0;
 				int entryIndex = upstream ? 1 : count - 1;
 				int exitIndex = upstream ? count - 1 : 1;

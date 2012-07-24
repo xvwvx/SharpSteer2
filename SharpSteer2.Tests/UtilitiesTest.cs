@@ -1,4 +1,5 @@
-﻿using SharpSteer2;
+﻿using System.Linq;
+using SharpSteer2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Microsoft.Xna.Framework;
@@ -20,10 +21,13 @@ namespace SharpSteer2.Tests
         [TestMethod]
         private void ScalarRandomWalk()
         {
-            var rand = Utilities.ScalarRandomWalk(0, 10, -5, 5);
+            var rands = Enumerable.Range(1, 1000).Select(a => Utilities.ScalarRandomWalk(0, 10, -5, 5));
 
-            Assert.IsTrue(rand >= -5);
-            Assert.IsTrue(rand <= 5);
+            foreach (var rand in rands)
+            {
+                Assert.IsTrue(rand >= -5);
+                Assert.IsTrue(rand <= 5);
+            }
         }
 
         [TestMethod]

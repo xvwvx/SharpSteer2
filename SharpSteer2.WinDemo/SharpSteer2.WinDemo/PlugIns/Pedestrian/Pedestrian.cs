@@ -121,7 +121,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			// set initial position
 			// (random point on path + random horizontal offset)
 			float d = path.TotalPathLength * Utilities.Random();
-			float r = path.radius;
+			float r = path.Radius;
 			Vector3 randomOffset = Vector3Helpers.RandomVectorOnUnitRadiusXZDisk() * r;
 			Position = (path.MapPathDistanceToPoint(d) + randomOffset);
 
@@ -147,15 +147,15 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			// reverse direction when we reach an endpoint
 			if (Globals.UseDirectedPathFollowing)
 			{
-				if (Vector3.Distance(Position, Globals.Endpoint0) < path.radius)
+				if (Vector3.Distance(Position, Globals.Endpoint0) < path.Radius)
 				{
 					pathDirection = +1;
-					annotation.CircleXZ(path.radius, Globals.Endpoint0, Color.DarkRed, 20);
+					annotation.CircleXZ(path.Radius, Globals.Endpoint0, Color.DarkRed, 20);
 				}
-				if (Vector3.Distance(Position, Globals.Endpoint1) < path.radius)
+				if (Vector3.Distance(Position, Globals.Endpoint1) < path.Radius)
 				{
 					pathDirection = -1;
-					annotation.CircleXZ(path.radius, Globals.Endpoint1, Color.DarkRed, 20);
+					annotation.CircleXZ(path.Radius, Globals.Endpoint1, Color.DarkRed, 20);
 				}
 			}
 

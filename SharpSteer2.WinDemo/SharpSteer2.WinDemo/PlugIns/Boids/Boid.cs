@@ -170,7 +170,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		}
 
 		// make boids "bank" as they fly
-		public override void RegenerateLocalSpace(Vector3 newVelocity, float elapsedTime)
+	    protected override void RegenerateLocalSpace(Vector3 newVelocity, float elapsedTime)
 		{
 			RegenerateLocalSpaceForBanking(newVelocity, elapsedTime);
 		}

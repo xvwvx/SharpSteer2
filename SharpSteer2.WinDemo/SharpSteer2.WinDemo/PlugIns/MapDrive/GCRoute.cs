@@ -28,15 +28,15 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		{
 			Initialize(_pointCount, _points, _radii[0], _cyclic);
 
-			radii = new float[pointCount];
+			radii = new float[PointCount];
 
 			// loop over all points
-			for (int i = 0; i < pointCount; i++)
+			for (int i = 0; i < PointCount; i++)
 			{
 				// copy in point locations, closing cycle when appropriate
-				bool closeCycle = cyclic && (i == pointCount - 1);
+				bool closeCycle = Cyclic && (i == PointCount - 1);
 				int j = closeCycle ? 0 : i;
-				points[i] = _points[j];
+				Points[i] = _points[j];
 				radii[i] = _radii[i];
 			}
 		}
@@ -55,12 +55,12 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			outside = float.MaxValue;
 
 			// loop over all segments, find the one nearest to the given point
-			for (int i = 1; i < pointCount; i++)
+			for (int i = 1; i < PointCount; i++)
 			{
 				// QQQ note bizarre calling sequence of pointToSegmentDistance
-				segmentLength = lengths[i];
-				segmentNormal = normals[i];
-				float d = PointToSegmentDistance(point, points[i - 1], points[i]);
+				SegmentLength = Lengths[i];
+				SegmentNormal = Normals[i];
+				float d = PointToSegmentDistance(point, Points[i - 1], Points[i]);
 
 				// measure how far original point is outside the Pathway's "tube"
 				// (negative values (from 0 to -radius) measure "insideness")
@@ -71,8 +71,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				if (o < outside)
 				{
 					outside = o;
-					onPath = chosen;
-					tangent = segmentNormal;
+					onPath = Chosen;
+					tangent = SegmentNormal;
 				}
 			}
 
@@ -96,11 +96,11 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			float minDistance = float.MaxValue;
 
 			// loop over all segments, find the one nearest the given point
-			for (int i = 1; i < pointCount; i++)
+			for (int i = 1; i < PointCount; i++)
 			{
-				segmentLength = lengths[i];
-				segmentNormal = normals[i];
-				float d = PointToSegmentDistance(point, points[i - 1], points[i]);
+				SegmentLength = Lengths[i];
+				SegmentNormal = Normals[i];
+				float d = PointToSegmentDistance(point, Points[i - 1], Points[i]);
 				if (d < minDistance)
 				{
 					minDistance = d;
@@ -114,13 +114,13 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// used to measure the "angle" at a path vertex: how sharp is the turn?
 		public float DotSegmentUnitTangents(int segmentIndex0, int segmentIndex1)
 		{
-			return Vector3.Dot(normals[segmentIndex0], normals[segmentIndex1]);
+			return Vector3.Dot(Normals[segmentIndex0], Normals[segmentIndex1]);
 		}
 
 		// return path tangent at given point (its projection on path)
 		public Vector3 TangentAt(Vector3 point)
 		{
-			return normals[IndexOfNearestSegment(point)];
+			return Normals[IndexOfNearestSegment(point)];
 		}
 
 		// return path tangent at given point (its projection on path),
@@ -133,7 +133,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			int nextIndex = segmentIndex + pathFollowDirection;
 			bool insideNextSegment = IsInsidePathSegment(point, nextIndex);
 			int i = (segmentIndex + (insideNextSegment ? pathFollowDirection : 0));
-			return normals[i] * (float)pathFollowDirection;
+			return Normals[i] * (float)pathFollowDirection;
 		}
 
 		// is the given point "near" a waypoint of this path?  ("near" == closer
@@ -141,11 +141,11 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		public bool NearWaypoint(Vector3 point)
 		{
 			// loop over all waypoints
-			for (int i = 1; i < pointCount; i++)
+			for (int i = 1; i < PointCount; i++)
 			{
 				// return true if near enough to this waypoint
-				float r = Math.Max(radii[i], radii[(i + 1) % pointCount]);
-				float d = (point - points[i]).Length();
+				float r = Math.Max(radii[i], radii[(i + 1) % PointCount]);
+				float d = (point - Points[i]).Length();
 				if (d < r) return true;
 			}
 			return false;
@@ -156,14 +156,14 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// but wasn't right for the problem I was trying to solve)
 		public bool IsInsidePathSegment(Vector3 point, int segmentIndex)
 		{
-			if (segmentIndex < 1 || segmentIndex >= pointCount) return false;
+			if (segmentIndex < 1 || segmentIndex >= PointCount) return false;
 
 			int i = segmentIndex;
 
 			// QQQ note bizarre calling sequence of pointToSegmentDistance
-			segmentLength = lengths[i];
-			segmentNormal = normals[i];
-			float d = PointToSegmentDistance(point, points[i - 1], points[i]);
+			SegmentLength = Lengths[i];
+			SegmentNormal = Normals[i];
+			float d = PointToSegmentDistance(point, Points[i - 1], Points[i]);
 
 			// measure how far original point is outside the Pathway's "tube"
 			// (negative values (from 0 to -radius) measure "insideness")

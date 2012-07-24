@@ -1254,17 +1254,17 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			Color color = new Color(vColor);
 
 			Vector3 down = new Vector3(0, -0.1f, 0);
-			for (int i = 0; i < path.pointCount; i++)
+			for (int i = 0; i < path.PointCount; i++)
 			{
-				Vector3 endPoint0 = path.points[i] + down;
+				Vector3 endPoint0 = path.Points[i] + down;
 				if (i > 0)
 				{
-					Vector3 endPoint1 = path.points[i - 1] + down;
+					Vector3 endPoint1 = path.Points[i - 1] + down;
 
 					float legWidth = path.radii[i];
 
 					Drawing.DrawXZWideLine(endPoint0, endPoint1, color, legWidth * 2);
-					Drawing.DrawLine(path.points[i], path.points[i - 1], new Color(pathColor));
+					Drawing.DrawLine(path.Points[i], path.Points[i - 1], new Color(pathColor));
 					Drawing.DrawXZDisk(legWidth, endPoint0, color, 24);
 					Drawing.DrawXZDisk(legWidth, endPoint1, color, 24);
 				}
