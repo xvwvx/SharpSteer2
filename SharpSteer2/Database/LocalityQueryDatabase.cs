@@ -11,7 +11,7 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace SharpSteer2
+namespace SharpSteer2.Database
 {
 	/// <summary>
 	/// This structure represents the spatial database.  Typically one of

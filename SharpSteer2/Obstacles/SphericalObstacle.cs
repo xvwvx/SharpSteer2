@@ -10,7 +10,7 @@
 
 using Microsoft.Xna.Framework;
 
-namespace SharpSteer2
+namespace SharpSteer2.Obstacles
 {
 	/// <summary>
 	/// SphericalObstacle a simple concrete type of obstacle.

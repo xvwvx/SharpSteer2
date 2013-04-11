@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Database;
 using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo.PlugIns.Pedestrian

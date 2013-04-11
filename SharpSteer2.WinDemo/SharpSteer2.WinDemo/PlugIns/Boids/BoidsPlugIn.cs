@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Database;
+using SharpSteer2.Obstacles;
 
 namespace SharpSteer2.WinDemo.PlugIns.Boids
 { // spherical obstacle group

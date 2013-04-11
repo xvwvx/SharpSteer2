@@ -10,6 +10,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Obstacles;
 
 namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 {

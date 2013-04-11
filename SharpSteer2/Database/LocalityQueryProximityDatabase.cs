@@ -70,7 +70,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace SharpSteer2
+namespace SharpSteer2.Database
 {
 	/// <summary>
 	/// A AbstractProximityDatabase-style wrapper for the LQ bin lattice system

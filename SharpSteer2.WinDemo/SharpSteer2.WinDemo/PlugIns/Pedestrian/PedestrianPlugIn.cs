@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Database;
 
 namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 {
