@@ -146,7 +146,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			}
 
 	        // otherwise seek home base and perhaps evade defenders
-	        Vector3 seek = xxxSteerForSeek(Globals.HomeBaseCenter);
+	        Vector3 seek = SteerForSeek(Globals.HomeBaseCenter);
 	        if (clearPath)
 	        {
 	            // we have a clear path (defender-free corridor), use pure seek
@@ -290,7 +290,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 				annotation.CircleXZ(e.Radius, eFuture, Globals.EvadeColor, 20);
 
 				// steering to flee from eFuture (enemy's future position)
-				Vector3 flee = xxxSteerForFlee(eFuture);
+				Vector3 flee = SteerForFlee(eFuture);
 
                 float eForwardDistance = Vector3.Dot(Forward, eOffset);
 				float behindThreshold = Radius * -2;

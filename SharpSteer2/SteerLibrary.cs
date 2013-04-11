@@ -16,11 +16,9 @@ using SharpSteer2.Obstacles;
 
 namespace SharpSteer2
 {
-	//FIXME: this class should not be abstract
 	public abstract class SteerLibrary : BaseVehicle
 	{
-		//HACK: This should not be... Find a way to access Game.Services
-	    public IAnnotationService annotation { get; private set; }
+	    protected IAnnotationService annotation { get; private set; }
 
 	    // Constructor: initializes state
 	    protected SteerLibrary(IAnnotationService annotationService = null)
@@ -45,7 +43,7 @@ namespace SharpSteer2
 		public float WanderSide;
 		public float WanderUp;
 
-        public Vector3 SteerForWander(float dt)
+	    protected Vector3 SteerForWander(float dt)
 		{
 			// random walk WanderSide and WanderUp between -1 and +1
 			float speed = 12 * dt; // maybe this (12) should be an argument?
@@ -56,22 +54,8 @@ namespace SharpSteer2
 			return (Side * WanderSide) + (Up * WanderUp);
 		}
 
-		// Seek behavior
-        public Vector3 SteerForSeek(Vector3 target)
-		{
-            Vector3 desiredVelocity = target - Position;
-			return desiredVelocity - Velocity;
-		}
-
 		// Flee behavior
-        public Vector3 SteerForFlee(Vector3 target)
-		{
-            Vector3 desiredVelocity = Position - target;
-			return desiredVelocity - Velocity;
-		}
-
-		// xxx proposed, experimental new seek/flee [cwr 9-16-02]
-        public Vector3 xxxSteerForFlee(Vector3 target)
+	    protected Vector3 SteerForFlee(Vector3 target)
 		{
 			//  const Vector3 offset = position - target;
             Vector3 offset = Position - target;
@@ -79,7 +63,8 @@ namespace SharpSteer2
 			return desiredVelocity - Velocity;
 		}
 
-        public Vector3 xxxSteerForSeek(Vector3 target)
+        // Seek behavior
+	    protected Vector3 SteerForSeek(Vector3 target)
 		{
 			//  const Vector3 offset = target - position;
             Vector3 offset = target - Position;
@@ -88,7 +73,7 @@ namespace SharpSteer2
 		}
 
 		// Path Following behaviors
-        public Vector3 SteerToFollowPath(int direction, float predictionTime, Pathway path)
+	    protected Vector3 SteerToFollowPath(int direction, float predictionTime, Pathway path)
 		{
 			// our goal will be offset from our path distance by this amount
 			float pathDistanceOffset = direction * predictionTime * Speed;
@@ -128,7 +113,7 @@ namespace SharpSteer2
 			return SteerForSeek(target);
 		}
 
-        public Vector3 SteerToStayOnPath(float predictionTime, Pathway path)
+	    protected Vector3 SteerToStayOnPath(float predictionTime, Pathway path)
 		{
 			// predict our future position
             Vector3 futurePosition = PredictFuturePosition(predictionTime);
@@ -171,7 +156,7 @@ namespace SharpSteer2
 		}
 
 		// avoids all obstacles in an ObstacleGroup
-        public Vector3 SteerToAvoidObstacles<Obstacle>(float minTimeToCollision, List<Obstacle> obstacles)
+	    protected Vector3 SteerToAvoidObstacles<Obstacle>(float minTimeToCollision, List<Obstacle> obstacles)
 			where Obstacle : IObstacle
 		{
             Vector3 avoidance = Vector3.Zero;
@@ -219,7 +204,7 @@ namespace SharpSteer2
 		// (if any) other other this we would collide with first, then steers
 		// to avoid the site of that potential collision.  Returns a steering
 		// force vector, which is zero length if there is no impending collision.
-        public Vector3 SteerToAvoidNeighbors<TVehicle>(float minTimeToCollision, List<TVehicle> others)
+	    protected Vector3 SteerToAvoidNeighbors<TVehicle>(float minTimeToCollision, List<TVehicle> others)
 			where TVehicle : IVehicle
 		{
 			// first priority is to prevent immediate interpenetration
@@ -420,7 +405,7 @@ namespace SharpSteer2
 
 		// ------------------------------------------------------------------------
 		// Separation behavior -- determines the direction away from nearby boids
-        public Vector3 SteerForSeparation(float maxDistance, float cosMaxAngle, List<IVehicle> flock)
+	    protected Vector3 SteerForSeparation(float maxDistance, float cosMaxAngle, List<IVehicle> flock)
 		{
 			// steering accumulator and count of neighbors, both initially zero
             Vector3 steering = Vector3.Zero;
@@ -456,7 +441,7 @@ namespace SharpSteer2
 
 		// ------------------------------------------------------------------------
 		// Alignment behavior
-        public Vector3 SteerForAlignment(float maxDistance, float cosMaxAngle, List<IVehicle> flock)
+	    protected Vector3 SteerForAlignment(float maxDistance, float cosMaxAngle, List<IVehicle> flock)
 		{
 			// steering accumulator and count of neighbors, both initially zero
 			Vector3 steering = Vector3.Zero;
@@ -489,7 +474,7 @@ namespace SharpSteer2
 
 		// ------------------------------------------------------------------------
 		// Cohesion behavior
-        public Vector3 SteerForCohesion(float maxDistance, float cosMaxAngle, List<IVehicle> flock)
+	    protected Vector3 SteerForCohesion(float maxDistance, float cosMaxAngle, List<IVehicle> flock)
 		{
 			// steering accumulator and count of neighbors, both initially zero
 			Vector3 steering = Vector3.Zero;
@@ -530,7 +515,7 @@ namespace SharpSteer2
             { 0.85f, 1.8f, 4 },     //Ahead
 	    };
 
-	    public Vector3 SteerForPursuit(IVehicle quarry, float maxPredictionTime = float.MaxValue)
+	    protected Vector3 SteerForPursuit(IVehicle quarry, float maxPredictionTime = float.MaxValue)
 		{
 			// offset from this to quarry, that distance, unit vector toward quarry
             Vector3 offset = quarry.Position - Position;
@@ -588,7 +573,7 @@ namespace SharpSteer2
 		// ------------------------------------------------------------------------
 		// tries to maintain a given speed, returns a maxForce-clipped steering
 		// force along the forward/backward axis
-        public Vector3 SteerForTargetSpeed(float targetSpeed)
+	    protected Vector3 SteerForTargetSpeed(float targetSpeed)
 		{
 			float mf = MaxForce;
 			float speedError = targetSpeed - Speed;
@@ -600,13 +585,14 @@ namespace SharpSteer2
 		// XXX above AbstractVehicle, below SimpleVehicle
 		// XXX ("utility this"?)
 
-	    public bool IsAhead(Vector3 target, float cosThreshold = 0.707f)
+	    protected bool IsAhead(Vector3 target, float cosThreshold = 0.707f)
 		{
 			Vector3 targetDirection = (target - Position);
             targetDirection.Normalize();
             return Vector3.Dot(Forward, targetDirection) > cosThreshold;
 		}
-        public bool IsAside(Vector3 target, float cosThreshold = 0.707f)
+
+	    protected bool IsAside(Vector3 target, float cosThreshold = 0.707f)
 		{
 			Vector3 targetDirection = (target - Position);
             targetDirection.Normalize();

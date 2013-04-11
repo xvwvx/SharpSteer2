@@ -74,7 +74,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 					// go for ball if I'm on the 'right' side of the ball
 					if (_imTeamA ? Position.X > _ball.Position.X : Position.X < _ball.Position.X)
 					{
-						Vector3 seekTarget = xxxSteerForSeek(_ball.Position);
+						Vector3 seekTarget = SteerForSeek(_ball.Position);
 						ApplySteeringForce(seekTarget, elapsedTime);
 					}
 					else
@@ -83,17 +83,17 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 						{
 							float z = _ball.Position.Z - Position.Z > 0 ? -1.0f : 1.0f;
 							Vector3 behindBall = _ball.Position + (_imTeamA ? new Vector3(2, 0, z) : new Vector3(-2, 0, z));
-							Vector3 behindBallForce = xxxSteerForSeek(behindBall);
+							Vector3 behindBallForce = SteerForSeek(behindBall);
 							annotation.Line(Position, behindBall, Color.Green);
-							Vector3 evadeTarget = xxxSteerForFlee(_ball.Position);
+							Vector3 evadeTarget = SteerForFlee(_ball.Position);
 							ApplySteeringForce(behindBallForce * 10 + evadeTarget, elapsedTime);
 						}
 					}
 				}
 				else	// Go home
 				{
-					Vector3 seekTarget = xxxSteerForSeek(_home);
-					Vector3 seekHome = xxxSteerForSeek(_home);
+					Vector3 seekTarget = SteerForSeek(_home);
+					Vector3 seekHome = SteerForSeek(_home);
 					ApplySteeringForce(seekTarget + seekHome, elapsedTime);
 				}
 
