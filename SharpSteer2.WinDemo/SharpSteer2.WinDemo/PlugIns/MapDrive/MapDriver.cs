@@ -1120,7 +1120,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			Color darkGreen = new Color(0, (byte)(255.0f * 0.6f), 0);
 			_trail.TrailColor = darkGreen;
 			_trail.TickColor = Color.Black;
-			_trail.Draw(Annotation.Drawer);
+            _trail.Draw(annotation);
 		}
 
 		// called when steerToFollowPath decides steering is required

@@ -25,7 +25,7 @@ namespace SharpSteer2
 
         }
 
-        public void DrawTrails(IDraw drawer)
+        public void DrawTrails()
         {
 
         }

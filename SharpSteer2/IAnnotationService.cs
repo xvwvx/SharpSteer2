@@ -37,7 +37,7 @@ namespace SharpSteer2
 		/// <summary>
 		/// Draws all registered Trails.
 		/// </summary>
-		void DrawTrails(IDraw drawer);
+		void DrawTrails();
 
 		// ------------------------------------------------------------------------
 		// drawing of lines, circles and (filled) disks to annotate steering

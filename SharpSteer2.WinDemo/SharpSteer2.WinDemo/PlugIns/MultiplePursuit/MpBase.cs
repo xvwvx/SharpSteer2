@@ -38,7 +38,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 		public void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, BodyColor);
-			Trail.Draw(Annotation.Drawer);
+            Trail.Draw(annotation);
 		}
 
 		// for draw method

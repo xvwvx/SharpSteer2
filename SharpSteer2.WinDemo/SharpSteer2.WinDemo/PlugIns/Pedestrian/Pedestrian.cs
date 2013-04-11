@@ -241,7 +241,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		public void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, Color.Gray);
-			_trail.Draw(Annotation.Drawer);
+            _trail.Draw(annotation);
 		}
 
 		// switch to new proximity database -- just for demo purposes

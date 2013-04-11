@@ -55,7 +55,7 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 		public void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, Color.Gray);
-			_trail.Draw(Annotation.Drawer);
+            _trail.Draw(annotation);
 		}
 
 		// per frame simulation update

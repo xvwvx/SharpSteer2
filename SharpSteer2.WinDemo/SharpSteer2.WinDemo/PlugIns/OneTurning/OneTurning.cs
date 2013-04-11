@@ -46,7 +46,7 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 		public void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, Color.Gray);
-			_trail.Draw(Annotation.Drawer);
+            _trail.Draw(annotation);
 		}
 	}
 }

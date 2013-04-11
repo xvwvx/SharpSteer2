@@ -22,7 +22,7 @@ namespace SharpSteer2.WinDemo
 		public String Text;
 	}
 
-	public class Drawing : IDraw
+	public class Drawing
 	{
 		public static Demo Game = null;
 	    static Color _curColor;
@@ -119,13 +119,8 @@ namespace SharpSteer2.WinDemo
 			drawEnd();
 		}
 
-		public void Line(Vector3 startPoint, Vector3 endPoint, Color color)
-		{
-			DrawLine(startPoint, endPoint, color);
-		}
-
 		// draw a line with alpha blending
-		public void LineAlpha(Vector3 startPoint, Vector3 endPoint, Color color, float alpha)
+		public void Line(Vector3 startPoint, Vector3 endPoint, Color color, float alpha = 1)
 		{
 			DrawLineAlpha(startPoint, endPoint, color, alpha);
 		}

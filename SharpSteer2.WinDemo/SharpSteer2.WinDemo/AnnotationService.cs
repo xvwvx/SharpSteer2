@@ -19,7 +19,7 @@ namespace SharpSteer2.WinDemo
 	    readonly List<Trail> _trails;
 
 		//HACK: change the IDraw to a IDrawService
-		public static IDraw Drawer;
+		public static Drawing Drawer;
 
 		// constructor
 		public Annotation()
@@ -58,11 +58,11 @@ namespace SharpSteer2.WinDemo
 		/// <summary>
 		/// Draws all registered Trails.
 		/// </summary>
-		public void DrawTrails(IDraw drawer)
+		public void DrawTrails()
 		{
 			for (int i = 0; i < _trails.Count; i++)
 			{
-				_trails[i].Draw(drawer);
+				_trails[i].Draw(this);
 			}
 		}
 

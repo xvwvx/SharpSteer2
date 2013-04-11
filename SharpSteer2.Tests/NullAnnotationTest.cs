@@ -26,7 +26,7 @@ namespace SharpSteer2.Tests
             a.CircleXZ(0, Vector3.Zero, Color.White, 0);
             a.Disk3D(0, Vector3.Zero, Vector3.Zero, Color.White, 0);
             a.DiskXZ(0, Vector3.Zero, Color.White, 0);
-            a.DrawTrails(null);
+            a.DrawTrails();
             a.Line(Vector3.Zero, Vector3.Zero, Color.White);
             a.PathFollowing(Vector3.Zero, Vector3.Zero, Vector3.Zero, 0);
             a.RemoveTrail(null);

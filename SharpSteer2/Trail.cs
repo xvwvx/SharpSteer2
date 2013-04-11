@@ -91,7 +91,7 @@ namespace SharpSteer2
 		/// <summary>
 		/// Draws the trail as a dotted line, fading away with age.
 		/// </summary>
-		public void Draw(IDraw drawer)
+		public void Draw(IAnnotationService annotation)
 		{
 			int index = _currentIndex;
 			for (int j = 0; j < _vertices.Length; j++)
@@ -109,7 +109,7 @@ namespace SharpSteer2
 					if (j == 0)
 					{
 						// draw segment from current position to first trail point
-						drawer.LineAlpha(_currentPosition, _vertices[index], color, 1);
+                        annotation.Line(_currentPosition, _vertices[index], color);
 					}
 					else
 					{
@@ -117,7 +117,7 @@ namespace SharpSteer2
 						const float minO = 0.05f; // minimum opacity
 						float fraction = (float)j / _vertices.Length;
 						float opacity = (fraction * (1 - minO)) + minO;
-						drawer.LineAlpha(_vertices[index], _vertices[next], color, opacity);
+                        annotation.Line(_vertices[index], _vertices[next], color);
 					}
 				}
 				index = next;
