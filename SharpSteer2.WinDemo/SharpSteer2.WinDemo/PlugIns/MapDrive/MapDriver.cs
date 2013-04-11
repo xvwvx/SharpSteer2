@@ -10,6 +10,7 @@
 
 using System;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 {
@@ -103,7 +104,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			if (demoSelect == 2)
 			{
 				lapsStarted++;
-				float s = worldSize;
+				float s = WORLD_SIZE;
 				float d = (float)pathFollowDirection;
 				Position = (new Vector3(s * d * 0.6f, 0, s * -0.4f));
 				RegenerateOrthonormalBasisUF(Vector3.Right * d);
@@ -252,7 +253,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 		public void AdjustVehicleRadiusForSpeed()
 		{
-			float minRadius = (float)Math.Sqrt(Utilities.Square(halfWidth) + Utilities.Square(halfLength));
+            float minRadius = (float)Math.Sqrt(halfWidth * halfWidth + halfLength * halfLength);
 			float safetyMargin = (curvedSteering ? MathHelper.Lerp(0.0f, 1.5f, RelativeSpeed()) : 0.0f);
 			Radius = (minRadius + safetyMargin);
 		}
@@ -1274,9 +1275,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		public GCRoute MakePath()
 		{
 			// a few constants based on world size
-			float m = worldSize * 0.4f; // main diamond size
-			float n = worldSize / 8;    // notch size
-			float o = worldSize * 2;    // outside of the sand
+			float m = WORLD_SIZE * 0.4f; // main diamond size
+			float n = WORLD_SIZE / 8;    // notch size
+			float o = WORLD_SIZE * 2;    // outside of the sand
 
 			// construction vectors
 			Vector3 p = new Vector3(0, 0, m);
@@ -1310,7 +1311,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 		public TerrainMap MakeMap()
 		{
-			return new TerrainMap(Vector3.Zero, worldSize, worldSize, (int)worldSize + 1);
+			return new TerrainMap(Vector3.Zero, WORLD_SIZE, WORLD_SIZE, (int)WORLD_SIZE + 1);
 		}
 
 		public bool HandleExitFromMap()
@@ -1320,7 +1321,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				// for path following, do wrap-around (teleport) and make new map
 				float px = Position.X;
 				float fx = Forward.X;
-				float ws = worldSize * 0.51f; // slightly past edge
+				float ws = WORLD_SIZE * 0.51f; // slightly past edge
 				if (((fx > 0) && (px > ws)) || ((fx < 0) && (px < -ws)))
 				{
 					// bump counters
@@ -1331,7 +1332,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 					// set position on other side of the map (set new X coordinate)
 					SetPosition((((px < 0) ? 1 : -1) *
-								  ((worldSize * 0.5f) +
+								  ((WORLD_SIZE * 0.5f) +
 								   (Speed * LookAheadTimePF()))),
 								 Position.Y,
 								 Position.Z);
@@ -1356,7 +1357,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			{
 				// for the non-path-following demos:
 				// reset simulation if the vehicle drives through the fence
-				if (Position.Length() > worldDiag) Reset();
+				if (Position.Length() > WorldDiag) Reset();
 			}
 			return false;
 		}
@@ -1697,7 +1698,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		public static int demoSelect = 2;
 
 		// size of the world (the map actually)
-		public static float worldSize = 200;
-		public static float worldDiag = (float)Math.Sqrt(Utilities.Square(worldSize) / 2);
+	    public const float WORLD_SIZE = 200;
+	    public static readonly float WorldDiag = (float)Math.Sqrt((WORLD_SIZE * WORLD_SIZE) / 2);
 	}
 }

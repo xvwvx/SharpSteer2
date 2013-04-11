@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 {
@@ -84,7 +85,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			Demo.UpdateCamera(currentTime, elapsedTime, _vehicle);
 
 			// draw "ground plane"  (make it 4x map size)
-			float s = MapDriver.worldSize * 2;
+			float s = MapDriver.WORLD_SIZE * 2;
 			const float u = -0.2f;
 			Drawing.DrawQuadrangle(new Vector3(+s, u, +s),
 							new Vector3(+s, u, -s),
@@ -246,8 +247,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			case Keys.F6: // QQQ draw an enclosed "pen" of obstacles to test cycle-stuck
 				{
-					float m = MapDriver.worldSize * 0.4f; // main diamond size
-					float n = MapDriver.worldSize / 8;    // notch size
+					float m = MapDriver.WORLD_SIZE * 0.4f; // main diamond size
+					float n = MapDriver.WORLD_SIZE / 8;    // notch size
 					Vector3 q = new Vector3(0, 0, m - n);
 					Vector3 s = new Vector3(2 * n, 0, 0);
 					Vector3 c = s - q;
@@ -335,7 +336,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				float lastExitRadius = _vehicle.path.Radii[exitIndex];
 				for (int i = 1; i < count; i++)
 				{
-					_vehicle.path.Radii[i] = Utilities.Random(4, 19);
+					_vehicle.path.Radii[i] = RandomHelpers.Random(4, 19);
 				}
 				_vehicle.path.Radii[entryIndex] = lastExitRadius;
 			}
@@ -352,18 +353,18 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			{
 				const int spread = 4;
 				int r = map.Cellwidth();
-				int k = Utilities.RandomInt(50, 150);
+				int k = RandomHelpers.RandomInt(50, 150);
 
 				for (int p = 0; p < k; p++)
 				{
-					int i = Utilities.RandomInt(0, r - spread);
-					int j = Utilities.RandomInt(0, r - spread);
-					int c = Utilities.RandomInt(0, 10);
+					int i = RandomHelpers.RandomInt(0, r - spread);
+					int j = RandomHelpers.RandomInt(0, r - spread);
+					int c = RandomHelpers.RandomInt(0, 10);
 
 					for (int q = 0; q < c; q++)
 					{
-						int m = Utilities.RandomInt(0, spread);
-						int n = Utilities.RandomInt(0, spread);
+						int m = RandomHelpers.RandomInt(0, spread);
+						int n = RandomHelpers.RandomInt(0, spread);
 						map.SetMapBit(i + m, j + n, true);
 					}
 				}

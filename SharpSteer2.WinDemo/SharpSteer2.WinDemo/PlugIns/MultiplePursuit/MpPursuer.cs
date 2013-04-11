@@ -9,6 +9,7 @@
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 {
@@ -52,7 +53,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 			// centered around the home base
 			const float inner = 20;
 			const float outer = 30;
-			float radius = Utilities.Random(inner, outer);
+			float radius = RandomHelpers.Random(inner, outer);
 			Vector3 randomOnRing = Vector3Helpers.RandomUnitVectorOnXZPlane() * radius;
 			Position = (wanderer.Position + randomOnRing);
 

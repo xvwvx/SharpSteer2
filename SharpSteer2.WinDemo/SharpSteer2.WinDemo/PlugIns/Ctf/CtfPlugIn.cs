@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Ctf;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo.PlugIns.Ctf
 { // spherical obstacle group

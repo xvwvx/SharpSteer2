@@ -3,6 +3,7 @@ using SharpSteer2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.Tests
 {
@@ -36,7 +37,7 @@ namespace SharpSteer2.Tests
             const int lower = -17;
             const int upper = 24;
 
-            var rand = Utilities.Random(lower, upper);
+            var rand = RandomHelpers.Random(lower, upper);
             Assert.IsTrue(lower <= rand);
             Assert.IsTrue(upper >= rand);
         }
@@ -117,12 +118,6 @@ namespace SharpSteer2.Tests
             Assert.AreEqual(-1, Utilities.IntervalComparison(0, 1, 2));
             Assert.AreEqual(0, Utilities.IntervalComparison(1.5f, 1, 2));
             Assert.AreEqual(+1, Utilities.IntervalComparison(3, 1, 2));
-        }
-
-        [TestMethod]
-        private void Square()
-        {
-            Assert.AreEqual(4, Utilities.Square(2));
         }
 
         [TestMethod]

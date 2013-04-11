@@ -10,6 +10,7 @@
 
 using System;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2
 {
@@ -106,9 +107,9 @@ namespace SharpSteer2
             Vector3 v;
             do
             {
-                v.X = (Utilities.Random() * 2) - 1;
+                v.X = (RandomHelpers.Random() * 2) - 1;
                 v.Y = 0;
-                v.Z = (Utilities.Random() * 2) - 1;
+                v.Z = (RandomHelpers.Random() * 2) - 1;
             }
             while (v.Length() >= 1);
 
@@ -126,9 +127,9 @@ namespace SharpSteer2
             Vector3 v = new Vector3();
             do
             {
-                v.X = (Utilities.Random() * 2) - 1;
-                v.Y = (Utilities.Random() * 2) - 1;
-                v.Z = (Utilities.Random() * 2) - 1;
+                v.X = (RandomHelpers.Random() * 2) - 1;
+                v.Y = (RandomHelpers.Random() * 2) - 1;
+                v.Z = (RandomHelpers.Random() * 2) - 1;
             }
             while (v.Length() >= 1);
 

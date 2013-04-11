@@ -10,6 +10,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo.PlugIns.Soccer
 {
@@ -39,7 +40,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			MaxSpeed = 10;         // velocity is clipped to this magnitude
 
 			// Place me on my part of the field, looking at oponnents goal
-			SetPosition(b_ImTeamA ? Utilities.Random() * 20 : -Utilities.Random() * 20, 0, (Utilities.Random() - 0.5f) * 20);
+			SetPosition(b_ImTeamA ? RandomHelpers.Random() * 20 : -RandomHelpers.Random() * 20, 0, (RandomHelpers.Random() - 0.5f) * 20);
 			if (m_MyID < 9)
 			{
 				if (b_ImTeamA)

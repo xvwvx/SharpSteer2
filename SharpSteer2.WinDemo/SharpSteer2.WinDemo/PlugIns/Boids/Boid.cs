@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo.PlugIns.Boids
 { // spherical obstacle group
@@ -216,7 +217,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 				// loop until no overlap with other obstacles and the home base
 				//float r = 15;
 				//Vector3 c = Vector3.Up * r * (-0.5f * maxObstacleCount + obstacleCount);
-				float r = Utilities.Random(0.5f, 2);
+				float r = RandomHelpers.Random(0.5f, 2);
 				Vector3 c = Vector3Helpers.RandomVectorInUnitRadiusSphere() * worldRadius * 1.1f;
 
 				// add new non-overlapping obstacle to registry

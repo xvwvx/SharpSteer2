@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Ctf;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo.PlugIns.Ctf
 { // spherical obstacle group
@@ -84,7 +85,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		{
 			// randomize position on a ring between inner and outer radii
 			// centered around the home base
-			float rRadius = Utilities.Random(Globals.MinStartRadius, Globals.MaxStartRadius);
+			float rRadius = RandomHelpers.Random(Globals.MinStartRadius, Globals.MaxStartRadius);
 			Vector3 randomOnRing = Vector3Helpers.RandomUnitVectorOnXZPlane() * rRadius;
 			Position = (Globals.HomeBaseCenter + randomOnRing);
 
@@ -139,7 +140,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 				float requiredClearance = Globals.Seeker.Radius * 4; // 2 x diameter
 				do
 				{
-					r = Utilities.Random(1.5f, 4);
+					r = RandomHelpers.Random(1.5f, 4);
 					c = Vector3Helpers.RandomVectorOnUnitRadiusXZDisk() * Globals.MaxStartRadius * 1.1f;
 					minClearance = float.MaxValue;
 					System.Diagnostics.Debug.WriteLine(String.Format("[{0}, {1}, {2}]", c.X, c.Y, c.Z));

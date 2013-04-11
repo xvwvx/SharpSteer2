@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 {
@@ -120,7 +121,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 
 			// set initial position
 			// (random point on path + random horizontal offset)
-			float d = path.TotalPathLength * Utilities.Random();
+			float d = path.TotalPathLength * RandomHelpers.Random();
 			float r = path.Radius;
 			Vector3 randomOffset = Vector3Helpers.RandomVectorOnUnitRadiusXZDisk() * r;
 			Position = (path.MapPathDistanceToPoint(d) + randomOffset);
@@ -129,7 +130,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			RandomizeHeadingOnXZPlane();
 
 			// pick a random direction for path following (upstream or downstream)
-			pathDirection = (Utilities.Random() > 0.5) ? -1 : +1;
+			pathDirection = (RandomHelpers.Random() > 0.5) ? -1 : +1;
 
 			// trail parameters: 3 seconds with 60 points along the trail
 			trail = new Trail(3, 60);
@@ -181,7 +182,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 
 			// determine if obstacle avoidance is required
 			Vector3 obstacleAvoidance = Vector3.Zero;
-			if (leakThrough < Utilities.Random())
+			if (leakThrough < RandomHelpers.Random())
 			{
 				const float oTime = 6; // minTimeToCollision = 6 seconds
 				obstacleAvoidance = SteerToAvoidObstacles(oTime, Globals.Obstacles);
@@ -205,7 +206,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 				neighbors.Clear();
 				proximityToken.FindNeighbors(Position, maxRadius, neighbors);
 
-				if (neighbors.Count > 0 && leakThrough < Utilities.Random())
+				if (neighbors.Count > 0 && leakThrough < RandomHelpers.Random())
 					collisionAvoidance = SteerToAvoidNeighbors(caLeadTime, neighbors) * 10;
 
 				// if collision avoidance is needed, do it

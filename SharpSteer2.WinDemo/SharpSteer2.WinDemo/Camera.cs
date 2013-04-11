@@ -10,6 +10,7 @@
 
 using System;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo
 {
@@ -243,7 +244,7 @@ namespace SharpSteer2.WinDemo
                 Vector3 unitOffset = offset / distance;
 
 				// new offset of length XXX
-				float xxxDistance = (float)Math.Sqrt(Utilities.Square(FixedDistanceDistance) - Utilities.Square(FixedDistanceVerticalOffset));
+                float xxxDistance = (float)Math.Sqrt(FixedDistanceDistance * FixedDistanceDistance - FixedDistanceVerticalOffset * FixedDistanceVerticalOffset);
                 Vector3 newOffset = unitOffset * xxxDistance;
 
 				// return new camera position: adjust distance to target

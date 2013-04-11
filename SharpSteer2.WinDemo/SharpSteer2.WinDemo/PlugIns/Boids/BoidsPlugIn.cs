@@ -119,14 +119,15 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 
 		public override void Reset()
 		{
-			// reset each boid in flock
-			for (int i = 0; i < flock.Count; i++) flock[i].Reset();
+            // reset each boid in flock
+            for (int i = 0; i < flock.Count; i++)
+                flock[i].Reset();
 
-			// reset camera position
-			Demo.Position3dCamera(Demo.SelectedVehicle);
+            // reset camera position
+            Demo.Position3dCamera(Demo.SelectedVehicle);
 
-			// make camera jump immediately to new position
-			Demo.Camera.DoNotSmoothNextMove();
+            // make camera jump immediately to new position
+            Demo.Camera.DoNotSmoothNextMove();
 		}
 
 		// for purposes of demonstration, allow cycling through various

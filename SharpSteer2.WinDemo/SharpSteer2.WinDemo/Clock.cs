@@ -9,6 +9,7 @@
 
 using System;
 using System.Diagnostics;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo
 {

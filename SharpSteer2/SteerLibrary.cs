@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2
 {
@@ -644,8 +645,8 @@ namespace SharpSteer2
 
 			// computer line-sphere intersection parameters
 			float b = -2 * lc.Z;
-			float c = Utilities.Square(lc.X) + Utilities.Square(lc.Y) + Utilities.Square(lc.Z) -
-			          Utilities.Square(obs.Radius + Radius);
+		    var totalRadius = obs.Radius + Radius;
+			float c = (lc.X * lc.X) + (lc.Y * lc.Y) + (lc.Z * lc.Z) - (totalRadius * totalRadius);
 			float d = (b * b) - (4 * c);
 
 			// when the path does not intersect the sphere

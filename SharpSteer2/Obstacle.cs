@@ -12,24 +12,12 @@ using Microsoft.Xna.Framework;
 
 namespace SharpSteer2
 {
-	public enum SeenFromState
-	{
-		Outside,
-		Inside,
-		Both
-	}
-
 	/// <summary>
 	/// Obstacle: a pure virtual base class for an abstract shape in space, to be
 	/// used with obstacle avoidance.
-	/// 
-	/// XXX this should define generic methods for querying the obstacle shape
 	/// </summary>
 	public interface IObstacle
 	{
-		SeenFromState SeenFrom { get; set; }
-
-		// XXX 4-23-03: Temporary work around (see comment above)
         Vector3 SteerToAvoid(IVehicle v, float minTimeToCollision);
 	}
 }

@@ -31,8 +31,6 @@ namespace SharpSteer2
 			Center = c;
 		}
 
-	    public SeenFromState SeenFrom { get; set; }
-
 	    // XXX 4-23-03: Temporary work around (see comment above)
 		//
 		// Checks for intersection of the given spherical obstacle with a

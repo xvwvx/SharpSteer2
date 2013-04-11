@@ -8,45 +8,12 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
-using System;
 using Microsoft.Xna.Framework;
 
-namespace SharpSteer2
+namespace SharpSteer2.Helpers
 {
 	public class Utilities
 	{
-        [ThreadStatic]
-        static Random _rng;
-	    private static Random rng
-	    {
-            get
-            {
-                if (_rng == null)
-                    _rng = new Random();
-                return _rng;
-            }
-	    }
-
-		// ----------------------------------------------------------------------------
-		// Random number utilities
-
-		// Returns a float randomly distributed between 0 and 1
-		public static float Random()
-		{
-			return (float)rng.NextDouble();
-		}
-
-		// Returns a float randomly distributed between lowerBound and upperBound
-		public static float Random(float lowerBound, float upperBound)
-		{
-			return lowerBound + (Random() * (upperBound - lowerBound));
-		}
-
-	    public static int RandomInt(int min, int max)
-	    {
-	        return (int)Random(min, max);
-	    }
-
 	    // ----------------------------------------------------------------------------
 		// remap a value specified relative to a pair of bounding values
 		// to the corresponding value relative to another pair of bounds.
@@ -85,15 +52,10 @@ namespace SharpSteer2
 
 		public static float ScalarRandomWalk(float initial, float walkspeed, float min, float max)
 		{
-			float next = initial + (((Random() * 2) - 1) * walkspeed);
+			float next = initial + (((RandomHelpers.Random() * 2) - 1) * walkspeed);
 			if (next < min) return min;
 			if (next > max) return max;
 			return next;
-		}
-
-		public static float Square(float x)
-		{
-			return x * x;
 		}
 
 		/// <summary>
