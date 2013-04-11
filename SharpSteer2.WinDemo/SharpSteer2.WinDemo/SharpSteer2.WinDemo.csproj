@@ -113,7 +113,6 @@
     <Compile Include="DeferredDraw.cs" />
     <Compile Include="Demo.cs" />
     <Compile Include="Draw.cs" />
-    <Compile Include="FixedFont.cs" />
     <Compile Include="IPlugIn.cs" />
     <Compile Include="PlugIn.cs" />
     <Compile Include="PlugIns\Boids\Boid.cs" />
@@ -157,7 +156,8 @@
       <Name>SharpSteer2</Name>
     </ProjectReference>
     <ProjectReference Include="..\SharpSteer2.WinDemoContent\SharpSteer2.WinDemoContent.contentproj">
-      <Name>SharpSteer2.WinDemoContent</Name>
+      <Project>{5057B41F-613F-4C6B-A522-42B15B54F3EF}</Project>
+      <Name>SharpSteer2.WinDemoContent %28Content%29</Name>
       <XnaReferenceType>Content</XnaReferenceType>
     </ProjectReference>
   </ItemGroup>
