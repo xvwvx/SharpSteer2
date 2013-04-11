@@ -18,7 +18,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 
 	public class CtfBase : SimpleVehicle
 	{
-		protected Trail trail;
+		protected Trail Trail;
 
 		// constructor
 		public CtfBase(IAnnotationService annotations = null)
@@ -40,15 +40,15 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 
 			RandomizeStartingPositionAndHeading();  // new starting position
 
-			trail = new Trail();
-			trail.Clear();     // prevent long streaks due to teleportation
+			Trail = new Trail();
+			Trail.Clear();     // prevent long streaks due to teleportation
 		}
 
 		// draw this character/vehicle into the scene
 		public virtual void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, BodyColor);
-			trail.Draw(Annotation.drawer);
+			Trail.Draw(Annotation.drawer);
 		}
 
 		// annotate when actively avoiding obstacles

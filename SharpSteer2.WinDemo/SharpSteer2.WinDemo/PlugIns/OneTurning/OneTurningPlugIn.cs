@@ -36,7 +36,7 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 
 			// initialize camera
 			Demo.Init2dCamera(oneTurning);
-			Demo.Camera.SetPosition(10, Demo.Camera2dElevation, 10);
+			Demo.Camera.SetPosition(10, Demo.CAMERA2_D_ELEVATION, 10);
 			Demo.Camera.FixedPosition = new Vector3(40);
 		}
 

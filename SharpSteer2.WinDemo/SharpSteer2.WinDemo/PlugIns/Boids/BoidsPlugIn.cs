@@ -47,7 +47,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 			// initialize camera
 			Demo.Init3dCamera(Demo.SelectedVehicle);
 			Demo.Camera.Mode = Camera.CameraMode.Fixed;
-			Demo.Camera.FixedDistanceDistance = Demo.CameraTargetDistance;
+			Demo.Camera.FixedDistanceDistance = Demo.CAMERA_TARGET_DISTANCE;
 			Demo.Camera.FixedDistanceVerticalOffset = 0;
 			Demo.Camera.LookDownDistance = 20;
 			Demo.Camera.AimLeadTime = 0.5f;

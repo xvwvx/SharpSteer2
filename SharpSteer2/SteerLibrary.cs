@@ -35,9 +35,6 @@ namespace SharpSteer2
 			// initial state of wander behavior
 			WanderSide = 0;
 			WanderUp = 0;
-
-			// default to non-gaudyPursuitAnnotation
-			GaudyPursuitAnnotation = false;
 		}
 
 		// -------------------------------------------------- steering behaviors
@@ -117,23 +114,16 @@ namespace SharpSteer2
 			// no steering is required if (a) our future position is inside
 			// the path tube and (b) we are facing in the correct direction
 			if ((outside < 0) && rightway)
-			{
-				// all is well, return zero steering
-				return Vector3.Zero;
-			}
-			else
-			{
-				// otherwise we need to steer towards a target point obtained
-				// by adding pathDistanceOffset to our current path position
+				return Vector3.Zero; //all is well, return zero steering
 
-				float targetPathDistance = nowPathDistance + pathDistanceOffset;
-                Vector3 target = path.MapPathDistanceToPoint(targetPathDistance);
+			// otherwise we need to steer towards a target point obtained
+			// by adding pathDistanceOffset to our current path position
+			float targetPathDistance = nowPathDistance + pathDistanceOffset;
+            Vector3 target = path.MapPathDistanceToPoint(targetPathDistance);
+			annotation.PathFollowing(futurePosition, onPath, target, outside);
 
-				annotation.PathFollowing(futurePosition, onPath, target, outside);
-
-				// return steering to seek target on path
-				return SteerForSeek(target);
-			}
+			// return steering to seek target on path
+			return SteerForSeek(target);
 		}
 
         public Vector3 SteerToStayOnPath(float predictionTime, Pathway path)
@@ -147,19 +137,13 @@ namespace SharpSteer2
             Vector3 onPath = path.MapPointToPath(futurePosition, out tangent, out outside);
 
 			if (outside < 0)
-			{
-				// our predicted future position was in the path,
-				// return zero steering.
-				return Vector3.Zero;
-			}
-			else
-			{
-				// our predicted future position was outside the path, need to
-				// steer towards it.  Use onPath projection of futurePosition
-				// as seek target
-				annotation.PathFollowing(futurePosition, onPath, onPath, outside);
-				return SteerForSeek(onPath);
-			}
+                return Vector3.Zero;    // our predicted future position was in the path, return zero steering.
+
+			// our predicted future position was outside the path, need to
+			// steer towards it.  Use onPath projection of futurePosition
+			// as seek target
+			annotation.PathFollowing(futurePosition, onPath, onPath, outside);
+			return SteerForSeek(onPath);
 		}
 
 		// ------------------------------------------------------------------------
@@ -413,35 +397,23 @@ namespace SharpSteer2
 		public bool IsInBoidNeighborhood(IVehicle other, float minDistance, float maxDistance, float cosMaxAngle)
 		{
 			if (other == this)
-			{
 				return false;
-			}
-			else
-			{
-                Vector3 offset = other.Position - Position;
-				float distanceSquared = offset.LengthSquared();
 
-				// definitely in neighborhood if inside minDistance sphere
-				if (distanceSquared < (minDistance * minDistance))
-				{
-					return true;
-				}
-				else
-				{
-					// definitely not in neighborhood if outside maxDistance sphere
-					if (distanceSquared > (maxDistance * maxDistance))
-					{
-						return false;
-					}
-					else
-					{
-						// otherwise, test angular offset from forward axis
-                        Vector3 unitOffset = offset / (float)Math.Sqrt(distanceSquared);
-                        float forwardness = Vector3.Dot(Forward, unitOffset);
-						return forwardness > cosMaxAngle;
-					}
-				}
-			}
+		    Vector3 offset = other.Position - Position;
+		    float distanceSquared = offset.LengthSquared();
+
+		    // definitely in neighborhood if inside minDistance sphere
+		    if (distanceSquared < (minDistance * minDistance))
+		        return true;
+
+		    // definitely not in neighborhood if outside maxDistance sphere
+		    if (distanceSquared > (maxDistance * maxDistance))
+		        return false;
+
+		    // otherwise, test angular offset from forward axis
+		    Vector3 unitOffset = offset / (float)Math.Sqrt(distanceSquared);
+		    float forwardness = Vector3.Dot(Forward, unitOffset);
+		    return forwardness > cosMaxAngle;
 		}
 
 		// ------------------------------------------------------------------------
@@ -473,7 +445,7 @@ namespace SharpSteer2
 			// divide by neighbors, then normalize to pure direction
             if (neighbors > 0)
             {
-                steering = (steering / (float)neighbors);
+                steering = (steering / neighbors);
                 steering.Normalize();
             }
 
@@ -548,12 +520,15 @@ namespace SharpSteer2
 
 		// ------------------------------------------------------------------------
 		// pursuit of another this (& version with ceiling on prediction time)
-        public Vector3 SteerForPursuit(IVehicle quarry)
-		{
-			return SteerForPursuit(quarry, float.MaxValue);
-		}
 
-        public Vector3 SteerForPursuit(IVehicle quarry, float maxPredictionTime)
+	    readonly static float[,] _pursuitFactors = new float[3, 3]
+	    {
+            { 2, 2, 0.5f },         //Behind
+            { 4, 0.8f, 1 },         //Aside
+            { 0.85f, 1.8f, 4 },     //Ahead
+	    };
+
+	    public Vector3 SteerForPursuit(IVehicle quarry, float maxPredictionTime = float.MaxValue)
 		{
 			// offset from this to quarry, that distance, unit vector toward quarry
             Vector3 offset = quarry.Position - Position;
@@ -572,66 +547,10 @@ namespace SharpSteer2
 			int f = Utilities.IntervalComparison(forwardness, -0.707f, 0.707f);
 			int p = Utilities.IntervalComparison(parallelness, -0.707f, 0.707f);
 
-			float timeFactor = 0;   // to be filled in below
-			Color color = Color.Black; // to be filled in below (xxx just for debugging)
-
-			// Break the pursuit into nine cases, the cross product of the
+	        // Break the pursuit into nine cases, the cross product of the
 			// quarry being [ahead, aside, or behind] us and heading
 			// [parallel, perpendicular, or anti-parallel] to us.
-			switch (f)
-			{
-			case +1:
-				switch (p)
-				{
-				case +1:          // ahead, parallel
-					timeFactor = 4;
-					color = Color.Black;
-					break;
-				case 0:           // ahead, perpendicular
-					timeFactor = 1.8f;
-					color = Color.Gray;
-					break;
-				case -1:          // ahead, anti-parallel
-					timeFactor = 0.85f;
-					color = Color.White;
-					break;
-				}
-				break;
-			case 0:
-				switch (p)
-				{
-				case +1:          // aside, parallel
-					timeFactor = 1;
-					color = Color.Red;
-					break;
-				case 0:           // aside, perpendicular
-					timeFactor = 0.8f;
-					color = Color.Yellow;
-					break;
-				case -1:          // aside, anti-parallel
-					timeFactor = 4;
-					color = Color.Green;
-					break;
-				}
-				break;
-			case -1:
-				switch (p)
-				{
-				case +1:          // behind, parallel
-					timeFactor = 0.5f;
-					color = Color.Cyan;
-					break;
-				case 0:           // behind, perpendicular
-					timeFactor = 2;
-					color = Color.Blue;
-					break;
-				case -1:          // behind, anti-parallel
-					timeFactor = 2;
-					color = Color.Magenta;
-					break;
-				}
-				break;
-			}
+	        float timeFactor = _pursuitFactors[f + 1, p + 1];
 
 			// estimated time until intercept of quarry
 			float et = directTravelTime * timeFactor;
@@ -643,13 +562,10 @@ namespace SharpSteer2
 			Vector3 target = quarry.PredictFuturePosition(etl);
 
 			// annotation
-			annotation.Line(Position, target, GaudyPursuitAnnotation ? color : Color.DarkGray);
+			annotation.Line(Position, target, Color.DarkGray);
 
 			return SteerForSeek(target);
 		}
-
-		// for annotation
-	    protected bool GaudyPursuitAnnotation;
 
 		// ------------------------------------------------------------------------
 		// evasion of another this
@@ -682,34 +598,20 @@ namespace SharpSteer2
 		// XXX above AbstractVehicle, below SimpleVehicle
 		// XXX ("utility this"?)
 
-		// xxx cwr experimental 9-9-02 -- names OK?
-        public bool IsAhead(Vector3 target)
-		{
-			return IsAhead(target, 0.707f);
-		}
-        public bool IsAside(Vector3 target)
-		{
-			return IsAside(target, 0.707f);
-		}
-        public bool IsBehind(Vector3 target)
-		{
-			return IsBehind(target, -0.707f);
-		}
-
-        public bool IsAhead(Vector3 target, float cosThreshold)
+	    public bool IsAhead(Vector3 target, float cosThreshold = 0.707f)
 		{
 			Vector3 targetDirection = (target - Position);
             targetDirection.Normalize();
             return Vector3.Dot(Forward, targetDirection) > cosThreshold;
 		}
-        public bool IsAside(Vector3 target, float cosThreshold)
+        public bool IsAside(Vector3 target, float cosThreshold = 0.707f)
 		{
 			Vector3 targetDirection = (target - Position);
             targetDirection.Normalize();
             float dp = Vector3.Dot(Forward, targetDirection);
 			return (dp < cosThreshold) && (dp > -cosThreshold);
 		}
-        public bool IsBehind(Vector3 target, float cosThreshold)
+        public bool IsBehind(Vector3 target, float cosThreshold = -0.707f)
 		{
 			Vector3 targetDirection = (target - Position);
             targetDirection.Normalize();

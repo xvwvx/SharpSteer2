@@ -21,7 +21,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
         private readonly IAnnotationService _annotations;
 
 		public PedestrianPlugIn(IAnnotationService annotations)
-			: base()
 		{
             _annotations = annotations;
 			crowd = new List<Pedestrian>();
@@ -143,7 +142,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 					if ((Vector3.Distance(vp, selected.Position) < nearDistance)/* ||
 						(nearMouse != null && (Vector3.Distance(vp, np) < nearDistance))*/)
 					{
-						String sn = String.Format("#{0}", ((Pedestrian)vehicle).SerialNumber);
+						String sn = String.Format("#{0}", vehicle.GetHashCode());
 						Color textColor = new Color((byte)(255.0f * 0.8f), (byte)(255.0f * 1), (byte)(255.0f * 0.8f));
 						Vector3 textOffset = new Vector3(0, 0.25f, 0);
 						Vector3 textPos = vehicle.Position + textOffset;

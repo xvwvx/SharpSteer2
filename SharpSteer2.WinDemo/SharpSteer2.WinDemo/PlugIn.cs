@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
 
-namespace SharpSteer2
+namespace SharpSteer2.WinDemo
 {
 	public abstract class PlugIn : IPlugIn
 	{

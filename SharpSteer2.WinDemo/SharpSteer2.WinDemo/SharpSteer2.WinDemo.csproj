@@ -114,6 +114,8 @@
     <Compile Include="Demo.cs" />
     <Compile Include="Draw.cs" />
     <Compile Include="FixedFont.cs" />
+    <Compile Include="IPlugIn.cs" />
+    <Compile Include="PlugIn.cs" />
     <Compile Include="PlugIns\Boids\Boid.cs" />
     <Compile Include="PlugIns\Boids\BoidsPlugIn.cs" />
     <Compile Include="PlugIns\Ctf\CtfBase.cs" />

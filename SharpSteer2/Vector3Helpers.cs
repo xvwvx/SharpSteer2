@@ -15,33 +15,46 @@ namespace SharpSteer2
 {
     public static class Vector3Helpers
     {
-        // return component of vector parallel to a unit basis vector
-        // IMPORTANT NOTE: assumes "basis" has unit magnitude (length == 1)
+        /// <summary>
+        /// return component of vector parallel to a unit basis vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="unitBasis">A unit length basis vector</param>
+        /// <returns></returns>
         public static Vector3 ParallelComponent(Vector3 vector, Vector3 unitBasis)
         {
             float projection = Vector3.Dot(vector, unitBasis);
             return unitBasis * projection;
         }
 
-        // return component of vector perpendicular to a unit basis vector
-        // IMPORTANT NOTE: assumes "basis" has unit magnitude(length==1)
+        /// <summary>
+        /// return component of vector perpendicular to a unit basis vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="unitBasis">A unit length basis vector</param>
+        /// <returns></returns>
         public static Vector3 PerpendicularComponent(Vector3 vector, Vector3 unitBasis)
         {
             return (vector - ParallelComponent(vector, unitBasis));
         }
 
-        // clamps the length of a given vector to maxLength.  If the vector is
-        // shorter its value is returned unaltered, if the vector is longer
-        // the value returned has length of maxLength and is paralle to the
-        // original input.
+        /// <summary>
+        /// clamps the length of a given vector to maxLength.  If the vector is
+        /// shorter its value is returned unaltered, if the vector is longer
+        /// the value returned has length of maxLength and is paralle to the
+        /// original input.
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="maxLength"></param>
+        /// <returns></returns>
         public static Vector3 TruncateLength(Vector3 vector, float maxLength)
         {
             float maxLengthSquared = maxLength * maxLength;
             float vecLengthSquared = vector.LengthSquared();
             if (vecLengthSquared <= maxLengthSquared)
                 return vector;
-            else
-                return (vector * (maxLength / (float)Math.Sqrt(vecLengthSquared)));
+
+            return (vector * (maxLength / (float)Math.Sqrt(vecLengthSquared)));
         }
 
         // forces a 3d position onto the XZ (aka y=0) plane
@@ -79,17 +92,18 @@ namespace SharpSteer2
             float r = offset.Length();
             if (r > radius)
                 return vector + ((offset / r) * radius * -2);
-            else
-                return vector;
+            return vector;
         }
 
-        // ----------------------------------------------------------------------------
-        // Returns a position randomly distributed on a disk of unit radius
-        // on the XZ (Y=0) plane, centered at the origin.  Orientation will be
-        // random and length will range between 0 and 1
+        /// <summary>
+        /// Returns a position randomly distributed on a disk of unit radius
+        /// on the XZ (Y=0) plane, centered at the origin.  Orientation will be
+        /// random and length will range between 0 and 1
+        /// </summary>
+        /// <returns></returns>
         public static Vector3 RandomVectorOnUnitRadiusXZDisk()
         {
-            Vector3 v = new Vector3();
+            Vector3 v;
             do
             {
                 v.X = (Utilities.Random() * 2) - 1;
@@ -101,9 +115,12 @@ namespace SharpSteer2
             return v;
         }
 
-        // Returns a position randomly distributed inside a sphere of unit radius
-        // centered at the origin.  Orientation will be random and length will range
-        // between 0 and 1
+        /// <summary>
+        /// Returns a position randomly distributed inside a sphere of unit radius
+        /// centered at the origin.  Orientation will be random and length will range
+        /// between 0 and 1
+        /// </summary>
+        /// <returns></returns>
         public static Vector3 RandomVectorInUnitRadiusSphere()
         {
             Vector3 v = new Vector3();
@@ -118,10 +135,12 @@ namespace SharpSteer2
             return v;
         }
 
-        // ----------------------------------------------------------------------------
-        // Returns a position randomly distributed on the surface of a sphere
-        // of unit radius centered at the origin.  Orientation will be random
-        // and length will be 1
+        /// <summary>
+        /// Returns a position randomly distributed on the surface of a sphere
+        /// of unit radius centered at the origin.  Orientation will be random
+        /// and length will be 1
+        /// </summary>
+        /// <returns></returns>
         public static Vector3 RandomUnitVector()
         {
             Vector3 temp = RandomVectorInUnitRadiusSphere();
@@ -130,10 +149,12 @@ namespace SharpSteer2
             return temp;
         }
 
-        // ----------------------------------------------------------------------------
-        // Returns a position randomly distributed on a circle of unit radius
-        // on the XZ (Y=0) plane, centered at the origin.  Orientation will be
-        // random and length will be 1
+        /// <summary>
+        /// Returns a position randomly distributed on a circle of unit radius
+        /// on the XZ (Y=0) plane, centered at the origin.  Orientation will be
+        /// random and length will be 1
+        /// </summary>
+        /// <returns></returns>
         public static Vector3 RandomUnitVectorOnXZPlane()
         {
             Vector3 temp = RandomVectorInUnitRadiusSphere();

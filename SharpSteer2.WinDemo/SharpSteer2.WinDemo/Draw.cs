@@ -63,7 +63,7 @@ namespace SharpSteer2.WinDemo
 				break;
 			}
 
-            game.graphics.GraphicsDevice.DrawUserPrimitives(curMode, vertices.ToArray(), 0, primitiveCount);
+            game.Graphics.GraphicsDevice.DrawUserPrimitives(curMode, vertices.ToArray(), 0, primitiveCount);
 
 			vertices.Clear();
 		}
@@ -551,7 +551,7 @@ namespace SharpSteer2.WinDemo
 			// the 3d point.
 
 			// set text color and raster position
-			Vector3 p = game.graphics.GraphicsDevice.Viewport.Project(location, game.projectionMatrix, game.viewMatrix, game.worldMatrix);
+			Vector3 p = game.Graphics.GraphicsDevice.Viewport.Project(location, game.ProjectionMatrix, game.ViewMatrix, game.WorldMatrix);
 			TextEntry textEntry = new TextEntry();
 			textEntry.Color = color;
 			textEntry.Position = new Vector2(p.X, p.Y);

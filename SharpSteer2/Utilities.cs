@@ -42,7 +42,12 @@ namespace SharpSteer2
 			return lowerBound + (Random() * (upperBound - lowerBound));
 		}
 
-		// ----------------------------------------------------------------------------
+	    public static int RandomInt(int min, int max)
+	    {
+	        return (int)Random(min, max);
+	    }
+
+	    // ----------------------------------------------------------------------------
 		// remap a value specified relative to a pair of bounding values
 		// to the corresponding value relative to another pair of bounds.
 		// Inspired by (dyna:remap-interval y y0 y1 z0 z1)

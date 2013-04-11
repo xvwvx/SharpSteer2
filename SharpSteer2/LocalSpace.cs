@@ -57,6 +57,7 @@ namespace SharpSteer2
 
 			return _up;
 		}
+
         public Vector3 SetForward(float x, float y, float z)
 		{
             _forward.X = x;
@@ -65,13 +66,12 @@ namespace SharpSteer2
 
 			return _forward;
 		}
-        public Vector3 SetPosition(float x, float y, float z)
+
+        public void SetPosition(float x, float y, float z)
 		{
             _position.X = x;
             _position.Y = y;
             _position.Z = z;
-
-			return _position;
 		}
 
 		// ------------------------------------------------------------------------

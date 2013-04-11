@@ -15,7 +15,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SharpSteer2.Ctf;
 using SharpSteer2.WinDemo.PlugIns.Boids;
 using SharpSteer2.WinDemo.PlugIns.Ctf;
 using SharpSteer2.WinDemo.PlugIns.LowSpeedTurn;
@@ -31,41 +30,39 @@ namespace SharpSteer2.WinDemo
 	/// <summary>
 	/// This is the main type for your game
 	/// </summary>
-	public class Demo : Microsoft.Xna.Framework.Game
+	public class Demo : Game
 	{
 		// these are the size of the offscreen drawing surface
 		// in general, no one wants to change these as there
 		// are all kinds of UI calculations and positions based
 		// on these dimensions.
-		const int FixedDrawingWidth = 1280;
-		const int FixedDrawingHeight = 720;
 
-		// these are the size of the output window, ignored
+	    // these are the size of the output window, ignored
 		// on Xbox 360
-		private int preferredWindowWidth = 1024;
-		private int preferredWindowHeight = 640;
+	    private const int PREFERRED_WINDOW_WIDTH = 1024;
+	    private const int PREFERRED_WINDOW_HEIGHT = 640;
 
-		public GraphicsDeviceManager graphics;
-		public Effect effect;
-		EffectParameter effectParamWorldViewProjection;
+	    public readonly GraphicsDeviceManager Graphics;
+		public Effect Effect;
+		EffectParameter _effectParamWorldViewProjection;
 
-		ContentManager content;
-		FixedFont courierFont;
-		SpriteBatch spriteBatch;
+	    readonly ContentManager _content;
+		FixedFont _courierFont;
+		SpriteBatch _spriteBatch;
 
-		public Matrix worldMatrix;
-		public Matrix viewMatrix;
-		public Matrix projectionMatrix;
-		VertexDeclaration vertexDeclaration;
+		public Matrix WorldMatrix;
+		public Matrix ViewMatrix;
+		public Matrix ProjectionMatrix;
+		VertexDeclaration _vertexDeclaration;
 
-		BoidsPlugIn boids;
-		LowSpeedTurnPlugIn lowSpeedTurn;
-		PedestrianPlugIn pedestrian;
-		CtfPlugIn ctf;
-		MapDrivePlugIn mapDrive;
-		MpPlugIn multiplePersuit;
-		SoccerPlugIn soccer;
-		OneTurningPlugIn oneTurning;
+        BoidsPlugIn _boids;
+        LowSpeedTurnPlugIn _lowSpeedTurn;
+        PedestrianPlugIn _pedestrian;
+        CtfPlugIn _ctf;
+        MapDrivePlugIn _mapDrive;
+        MpPlugIn _multiplePersuit;
+        SoccerPlugIn _soccer;
+        OneTurningPlugIn _oneTurning;
 
 		// currently selected plug-in (user can choose or cycle through them)
 		public static PlugIn SelectedPlugIn = null;
@@ -75,46 +72,46 @@ namespace SharpSteer2.WinDemo
 		// near a vehicle causes it to become the Selected Vehicle.
 		public static IVehicle SelectedVehicle = null;
 
-		public static Clock Clock = new Clock();
-		public static Camera Camera = new Camera();
+		public static readonly Clock Clock = new Clock();
+		public static readonly Camera Camera = new Camera();
 
 		// some camera-related default constants
-		public const float Camera2dElevation = 8;
-		public const float CameraTargetDistance = 13;
-		public static readonly Vector3 CameraTargetOffset = new Vector3(0, Camera2dElevation, 0);
+		public const float CAMERA2_D_ELEVATION = 8;
+		public const float CAMERA_TARGET_DISTANCE = 13;
+		public static readonly Vector3 CameraTargetOffset = new Vector3(0, CAMERA2_D_ELEVATION, 0);
 
-	    readonly Annotation annotations = new Annotation();
+	    readonly Annotation _annotations = new Annotation();
 
 		public Demo()
 		{
 			Drawing.game = this;
 
-			graphics = new GraphicsDeviceManager(this);
-			content = new ContentManager(Services);
+			Graphics = new GraphicsDeviceManager(this);
+			_content = new ContentManager(Services);
 
-			graphics.PreferredBackBufferWidth = preferredWindowWidth;
-			graphics.PreferredBackBufferHeight = preferredWindowHeight;
+			Graphics.PreferredBackBufferWidth = PREFERRED_WINDOW_WIDTH;
+			Graphics.PreferredBackBufferHeight = PREFERRED_WINDOW_HEIGHT;
 
-			texts = new List<TextEntry>();
+			_texts = new List<TextEntry>();
 
 			//FIXME: eijeijei.
 			Annotation.drawer = new Drawing();
 
-			boids = new BoidsPlugIn(annotations);
-            lowSpeedTurn = new LowSpeedTurnPlugIn(annotations);
-            pedestrian = new PedestrianPlugIn(annotations);
-            ctf = new CtfPlugIn(annotations);
-            mapDrive = new MapDrivePlugIn(annotations);
-            multiplePersuit = new MpPlugIn(annotations);
-            soccer = new SoccerPlugIn(annotations);
-            oneTurning = new OneTurningPlugIn(annotations);
+            _boids = new BoidsPlugIn(_annotations);
+            _lowSpeedTurn = new LowSpeedTurnPlugIn(_annotations);
+            _pedestrian = new PedestrianPlugIn(_annotations);
+            _ctf = new CtfPlugIn(_annotations);
+            _mapDrive = new MapDrivePlugIn(_annotations);
+            _multiplePersuit = new MpPlugIn(_annotations);
+            _soccer = new SoccerPlugIn(_annotations);
+            _oneTurning = new OneTurningPlugIn(_annotations);
 
 			IsFixedTimeStep = false;
 		}
 
 		public static void Init2dCamera(IVehicle selected)
 		{
-			Init2dCamera(selected, CameraTargetDistance, Camera2dElevation);
+			Init2dCamera(selected, CAMERA_TARGET_DISTANCE, CAMERA2_D_ELEVATION);
 		}
 
 		public static void Init2dCamera(IVehicle selected, float distance, float elevation)
@@ -127,7 +124,7 @@ namespace SharpSteer2.WinDemo
 
 		public static void Init3dCamera(IVehicle selected)
 		{
-			Init3dCamera(selected, CameraTargetDistance, Camera2dElevation);
+			Init3dCamera(selected, CAMERA_TARGET_DISTANCE, CAMERA2_D_ELEVATION);
 		}
 		public static void Init3dCamera(IVehicle selected, float distance, float elevation)
 		{
@@ -139,7 +136,7 @@ namespace SharpSteer2.WinDemo
 
 		public static void Position2dCamera(IVehicle selected)
 		{
-			Position2dCamera(selected, CameraTargetDistance, Camera2dElevation);
+			Position2dCamera(selected, CAMERA_TARGET_DISTANCE, CAMERA2_D_ELEVATION);
 		}
 
 		public static void Position2dCamera(IVehicle selected, float distance, float elevation)
@@ -155,7 +152,7 @@ namespace SharpSteer2.WinDemo
 
 		public static void Position3dCamera(IVehicle selected)
 		{
-			Position3dCamera(selected, CameraTargetDistance, Camera2dElevation);
+			Position3dCamera(selected, CAMERA_TARGET_DISTANCE, CAMERA2_D_ELEVATION);
 		}
 
 		public static void Position3dCamera(IVehicle selected, float distance, float elevation)
@@ -354,7 +351,7 @@ namespace SharpSteer2.WinDemo
 				List<IVehicle> all = AllVehiclesOfSelectedPlugIn();
 
 				// find selected vehicle in container
-				int i = all.FindIndex(delegate(IVehicle v) { return v != null && v == SelectedVehicle; });
+				int i = all.FindIndex(v => v != null && v == SelectedVehicle);
 				if (i >= 0 && i < all.Count)
 				{
 					if (i == all.Count - 1)
@@ -399,18 +396,18 @@ namespace SharpSteer2.WinDemo
 			PopPhase();
 		}
 
-		static bool delayedResetPlugInXXX = false;
+		static bool _delayedResetPlugInXXX = false;
 		internal static void QueueDelayedResetPlugInXXX()
 		{
-			delayedResetPlugInXXX = true;
+			_delayedResetPlugInXXX = true;
 		}
 
 		static void DoDelayedResetPlugInXXX()
 		{
-			if (delayedResetPlugInXXX)
+			if (_delayedResetPlugInXXX)
 			{
 				ResetSelectedPlugIn();
-				delayedResetPlugInXXX = false;
+				_delayedResetPlugInXXX = false;
 			}
 		}
 
@@ -420,13 +417,13 @@ namespace SharpSteer2.WinDemo
 			UpdatePhaseTimers();
 
 			// save old phase
-			phaseStack[phaseStackIndex++] = phase;
+			_phaseStack[_phaseStackIndex++] = _phase;
 
 			// set new phase
-			phase = newPhase;
+			_phase = newPhase;
 
 			// check for stack overflow
-			if (phaseStackIndex >= phaseStackSize)
+			if (_phaseStackIndex >= PHASE_STACK_SIZE)
 			{
 				throw new ArgumentOutOfRangeException("phaseStack overflow");
 			}
@@ -438,7 +435,7 @@ namespace SharpSteer2.WinDemo
 			UpdatePhaseTimers();
 
 			// restore old phase
-			phase = phaseStack[--phaseStackIndex];
+			_phase = _phaseStack[--_phaseStackIndex];
 		}
 
 		// redraw graphics for the currently selected plug-in
@@ -526,15 +523,15 @@ namespace SharpSteer2.WinDemo
         protected override void LoadContent() {
             base.LoadContent();
 			// TODO: Load any ResourceManagementMode.Automatic content
-			courierFont = new FixedFont(content.Load<Texture2D>("Content/Fonts/Courier"));
+			_courierFont = new FixedFont(_content.Load<Texture2D>("Content/Fonts/Courier"));
 
-			spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
+			_spriteBatch = new SpriteBatch(Graphics.GraphicsDevice);
 
-			effect = content.Load<Effect>("Content/Shaders/Simple");
-			effectParamWorldViewProjection = effect.Parameters["WorldViewProjection"];
+			Effect = _content.Load<Effect>("Content/Shaders/Simple");
+			_effectParamWorldViewProjection = Effect.Parameters["WorldViewProjection"];
 
 			// TODO: Load any ResourceManagementMode.Manual content
-            vertexDeclaration = new VertexDeclaration(VertexPositionTexture.VertexDeclaration.GetVertexElements());
+            _vertexDeclaration = new VertexDeclaration(VertexPositionTexture.VertexDeclaration.GetVertexElements());
 		}
 
 		/// <summary>
@@ -545,19 +542,14 @@ namespace SharpSteer2.WinDemo
 		/// </summary>
 		protected override void UnloadContent()
 		{
-			content.Unload();
+			_content.Unload();
 		}
 
-		/// <summary>
-		/// Allows the game to run logic such as updating the world,
-		/// checking for collisions, gathering input and playing audio.
-		/// </summary>
-		/// <param name="gameTime">Provides a snapshot of timing values.</param>
-		KeyboardState prevKeyState = new KeyboardState();
+		KeyboardState _prevKeyState = new KeyboardState();
 
 		bool IsKeyDown(KeyboardState keyState, Keys key)
 		{
-			return prevKeyState.IsKeyDown(key) == false && keyState.IsKeyDown(key) == true;
+			return _prevKeyState.IsKeyDown(key) == false && keyState.IsKeyDown(key) == true;
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -566,49 +558,49 @@ namespace SharpSteer2.WinDemo
 			GamePadState padState = GamePad.GetState(PlayerIndex.One);
 			KeyboardState keyState = Keyboard.GetState();
 			if (padState.Buttons.Back == ButtonState.Pressed ||
-				keyState.IsKeyDown(Keys.Escape) == true)
+				keyState.IsKeyDown(Keys.Escape))
 			{
-				this.Exit();
+				Exit();
 			}
 
-			if (IsKeyDown(keyState, Keys.R) == true)
+			if (IsKeyDown(keyState, Keys.R))
 			{
 				ResetSelectedPlugIn();
 			}
-			if (IsKeyDown(keyState, Keys.S) == true)
+			if (IsKeyDown(keyState, Keys.S))
 			{
 				SelectNextVehicle();
 			}
-			if (IsKeyDown(keyState, Keys.A) == true)
+			if (IsKeyDown(keyState, Keys.A))
 			{
-                annotations.IsEnabled = !annotations.IsEnabled;
+                _annotations.IsEnabled = !_annotations.IsEnabled;
 			}
-			if (IsKeyDown(keyState, Keys.Space) == true)
+			if (IsKeyDown(keyState, Keys.Space))
 			{
 				Clock.TogglePausedState();
 			}
-			if (IsKeyDown(keyState, Keys.C) == true)
+			if (IsKeyDown(keyState, Keys.C))
 			{
 				Camera.SelectNextMode();
 			}
-			if (IsKeyDown(keyState, Keys.F) == true)
+			if (IsKeyDown(keyState, Keys.F))
 			{
 				SelectNextPresetFrameRate();
 			}
-			if (IsKeyDown(keyState, Keys.Tab) == true)
+			if (IsKeyDown(keyState, Keys.Tab))
 			{
 				SelectNextPlugin();
 			}
 
 			for (Keys key = Keys.F1; key <= Keys.F10; key++)
 			{
-				if (IsKeyDown(keyState, key) == true)
+				if (IsKeyDown(keyState, key))
 				{
 					SelectedPlugIn.HandleFunctionKeys(key);
 				}
 			}
 
-			prevKeyState = keyState;
+			_prevKeyState = keyState;
 
 			// TODO: Add your update logic here
 
@@ -623,16 +615,16 @@ namespace SharpSteer2.WinDemo
 			// run selected PlugIn (with simulation's current time and step size)
 			UpdateSelectedPlugIn(Clock.TotalSimulationTime, Clock.ElapsedSimulationTime);
 
-			worldMatrix = Matrix.Identity;
+			WorldMatrix = Matrix.Identity;
 
 			Vector3 pos = Camera.Position;
 			Vector3 lookAt = Camera.Target;
 			Vector3 up = Camera.Up;
-			viewMatrix = Matrix.CreateLookAt(new Vector3(pos.X, pos.Y, pos.Z), new Vector3(lookAt.X, lookAt.Y, lookAt.Z), new Vector3(up.X, up.Y, up.Z));
+			ViewMatrix = Matrix.CreateLookAt(new Vector3(pos.X, pos.Y, pos.Z), new Vector3(lookAt.X, lookAt.Y, lookAt.Z), new Vector3(up.X, up.Y, up.Z));
 
-			projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
+			ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(
 				MathHelper.ToRadians(45),  // 45 degree angle
-				(float)graphics.GraphicsDevice.Viewport.Width / (float)graphics.GraphicsDevice.Viewport.Height,
+				(float)Graphics.GraphicsDevice.Viewport.Width / (float)Graphics.GraphicsDevice.Viewport.Height,
 				1.0f, 400.0f);
 
 			base.Update(gameTime);
@@ -644,10 +636,10 @@ namespace SharpSteer2.WinDemo
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
-			graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+			Graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            graphics.GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            graphics.GraphicsDevice.BlendState = BlendState.AlphaBlend;
+            Graphics.GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+            Graphics.GraphicsDevice.BlendState = BlendState.AlphaBlend;
             //HACK
             //graphics.GraphicsDevice.RasterizerState.CullMode = CullMode.CullClockwiseFace;
 
@@ -659,15 +651,15 @@ namespace SharpSteer2.WinDemo
             //graphics.GraphicsDevice.RenderState.AlphaBlendEnable = true;
             //graphics.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
 
-			Matrix worldViewProjection = worldMatrix * viewMatrix * projectionMatrix;
-			effectParamWorldViewProjection.SetValue(worldViewProjection);
+			Matrix worldViewProjection = WorldMatrix * ViewMatrix * ProjectionMatrix;
+			_effectParamWorldViewProjection.SetValue(worldViewProjection);
 
             //TODO this might break
             //graphics.GraphicsDevice.SetVertexBuffer(vertexDeclaration);
 
 			//FIXME: Probably not the best way to do it, but it works...
             //effect.Begin();
-			effect.CurrentTechnique.Passes[0].Apply();
+			Effect.CurrentTechnique.Passes[0].Apply();
 
 			// redraw selected PlugIn (based on real time)
 			RedrawSelectedPlugIn(Clock.TotalRealTime, Clock.ElapsedRealTime);
@@ -676,46 +668,46 @@ namespace SharpSteer2.WinDemo
             //effect.End();
 
 			// Draw some sample text.
-			spriteBatch.Begin();
+			_spriteBatch.Begin();
 
-			float cw = courierFont.Size.X; // xxx character width
-			float lh = courierFont.Size.Y; // xxx line height
+			float cw = _courierFont.Size.X; // xxx character width
+			float lh = _courierFont.Size.Y; // xxx line height
 
-			foreach (TextEntry text in texts)
+			foreach (TextEntry text in _texts)
 			{
-				courierFont.Draw(text.Text, text.Position, 1.0f, text.Color, spriteBatch);
+				_courierFont.Draw(text.Text, text.Position, 1.0f, text.Color, _spriteBatch);
 			}
-			texts.Clear();
+			_texts.Clear();
 
 			// get smoothed phase timer information
 			float ptd = PhaseTimerDraw;
 			float ptu = PhaseTimerUpdate;
 			float pto = PhaseTimerOverhead;
 			float smoothRate = Clock.SmoothingRate;
-			Utilities.BlendIntoAccumulator(smoothRate, ptd, ref smoothedTimerDraw);
-			Utilities.BlendIntoAccumulator(smoothRate, ptu, ref smoothedTimerUpdate);
-			Utilities.BlendIntoAccumulator(smoothRate, pto, ref smoothedTimerOverhead);
+			Utilities.BlendIntoAccumulator(smoothRate, ptd, ref _smoothedTimerDraw);
+			Utilities.BlendIntoAccumulator(smoothRate, ptu, ref _smoothedTimerUpdate);
+			Utilities.BlendIntoAccumulator(smoothRate, pto, ref _smoothedTimerOverhead);
 
 			// keep track of font metrics and start of next line
 			Vector2 screenLocation = new Vector2(lh, lh);
 
 			String str;
 			str = String.Format("Camera: {0}", Camera.ModeName);
-			courierFont.Draw(str, screenLocation, 1.0f, Color.White, spriteBatch);
+			_courierFont.Draw(str, screenLocation, 1.0f, Color.White, _spriteBatch);
 			screenLocation.Y += lh;
 			str = String.Format("PlugIn: {0}", SelectedPlugIn.Name);
-			courierFont.Draw(str, screenLocation, 1.0f, Color.White, spriteBatch);
+			_courierFont.Draw(str, screenLocation, 1.0f, Color.White, _spriteBatch);
 
-			screenLocation = new Vector2(lh, preferredWindowHeight - 5.5f * lh);
+			screenLocation = new Vector2(lh, PREFERRED_WINDOW_HEIGHT - 5.5f * lh);
 
-			str = String.Format("Update: {0}", GetPhaseTimerFps(smoothedTimerUpdate));
-			courierFont.Draw(str, screenLocation, 1.0f, Color.White, spriteBatch);
+			str = String.Format("Update: {0}", GetPhaseTimerFps(_smoothedTimerUpdate));
+			_courierFont.Draw(str, screenLocation, 1.0f, Color.White, _spriteBatch);
 			screenLocation.Y += lh;
-			str = String.Format("Draw:   {0}", GetPhaseTimerFps(smoothedTimerDraw));
-			courierFont.Draw(str, screenLocation, 1.0f, Color.White, spriteBatch);
+			str = String.Format("Draw:   {0}", GetPhaseTimerFps(_smoothedTimerDraw));
+			_courierFont.Draw(str, screenLocation, 1.0f, Color.White, _spriteBatch);
 			screenLocation.Y += lh;
-			str = String.Format("Other:  {0}", GetPhaseTimerFps(smoothedTimerOverhead));
-			courierFont.Draw(str, screenLocation, 1.0f, Color.White, spriteBatch);
+			str = String.Format("Other:  {0}", GetPhaseTimerFps(_smoothedTimerOverhead));
+			_courierFont.Draw(str, screenLocation, 1.0f, Color.White, _spriteBatch);
 			screenLocation.Y += 1.5f * lh;
 
 			// target and recent average frame rates
@@ -725,7 +717,7 @@ namespace SharpSteer2.WinDemo
 			// describe clock mode and frame rate statistics
 			StringBuilder sb = new StringBuilder();
 			sb.Append("Clock: ");
-			if (Clock.AnimationMode == true)
+			if (Clock.AnimationMode)
 			{
 				float ratio = smoothedFPS / targetFPS;
 				sb.AppendFormat("animation mode ({0} fps, display {1} fps {2}% of nominal speed)",
@@ -734,7 +726,7 @@ namespace SharpSteer2.WinDemo
 			else
 			{
 				sb.Append("real-time mode, ");
-				if (Clock.VariableFrameRateMode == true)
+				if (Clock.VariableFrameRateMode)
 				{
 					sb.AppendFormat("variable frame rate ({0} fps)", Math.Round(smoothedFPS));
 				}
@@ -753,13 +745,13 @@ namespace SharpSteer2.WinDemo
 					// (draw in red if the instantaneous usage is 100% or more)
 					float usage = Clock.Usage;
 					Color color = (usage >= 100) ? Color.Red : Color.White;
-					courierFont.Draw(str, new Vector2(x, screenLocation.Y), 1, color, spriteBatch);
+					_courierFont.Draw(str, new Vector2(x, screenLocation.Y), 1, color, _spriteBatch);
 				}
 			}
 			str = sb.ToString();
-			courierFont.Draw(str, screenLocation, 1.0f, Color.White, spriteBatch);
+			_courierFont.Draw(str, screenLocation, 1.0f, Color.White, _spriteBatch);
 
-			spriteBatch.End();
+			_spriteBatch.End();
 
 			base.Draw(gameTime);
 		}
@@ -767,7 +759,7 @@ namespace SharpSteer2.WinDemo
 		static String GetPhaseTimerFps(float phaseTimer)
 		{
 			// different notation for variable and fixed frame rate
-			if (Clock.VariableFrameRateMode == true)
+			if (Clock.VariableFrameRateMode)
 			{
 				// express as FPS (inverse of phase time)
 				return String.Format("{0:0.00000} ({1:0} FPS)", phaseTimer, 1 / phaseTimer);
@@ -787,31 +779,31 @@ namespace SharpSteer2.WinDemo
 			Draw,
 			Count
 		}
-		static Phase phase;
-		const int phaseStackSize = 5;
-		static Phase[] phaseStack = new Phase[phaseStackSize];
-		static int phaseStackIndex = 0;
-		static float[] phaseTimers = new float[(int)Phase.Count];
-		static float phaseTimerBase = 0;
+		static Phase _phase;
+		const int PHASE_STACK_SIZE = 5;
+		static readonly Phase[] _phaseStack = new Phase[PHASE_STACK_SIZE];
+		static int _phaseStackIndex = 0;
+		static readonly float[] _phaseTimers = new float[(int)Phase.Count];
+		static float _phaseTimerBase = 0;
 
 		// draw text showing (smoothed, rounded) "frames per second" rate
 		// (and later a bunch of related stuff was dumped here, a reorg would be nice)
-		static float smoothedTimerDraw = 0;
-		static float smoothedTimerUpdate = 0;
-		static float smoothedTimerOverhead = 0;
+		static float _smoothedTimerDraw = 0;
+		static float _smoothedTimerUpdate = 0;
+		static float _smoothedTimerOverhead = 0;
 
 		public static bool IsDrawPhase
 		{
-			get { return phase == Phase.Draw; }
+			get { return _phase == Phase.Draw; }
 		}
 
 		float PhaseTimerDraw
 		{
-			get { return phaseTimers[(int)Phase.Draw]; }
+			get { return _phaseTimers[(int)Phase.Draw]; }
 		}
 		float PhaseTimerUpdate
 		{
-			get { return phaseTimers[(int)Phase.Update]; }
+			get { return _phaseTimers[(int)Phase.Update]; }
 		}
 		// XXX get around shortcomings in current implementation, see note
 		// XXX in updateSimulationAndRedraw
@@ -829,23 +821,23 @@ namespace SharpSteer2.WinDemo
 
 		void InitPhaseTimers()
 		{
-			phaseTimers[(int)Phase.Draw] = 0;
-			phaseTimers[(int)Phase.Update] = 0;
-			phaseTimers[(int)Phase.Overhead] = 0;
-			phaseTimerBase = Clock.TotalRealTime;
+			_phaseTimers[(int)Phase.Draw] = 0;
+			_phaseTimers[(int)Phase.Update] = 0;
+			_phaseTimers[(int)Phase.Overhead] = 0;
+			_phaseTimerBase = Clock.TotalRealTime;
 		}
 
 		void UpdatePhaseTimers()
 		{
 			float currentRealTime = Clock.RealTimeSinceFirstClockUpdate();
-			phaseTimers[(int)phase] += currentRealTime - phaseTimerBase;
-			phaseTimerBase = currentRealTime;
+			_phaseTimers[(int)_phase] += currentRealTime - _phaseTimerBase;
+			_phaseTimerBase = currentRealTime;
 		}
 
-		List<TextEntry> texts;
+	    readonly List<TextEntry> _texts;
 		public void AddText(TextEntry text)
 		{
-			texts.Add(text);
+			_texts.Add(text);
 		}
 	}
 }

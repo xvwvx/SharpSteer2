@@ -73,13 +73,9 @@ namespace SharpSteer2
 
 			// if all three conditions are met, steer away from sphere center
 			if (inCylinder && nearby && inFront)
-			{
 				return offForwardOffset * -1;
-			}
-			else
-			{
-                return Vector3.Zero;
-			}
+
+            return Vector3.Zero;
 		}
 	}
 }

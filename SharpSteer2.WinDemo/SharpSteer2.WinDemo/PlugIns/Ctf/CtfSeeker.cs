@@ -54,7 +54,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 
 			// annotation
 			annotation.VelocityAcceleration(this);
-			trail.Record(currentTime, Position);
+			Trail.Record(currentTime, Position);
 		}
 
 		// is there a clear path to the goal?

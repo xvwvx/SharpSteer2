@@ -15,25 +15,17 @@ namespace SharpSteer2
 {
 	public class SimpleVehicle : SteerLibrary
 	{
-		// give each vehicle a unique number
-		public readonly int SerialNumber;
-		static int _serialNumberCounter = 0;
-
 	    Vector3 _lastForward;
         Vector3 _lastPosition;
 		float _smoothedCurvature;
 		// The acceleration is smoothed
         Vector3 _acceleration;
 
-		// constructor
 		public SimpleVehicle(IAnnotationService annotations = null)
             :base(annotations)
 		{
 			// set inital state
 			Reset();
-
-			// maintain unique serial numbers
-			SerialNumber = _serialNumberCounter++;
 		}
 
 		// reset vehicle state
@@ -177,28 +169,31 @@ namespace SharpSteer2
 			if (Speed > 0) RegenerateOrthonormalBasisUF(newVelocity / Speed);
 		}
 
-		// adjust the steering force passed to applySteeringForce.
-		// allows a specific vehicle class to redefine this adjustment.
-		// default is to disallow backward-facing steering at low speed.
-		// xxx experimental 8-20-02
-        public virtual Vector3 AdjustRawSteeringForce(Vector3 force, float deltaTime)
+		/// <summary>
+        /// adjust the steering force passed to applySteeringForce.
+        /// allows a specific vehicle class to redefine this adjustment.
+        /// default is to disallow backward-facing steering at low speed.
+		/// </summary>
+		/// <param name="force"></param>
+		/// <param name="deltaTime"></param>
+		/// <returns></returns>
+		protected virtual Vector3 AdjustRawSteeringForce(Vector3 force, float deltaTime)
 		{
 			float maxAdjustedSpeed = 0.2f * MaxSpeed;
 
 			if ((Speed > maxAdjustedSpeed) || (force == Vector3.Zero))
-			{
 				return force;
-			}
-			else
-			{
-				float range = Speed / maxAdjustedSpeed;
-                float cosine = MathHelper.Lerp(1.0f, -1.0f, (float)Math.Pow(range, 20));
-				return Vector3Helpers.LimitMaxDeviationAngle(force, cosine, Forward);
-			}
+
+            float range = Speed / maxAdjustedSpeed;
+            float cosine = MathHelper.Lerp(1.0f, -1.0f, (float)Math.Pow(range, 20));
+            return Vector3Helpers.LimitMaxDeviationAngle(force, cosine, Forward);
 		}
 
-		// apply a given braking force (for a given dt) to our momentum.
-		// xxx experimental 9-6-02
+		/// <summary>
+        /// apply a given braking force (for a given dt) to our momentum.
+		/// </summary>
+		/// <param name="rate"></param>
+		/// <param name="deltaTime"></param>
 	    public void ApplyBrakingForce(float rate, float deltaTime)
 		{
 			float rawBraking = Speed * rate;
@@ -206,8 +201,11 @@ namespace SharpSteer2
 			Speed = (Speed - (clipBraking * deltaTime));
 		}
 
-		// predict position of this vehicle at some time in the future
-		// (assumes velocity remains constant)
+		/// <summary>
+        /// predict position of this vehicle at some time in the future (assumes velocity remains constant)
+		/// </summary>
+		/// <param name="predictionTime"></param>
+		/// <returns></returns>
         public override Vector3 PredictFuturePosition(float predictionTime)
 		{
 			return Position + (Velocity * predictionTime);

@@ -42,8 +42,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 			// initialize camera
 			Demo.SelectedVehicle = wanderer;
 			Demo.Camera.Mode = Camera.CameraMode.StraightDown;
-			Demo.Camera.FixedDistanceDistance = Demo.CameraTargetDistance;
-			Demo.Camera.FixedDistanceVerticalOffset = Demo.Camera2dElevation;
+			Demo.Camera.FixedDistanceDistance = Demo.CAMERA_TARGET_DISTANCE;
+			Demo.Camera.FixedDistanceVerticalOffset = Demo.CAMERA2_D_ELEVATION;
 		}
 
 		public override void Update(float currentTime, float elapsedTime)

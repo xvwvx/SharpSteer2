@@ -52,7 +52,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			hintTakenCount = 0;
 
 			// follow the path "upstream or downstream" (+1/-1)
-			pathFollowDirection = 1;
+			pathFollowDirection = -1;
 
 			// use curved prediction and incremental steering:
 			curvedSteering = true;

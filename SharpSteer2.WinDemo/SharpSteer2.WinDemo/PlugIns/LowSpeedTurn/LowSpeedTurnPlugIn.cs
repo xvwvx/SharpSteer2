@@ -51,8 +51,8 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 			Demo.Camera.FixedPosition = lstViewCenter;
 			Demo.Camera.FixedPosition.Y += lstLookDownDistance;
 			Demo.Camera.LookDownDistance = lstLookDownDistance;
-			Demo.Camera.FixedDistanceVerticalOffset = Demo.Camera2dElevation;
-			Demo.Camera.FixedDistanceDistance = Demo.CameraTargetDistance;
+			Demo.Camera.FixedDistanceVerticalOffset = Demo.CAMERA2_D_ELEVATION;
+			Demo.Camera.FixedDistanceDistance = Demo.CAMERA_TARGET_DISTANCE;
 		}
 
 		public override void Update(float currentTime, float elapsedTime)

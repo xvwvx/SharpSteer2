@@ -63,7 +63,7 @@ namespace SharpSteer2.Ctf
 
 			// annotation
 			annotation.VelocityAcceleration(this);
-			trail.Record(currentTime, Position);
+			Trail.Record(currentTime, Position);
 
 			// detect and record interceptions ("tags") of seeker
 			float seekerToMeDist = Vector3.Distance(Position, Globals.Seeker.Position);
