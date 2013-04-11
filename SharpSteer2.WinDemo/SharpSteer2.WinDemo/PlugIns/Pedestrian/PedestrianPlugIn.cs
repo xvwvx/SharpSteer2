@@ -240,7 +240,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		void NextPD()
 		{
 		    // allocate new PD
-			const int totalPD = 2;
+			const int totalPD = 1;
 			switch (_cyclePD = (_cyclePD + 1) % totalPD)
 			{
 			case 0:
@@ -251,11 +251,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 					const float diameter = 80.0f; //XXX need better way to get this
 					Vector3 dimensions = new Vector3(diameter, diameter, diameter);
 					_pd = new LocalityQueryProximityDatabase<IVehicle>(center, dimensions, divisions);
-					break;
-				}
-			case 1:
-				{
-					_pd = new BruteForceProximityDatabase<IVehicle>();
 					break;
 				}
 			}

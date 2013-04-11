@@ -16,7 +16,7 @@ using SharpSteer2.Helpers;
 namespace SharpSteer2
 {
 	//FIXME: this class should not be abstract
-	public abstract class SteerLibrary : AbstractVehicle
+	public abstract class SteerLibrary : BaseVehicle
 	{
 		//HACK: This should not be... Find a way to access Game.Services
 	    public IAnnotationService annotation { get; private set; }

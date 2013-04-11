@@ -92,8 +92,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractVehicle.cs" />
-    <Compile Include="BruteForceProximityDatabase.cs" />
+    <Compile Include="BaseVehicle.cs" />
     <Compile Include="IAnnotationService.cs" />
     <Compile Include="IDraw.cs" />
     <Compile Include="ILocalSpace.cs" />
