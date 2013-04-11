@@ -20,6 +20,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 
 	public class Boid : SimpleVehicle
 	{
+	    private Trail _trail;
+
 	    private const float AVOIDANCE_PREDICT_TIME_MIN = 0.9f;
 		public const float AVOIDANCE_PREDICT_TIME_MAX = 2;
 		public static float AvoidancePredictTime = AVOIDANCE_PREDICT_TIME_MIN;
@@ -40,6 +42,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 			// allocate a token for this boid in the proximity database
 			_proximityToken = null;
 			NewPD(pd);
+
+		    _trail = new Trail(2f, 60);
 
 			// reset all boid state
 			Reset();
@@ -79,12 +83,16 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		// draw this boid into the scene
 		public void Draw()
 		{
+		    _trail.Draw(annotation);
+
 			Drawing.DrawBasic3dSphericalVehicle(this, Color.LightGray);
 		}
 
 		// per frame simulation update
-		public void Update(float elapsedTime)
+		public void Update(float currentTime, float elapsedTime)
 		{
+		    _trail.Record(currentTime, Position);
+
 			// steer to flock and perhaps to stay within the spherical boundary
 			ApplySteeringForce(SteerToFlock() + HandleBoundary(), elapsedTime);
 

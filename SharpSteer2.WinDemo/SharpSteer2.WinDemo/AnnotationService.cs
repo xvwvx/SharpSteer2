@@ -79,11 +79,11 @@ namespace SharpSteer2.WinDemo
 		//       "segments" is the number of line segments used to draw the circle
 
 		// draw an opaque colored line segment between two locations in space
-		public void Line(Vector3 startPoint, Vector3 endPoint, Color color)
+		public void Line(Vector3 startPoint, Vector3 endPoint, Color color, float opacity = 1)
 		{
 			if (_isEnabled && Drawer != null)
 			{
-				Drawer.Line(startPoint, endPoint, color);
+				Drawer.Line(startPoint, endPoint, color, opacity);
 			}
 		}
 

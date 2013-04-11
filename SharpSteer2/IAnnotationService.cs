@@ -51,13 +51,14 @@ namespace SharpSteer2
 		//       "3d" means the circle is perpendicular to the given "axis"
 		//       "segments" is the number of line segments used to draw the circle
 
-		/// <summary>
-		/// Draws an opaque colored line segment between two locations in space.
-		/// </summary>
-		/// <param name="startPoint">The start point of the line.</param>
-		/// <param name="endPoint">The end point of the line.</param>
-		/// <param name="color">The color of the line.</param>
-		void Line(Vector3 startPoint, Vector3 endPoint, Color color);
+	    /// <summary>
+	    /// Draws an opaque colored line segment between two locations in space.
+	    /// </summary>
+	    /// <param name="startPoint">The start point of the line.</param>
+	    /// <param name="endPoint">The end point of the line.</param>
+	    /// <param name="color">The color of the line.</param>
+	    /// <param name="opacity"></param>
+	    void Line(Vector3 startPoint, Vector3 endPoint, Color color, float opacity = 1);
 
 		/// <summary>
 		/// Draws a circle on the XZ plane.

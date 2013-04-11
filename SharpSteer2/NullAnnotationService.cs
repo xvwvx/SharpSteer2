@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.Xna.Framework;
+
 namespace SharpSteer2
 {
     class NullAnnotationService
@@ -30,7 +32,7 @@ namespace SharpSteer2
 
         }
 
-        public void Line(Microsoft.Xna.Framework.Vector3 startPoint, Microsoft.Xna.Framework.Vector3 endPoint, Microsoft.Xna.Framework.Color color)
+        public void Line(Vector3 startPoint, Vector3 endPoint, Color color, float opacity = 1)
         {
 
         }

@@ -117,7 +117,7 @@ namespace SharpSteer2
 						const float minO = 0.05f; // minimum opacity
 						float fraction = (float)j / _vertices.Length;
 						float opacity = (fraction * (1 - minO)) + minO;
-                        annotation.Line(_vertices[index], _vertices[next], color);
+                        annotation.Line(_vertices[index], _vertices[next], color, opacity);
 					}
 				}
 				index = next;

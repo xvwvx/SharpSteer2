@@ -65,7 +65,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 			// update flock simulation for each boid
 			for (int i = 0; i < _flock.Count; i++)
 			{
-				_flock[i].Update(elapsedTime);
+				_flock[i].Update(currentTime, elapsedTime);
 			}
 		}
 
