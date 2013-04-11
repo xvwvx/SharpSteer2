@@ -22,9 +22,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 		public SoccerPlugIn(IAnnotationService annotations = null)
 		{
             _annotations = annotations;
-			teamA = new List<Player>();
-			teamB = new List<Player>();
-			allPlayers = new List<Player>();
+			_teamA = new List<Player>();
+			_teamB = new List<Player>();
+			_allPlayers = new List<Player>();
 		}
 
 		public override String Name { get { return "Michael's Simple Soccer"; } }
@@ -32,58 +32,58 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 		public override void Open()
 		{
 			// Make a field
-			bbox = new AABBox(new Vector3(-20, 0, -10), new Vector3(20, 0, 10));
+			_bbox = new AABBox(new Vector3(-20, 0, -10), new Vector3(20, 0, 10));
 			// Red goal
-			teamAGoal = new AABBox(new Vector3(-21, 0, -7), new Vector3(-19, 0, 7));
+			_teamAGoal = new AABBox(new Vector3(-21, 0, -7), new Vector3(-19, 0, 7));
 			// Blue Goal
-			teamBGoal = new AABBox(new Vector3(19, 0, -7), new Vector3(21, 0, 7));
+			_teamBGoal = new AABBox(new Vector3(19, 0, -7), new Vector3(21, 0, 7));
 			// Make a ball
-			ball = new Ball(bbox);
+			_ball = new Ball(_bbox);
 			// Build team A
-			const int PlayerCountA = 8;
-			for (int i = 0; i < PlayerCountA; i++)
+			const int playerCountA = 8;
+			for (int i = 0; i < playerCountA; i++)
 			{
-                Player pMicTest = new Player(teamA, allPlayers, ball, true, i, _annotations);
+                Player pMicTest = new Player(_teamA, _allPlayers, _ball, true, i, _annotations);
 				Demo.SelectedVehicle = pMicTest;
-				teamA.Add(pMicTest);
-				allPlayers.Add(pMicTest);
+				_teamA.Add(pMicTest);
+				_allPlayers.Add(pMicTest);
 			}
 			// Build Team B
-			const int PlayerCountB = 8;
-			for (int i = 0; i < PlayerCountB; i++)
+			const int playerCountB = 8;
+			for (int i = 0; i < playerCountB; i++)
 			{
-                Player pMicTest = new Player(teamB, allPlayers, ball, false, i, _annotations);
+                Player pMicTest = new Player(_teamB, _allPlayers, _ball, false, i, _annotations);
 				Demo.SelectedVehicle = pMicTest;
-				teamB.Add(pMicTest);
-				allPlayers.Add(pMicTest);
+				_teamB.Add(pMicTest);
+				_allPlayers.Add(pMicTest);
 			}
 			// initialize camera
-			Demo.Init2dCamera(ball);
+			Demo.Init2dCamera(_ball);
 			Demo.Camera.SetPosition(10, Demo.CAMERA2_D_ELEVATION, 10);
 			Demo.Camera.FixedPosition = new Vector3(40);
 			Demo.Camera.Mode = Camera.CameraMode.Fixed;
-			redScore = 0;
-			blueScore = 0;
+			_redScore = 0;
+			_blueScore = 0;
 		}
 
 		public override void Update(float currentTime, float elapsedTime)
 		{
 			// update simulation of test vehicle
-			for (int i = 0; i < teamA.Count; i++)
-				teamA[i].Update(currentTime, elapsedTime);
-			for (int i = 0; i < teamB.Count; i++)
-				teamB[i].Update(currentTime, elapsedTime);
-			ball.Update(currentTime, elapsedTime);
+			for (int i = 0; i < _teamA.Count; i++)
+				_teamA[i].Update(elapsedTime);
+			for (int i = 0; i < _teamB.Count; i++)
+				_teamB[i].Update(elapsedTime);
+			_ball.Update(currentTime, elapsedTime);
 
-			if (teamAGoal.IsInsideX(ball.Position) && teamAGoal.IsInsideZ(ball.Position))
+			if (_teamAGoal.IsInsideX(_ball.Position) && _teamAGoal.IsInsideZ(_ball.Position))
 			{
-				ball.Reset();	// Ball in blue teams goal, red scores
-				redScore++;
+				_ball.Reset();	// Ball in blue teams goal, red scores
+				_redScore++;
 			}
-			if (teamBGoal.IsInsideX(ball.Position) && teamBGoal.IsInsideZ(ball.Position))
+			if (_teamBGoal.IsInsideX(_ball.Position) && _teamBGoal.IsInsideZ(_ball.Position))
 			{
-				ball.Reset();	// Ball in red teams goal, blue scores
-				blueScore++;
+				_ball.Reset();	// Ball in red teams goal, blue scores
+				_blueScore++;
 			}
 		}
 
@@ -93,21 +93,21 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			Demo.GridUtility(Vector3.Zero);
 
 			// draw test vehicle
-			for (int i = 0; i < teamA.Count; i++)
-				teamA[i].Draw();
-			for (int i = 0; i < teamB.Count; i++)
-				teamB[i].Draw();
-			ball.Draw();
-			bbox.Draw();
-			teamAGoal.Draw();
-			teamBGoal.Draw();
+			for (int i = 0; i < _teamA.Count; i++)
+				_teamA[i].Draw();
+			for (int i = 0; i < _teamB.Count; i++)
+				_teamB[i].Draw();
+			_ball.Draw();
+			_bbox.Draw();
+			_teamAGoal.Draw();
+			_teamBGoal.Draw();
 
 			StringBuilder annote = new StringBuilder();
-			annote.AppendFormat("Red: {0}", redScore);
+			annote.AppendFormat("Red: {0}", _redScore);
 			Drawing.Draw2dTextAt3dLocation(annote.ToString(), new Vector3(23, 0, 0), new Color((byte)(255.0f * 1), (byte)(255.0f * 0.7f), (byte)(255.0f * 0.7f)));
 
 			annote = new StringBuilder();
-			annote.AppendFormat("Blue: {0}", blueScore);
+			annote.AppendFormat("Blue: {0}", _blueScore);
 			Drawing.Draw2dTextAt3dLocation(annote.ToString(), new Vector3(-23, 0, 0), new Color((byte)(255.0f * 0.7f), (byte)(255.0f * 0.7f), (byte)(255.0f * 1)));
 
 			// textual annotation (following the test vehicle's screen position)
@@ -125,36 +125,36 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 
 		public override void Close()
 		{
-			teamA.Clear();
-			teamB.Clear();
-			allPlayers.Clear();
+			_teamA.Clear();
+			_teamB.Clear();
+			_allPlayers.Clear();
 		}
 
 		public override void Reset()
 		{
 			// reset vehicle
-			for (int i = 0; i < teamA.Count; i++)
-				teamA[i].Reset();
-			for (int i = 0; i < teamB.Count; i++)
-				teamB[i].Reset();
-			ball.Reset();
+			for (int i = 0; i < _teamA.Count; i++)
+				_teamA[i].Reset();
+			for (int i = 0; i < _teamB.Count; i++)
+				_teamB[i].Reset();
+			_ball.Reset();
 		}
 
 		//const AVGroup& allVehicles () {return (const AVGroup&) TeamA;}
-		public override List<IVehicle> Vehicles
+        public override IEnumerable<IVehicle> Vehicles
 		{
-			get { return teamA.ConvertAll<IVehicle>(delegate(Player p) { return (IVehicle)p; }); }
+			get { return _teamA.ConvertAll<IVehicle>(p => (IVehicle) p); }
 		}
 
-		List<Player> teamA;
-		List<Player> teamB;
-		List<Player> allPlayers;
+	    readonly List<Player> _teamA;
+	    readonly List<Player> _teamB;
+	    readonly List<Player> _allPlayers;
 
-		Ball ball;
-		AABBox bbox;
-		AABBox teamAGoal;
-		AABBox teamBGoal;
-		int redScore;
-		int blueScore;
+		Ball _ball;
+		AABBox _bbox;
+		AABBox _teamAGoal;
+		AABBox _teamBGoal;
+		int _redScore;
+		int _blueScore;
 	}
 }

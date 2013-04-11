@@ -108,7 +108,7 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 			for (int i = 0; i < _all.Count; i++) _all[i].Reset();
 		}
 
-		public override List<IVehicle> Vehicles
+        public override IEnumerable<IVehicle> Vehicles
 		{
 			get { return _all.ConvertAll<IVehicle>(v => (IVehicle) v); }
 		}

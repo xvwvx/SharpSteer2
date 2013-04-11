@@ -11,7 +11,6 @@
 using System;
 using System.Text;
 using Microsoft.Xna.Framework;
-using SharpSteer2.Ctf;
 
 namespace SharpSteer2.WinDemo.PlugIns.Ctf
 {
@@ -145,48 +144,29 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 				// use pure obstacle avoidance if needed
 				return obstacleAvoidance;
 			}
-			else
-			{
-				// otherwise seek home base and perhaps evade defenders
-				Vector3 seek = xxxSteerForSeek(Globals.HomeBaseCenter);
-				if (clearPath)
-				{
-					// we have a clear path (defender-free corridor), use pure seek
 
-					// xxx experiment 9-16-02
-					Vector3 s = Vector3Helpers.LimitMaxDeviationAngle(seek, 0.707f, Forward);
+	        // otherwise seek home base and perhaps evade defenders
+	        Vector3 seek = xxxSteerForSeek(Globals.HomeBaseCenter);
+	        if (clearPath)
+	        {
+	            // we have a clear path (defender-free corridor), use pure seek
 
-					annotation.Line(Position, Position + (s * 0.2f), Globals.SeekColor);
-					return s;
-				}
-				else
-				{
-#if TESTING_CODE
-					if (false) // xxx testing new evade code xxx
-					{
-						// combine seek and (forward facing portion of) evasion
-						Vector3 evade = steerToEvadeAllDefenders();
-						Vector3 steer = seek + Vector3.limitMaxDeviationAngle(evade, 0.5f, forward());
+	            // xxx experiment 9-16-02
+	            Vector3 s = Vector3Helpers.LimitMaxDeviationAngle(seek, 0.707f, Forward);
 
-						// annotation: show evasion steering force
-						annotation.annotationLine(position(), position() + (steer * 0.2f), Globals.evadeColor);
-						return steer;
-					}
-					else
-#endif
-					{
-						Vector3 evade = XXXSteerToEvadeAllDefenders();
-						Vector3 steer = Vector3Helpers.LimitMaxDeviationAngle(seek + evade, 0.707f, Forward);
+	            annotation.Line(Position, Position + (s * 0.2f), Globals.SeekColor);
+	            return s;
+	        }
 
-						annotation.Line(Position, Position + seek, Color.Red);
-						annotation.Line(Position, Position + evade, Color.Green);
+		    Vector3 evade = XXXSteerToEvadeAllDefenders();
+		    Vector3 steer = Vector3Helpers.LimitMaxDeviationAngle(seek + evade, 0.707f, Forward);
 
-						// annotation: show evasion steering force
-						annotation.Line(Position, Position + (steer * 0.2f), Globals.EvadeColor);
-						return steer;
-					}
-				}
-			}
+		    annotation.Line(Position, Position + seek, Color.Red);
+		    annotation.Line(Position, Position + evade, Color.Green);
+
+		    // annotation: show evasion steering force
+		    annotation.Line(Position, Position + (steer * 0.2f), Globals.EvadeColor);
+		    return steer;
 		}
 
 	    private void UpdateState(float currentTime)

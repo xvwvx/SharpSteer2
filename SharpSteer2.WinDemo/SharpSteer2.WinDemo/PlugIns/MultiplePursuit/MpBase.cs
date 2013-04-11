@@ -13,10 +13,10 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 {
 	public class MpBase : SimpleVehicle
 	{
-		protected Trail trail;
+		protected Trail Trail;
 
 		// constructor
-        public MpBase(IAnnotationService annotations = null)
+	    protected MpBase(IAnnotationService annotations = null)
             :base(annotations)
 		{
 			Reset();
@@ -30,18 +30,18 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 			Speed = 0;            // speed along Forward direction.
 			MaxForce = 5.0f;       // steering force is clipped to this magnitude
 			MaxSpeed = 3.0f;       // velocity is clipped to this magnitude
-			trail = new Trail();
-			trail.Clear();    // prevent long streaks due to teleportation 
+			Trail = new Trail();
+			Trail.Clear();    // prevent long streaks due to teleportation 
 		}
 
 		// draw into the scene
 		public void Draw()
 		{
-			Drawing.DrawBasic2dCircularVehicle(this, bodyColor);
-			trail.Draw(Annotation.Drawer);
+			Drawing.DrawBasic2dCircularVehicle(this, BodyColor);
+			Trail.Draw(Annotation.Drawer);
 		}
 
 		// for draw method
-		protected Color bodyColor;
+		protected Color BodyColor;
 	}
 }

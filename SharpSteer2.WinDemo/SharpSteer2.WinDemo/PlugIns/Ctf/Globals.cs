@@ -9,7 +9,6 @@
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
 using Microsoft.Xna.Framework;
-using SharpSteer2.Ctf;
 
 namespace SharpSteer2.WinDemo.PlugIns.Ctf
 {

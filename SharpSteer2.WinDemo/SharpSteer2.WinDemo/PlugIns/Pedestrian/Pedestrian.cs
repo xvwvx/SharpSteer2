@@ -17,7 +17,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 {
     public class Pedestrian : SimpleVehicle
 	{
-		Trail trail;
+		Trail _trail;
 
 		// called when steerToFollowPath decides steering is required
 		public void AnnotatePathFollowing(Vector3 future, Vector3 onPath, Vector3 target, float outside)
@@ -25,7 +25,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			Color yellow = Color.Yellow;
 			Color lightOrange = new Color((byte)(255.0f * 1.0f), (byte)(255.0f * 0.5f), 0);
 			Color darkOrange = new Color((byte)(255.0f * 0.6f), (byte)(255.0f * 0.3f), 0);
-			Color yellowOrange = new Color((byte)(255.0f * 1.0f), (byte)(255.0f * 0.75f), 0);
 
 			// draw line from our position to our predicted future position
 			annotation.Line(Position, future, yellow);
@@ -46,7 +45,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 
 		// called when steerToAvoidCloseNeighbors decides steering is required
 		// (parameter names commented out to prevent compiler warning from "-W")
-		public void AnnotateAvoidCloseNeighbor(IVehicle other, float additionalDistance)
+		public void AnnotateAvoidCloseNeighbor(IVehicle other)
 		{
 			// draw the word "Ouch!" above colliding vehicles
             bool headOn = Vector3.Dot(Forward, other.Forward) < 0;
@@ -60,7 +59,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		}
 
 		// (parameter names commented out to prevent compiler warning from "-W")
-		public void AnnotateAvoidNeighbor(IVehicle threat, float steer, Vector3 ourFuture, Vector3 threatFuture)
+		public void AnnotateAvoidNeighbor(IVehicle threat, Vector3 ourFuture, Vector3 threatFuture)
 		{
 			Color green = new Color((byte)(255.0f * 0.15f), (byte)(255.0f * 0.6f), 0);
 
@@ -78,14 +77,14 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		{
 			Vector3 boxSide = Side * Radius;
 			Vector3 boxFront = Forward * minDistanceToCollision;
-			Vector3 FR = Position + boxFront - boxSide;
-			Vector3 FL = Position + boxFront + boxSide;
-			Vector3 BR = Position - boxSide;
-			Vector3 BL = Position + boxSide;
-			annotation.Line(FR, FL, Color.White);
-			annotation.Line(FL, BL, Color.White);
-			annotation.Line(BL, BR, Color.White);
-			annotation.Line(BR, FR, Color.White);
+			Vector3 fr = Position + boxFront - boxSide;
+			Vector3 fl = Position + boxFront + boxSide;
+			Vector3 br = Position - boxSide;
+			Vector3 bl = Position + boxSide;
+			annotation.Line(fr, fl, Color.White);
+			annotation.Line(fl, bl, Color.White);
+			annotation.Line(bl, br, Color.White);
+			annotation.Line(br, fr, Color.White);
 		}
 
 		// constructor
@@ -93,7 +92,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
             :base(annotations)
 		{
 			// allocate a token for this boid in the proximity database
-			proximityToken = null;
+			_proximityToken = null;
 			NewPD(pd);
 
 			// reset Pedestrian state
@@ -117,26 +116,26 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			Radius = 0.5f; // width = 0.7, add 0.3 margin, take half
 
 			// set the path for this Pedestrian to follow
-			path = Globals.GetTestPath();
+			_path = Globals.GetTestPath();
 
 			// set initial position
 			// (random point on path + random horizontal offset)
-			float d = path.TotalPathLength * RandomHelpers.Random();
-			float r = path.Radius;
+			float d = _path.TotalPathLength * RandomHelpers.Random();
+			float r = _path.Radius;
 			Vector3 randomOffset = Vector3Helpers.RandomVectorOnUnitRadiusXZDisk() * r;
-			Position = (path.MapPathDistanceToPoint(d) + randomOffset);
+			Position = (_path.MapPathDistanceToPoint(d) + randomOffset);
 
 			// randomize 2D heading
 			RandomizeHeadingOnXZPlane();
 
 			// pick a random direction for path following (upstream or downstream)
-			pathDirection = (RandomHelpers.Random() > 0.5) ? -1 : +1;
+			_pathDirection = (RandomHelpers.Random() > 0.5) ? -1 : +1;
 
 			// trail parameters: 3 seconds with 60 points along the trail
-			trail = new Trail(3, 60);
+			_trail = new Trail(3, 60);
 
 			// notify proximity database that our position has changed
-			if (proximityToken != null) proximityToken.UpdateForNewPosition(Position);
+			if (_proximityToken != null) _proximityToken.UpdateForNewPosition(Position);
 		}
 
 		// per frame simulation update
@@ -148,29 +147,29 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			// reverse direction when we reach an endpoint
 			if (Globals.UseDirectedPathFollowing)
 			{
-				if (Vector3.Distance(Position, Globals.Endpoint0) < path.Radius)
+				if (Vector3.Distance(Position, Globals.Endpoint0) < _path.Radius)
 				{
-					pathDirection = +1;
-					annotation.CircleXZ(path.Radius, Globals.Endpoint0, Color.DarkRed, 20);
+					_pathDirection = +1;
+					annotation.CircleXZ(_path.Radius, Globals.Endpoint0, Color.DarkRed, 20);
 				}
-				if (Vector3.Distance(Position, Globals.Endpoint1) < path.Radius)
+				if (Vector3.Distance(Position, Globals.Endpoint1) < _path.Radius)
 				{
-					pathDirection = -1;
-					annotation.CircleXZ(path.Radius, Globals.Endpoint1, Color.DarkRed, 20);
+					_pathDirection = -1;
+					annotation.CircleXZ(_path.Radius, Globals.Endpoint1, Color.DarkRed, 20);
 				}
 			}
 
 			// annotation
 			annotation.VelocityAcceleration(this, 5, 0);
-			trail.Record(currentTime, Position);
+			_trail.Record(currentTime, Position);
 
 			// notify proximity database that our position has changed
-			proximityToken.UpdateForNewPosition(Position);
+			_proximityToken.UpdateForNewPosition(Position);
 		}
 
 		// compute combined steering force: move forward, avoid obstacles
 		// or neighbors if needed, otherwise follow the path and wander
-		public Vector3 DetermineCombinedSteering(float elapsedTime)
+        private Vector3 DetermineCombinedSteering(float elapsedTime)
 		{
 			// move forward
 			Vector3 steeringForce = Forward;
@@ -203,11 +202,11 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 				// (radius is largest distance between vehicles traveling head-on
 				// where a collision is possible within caLeadTime seconds.)
 				float maxRadius = caLeadTime * MaxSpeed * 2;
-				neighbors.Clear();
-				proximityToken.FindNeighbors(Position, maxRadius, neighbors);
+				_neighbors.Clear();
+				_proximityToken.FindNeighbors(Position, maxRadius, _neighbors);
 
-				if (neighbors.Count > 0 && leakThrough < RandomHelpers.Random())
-					collisionAvoidance = SteerToAvoidNeighbors(caLeadTime, neighbors) * 10;
+				if (_neighbors.Count > 0 && leakThrough < RandomHelpers.Random())
+					collisionAvoidance = SteerToAvoidNeighbors(caLeadTime, _neighbors) * 10;
 
 				// if collision avoidance is needed, do it
 				if (collisionAvoidance != Vector3.Zero)
@@ -224,8 +223,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 					const float pfLeadTime = 3;
 					Vector3 pathFollow =
 						(Globals.UseDirectedPathFollowing ?
-						 SteerToFollowPath(pathDirection, pfLeadTime, path) :
-						 SteerToStayOnPath(pfLeadTime, path));
+						 SteerToFollowPath(_pathDirection, pfLeadTime, _path) :
+						 SteerToStayOnPath(pfLeadTime, _path));
 
 					// add in to steeringForce
 					steeringForce += pathFollow * 0.5f;
@@ -242,38 +241,38 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		public void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, Color.Gray);
-			trail.Draw(Annotation.Drawer);
+			_trail.Draw(Annotation.Drawer);
 		}
 
 		// switch to new proximity database -- just for demo purposes
 		public void NewPD(IProximityDatabase<IVehicle> pd)
 		{
 			// delete this boid's token in the old proximity database
-			if (proximityToken != null)
+			if (_proximityToken != null)
 			{
-				proximityToken.Dispose();
-				proximityToken = null;
+				_proximityToken.Dispose();
+				_proximityToken = null;
 			}
 
 			// allocate a token for this boid in the proximity database
-			proximityToken = pd.AllocateToken(this);
+			_proximityToken = pd.AllocateToken(this);
 		}
 
 		// a pointer to this boid's interface object for the proximity database
-		ITokenForProximityDatabase<IVehicle> proximityToken;
+		ITokenForProximityDatabase<IVehicle> _proximityToken;
 
 		// allocate one and share amoung instances just to save memory usage
 		// (change to per-instance allocation to be more MP-safe)
-		static List<IVehicle> neighbors = new List<IVehicle>();
+		static readonly List<IVehicle> _neighbors = new List<IVehicle>();
 
 		// path to be followed by this pedestrian
 		// XXX Ideally this should be a generic Pathway, but we use the
 		// XXX getTotalPathLength and radius methods (currently defined only
 		// XXX on PolylinePathway) to set random initial positions.  Could
 		// XXX there be a "random position inside path" method on Pathway?
-		PolylinePathway path;
+		PolylinePathway _path;
 
 		// direction for path following (upstream or downstream)
-		int pathDirection;
+		int _pathDirection;
 	}
 }

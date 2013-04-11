@@ -21,7 +21,7 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 		public OneTurningPlugIn(IAnnotationService annotations = null)
 		{
             _annotations = annotations;
-			theVehicle = new List<WinDemo.PlugIns.OneTurning.OneTurning>();
+			_theVehicle = new List<OneTurning>();
 		}
 
 		public override String Name { get { return "One Turning Away"; } }
@@ -30,12 +30,12 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 
 		public override void Open()
 		{
-            oneTurning = new OneTurning(_annotations);
-			Demo.SelectedVehicle = oneTurning;
-			theVehicle.Add(oneTurning);
+            _oneTurning = new OneTurning(_annotations);
+			Demo.SelectedVehicle = _oneTurning;
+			_theVehicle.Add(_oneTurning);
 
 			// initialize camera
-			Demo.Init2dCamera(oneTurning);
+			Demo.Init2dCamera(_oneTurning);
 			Demo.Camera.SetPosition(10, Demo.CAMERA2_D_ELEVATION, 10);
 			Demo.Camera.FixedPosition = new Vector3(40);
 		}
@@ -43,44 +43,44 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 		public override void Update(float currentTime, float elapsedTime)
 		{
 			// update simulation of test vehicle
-			oneTurning.Update(currentTime, elapsedTime);
+			_oneTurning.Update(currentTime, elapsedTime);
 		}
 
 		public override void Redraw(float currentTime, float elapsedTime)
 		{
 			// draw "ground plane"
-			Demo.GridUtility(oneTurning.Position);
+			Demo.GridUtility(_oneTurning.Position);
 
 			// draw test vehicle
-			oneTurning.Draw();
+			_oneTurning.Draw();
 
 			// textual annotation (following the test vehicle's screen position)
-			String annote = String.Format("      speed: {0:0.00}", oneTurning.Speed);
-			Drawing.Draw2dTextAt3dLocation(annote, oneTurning.Position, Color.Red);
+			String annote = String.Format("      speed: {0:0.00}", _oneTurning.Speed);
+			Drawing.Draw2dTextAt3dLocation(annote, _oneTurning.Position, Color.Red);
 			Drawing.Draw2dTextAt3dLocation("start", Vector3.Zero, Color.Green);
 
 			// update camera, tracking test vehicle
-			Demo.UpdateCamera(elapsedTime, oneTurning);
+			Demo.UpdateCamera(elapsedTime, _oneTurning);
 		}
 
 		public override void Close()
 		{
-			theVehicle.Clear();
-			oneTurning = null;
+			_theVehicle.Clear();
+			_oneTurning = null;
 		}
 
 		public override void Reset()
 		{
 			// reset vehicle
-			oneTurning.Reset();
+			_oneTurning.Reset();
 		}
 
-		public override List<IVehicle> Vehicles
+        public override IEnumerable<IVehicle> Vehicles
 		{
-			get { return theVehicle.ConvertAll<IVehicle>(delegate(WinDemo.PlugIns.OneTurning.OneTurning v) { return (IVehicle)v; }); }
+			get { return _theVehicle.ConvertAll<IVehicle>(v => (IVehicle) v); }
 		}
 
-		WinDemo.PlugIns.OneTurning.OneTurning oneTurning;
-		List<WinDemo.PlugIns.OneTurning.OneTurning> theVehicle; // for allVehicles
+		OneTurning _oneTurning;
+	    readonly List<OneTurning> _theVehicle; // for allVehicles
 	}
 }

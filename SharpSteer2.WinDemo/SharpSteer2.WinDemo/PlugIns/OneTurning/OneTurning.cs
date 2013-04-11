@@ -14,7 +14,7 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 {
 	public class OneTurning : SimpleVehicle
 	{
-		Trail trail;
+		Trail _trail;
 
 		// constructor
 		public OneTurning(IAnnotationService annotations = null)
@@ -30,8 +30,8 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 			Speed = 1.5f;         // speed along Forward direction.
 			MaxForce = 0.3f;      // steering force is clipped to this magnitude
 			MaxSpeed = 5;         // velocity is clipped to this magnitude
-			trail = new Trail();
-			trail.Clear();    // prevent long streaks due to teleportation 
+			_trail = new Trail();
+			_trail.Clear();    // prevent long streaks due to teleportation 
 		}
 
 		// per frame simulation update
@@ -39,14 +39,14 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 		{
 			ApplySteeringForce(new Vector3(-2, 0, -3), elapsedTime);
 			annotation.VelocityAcceleration(this);
-			trail.Record(currentTime, Position);
+			_trail.Record(currentTime, Position);
 		}
 
 		// draw this character/vehicle into the scene
 		public void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, Color.Gray);
-			trail.Draw(Annotation.Drawer);
+			_trail.Draw(Annotation.Drawer);
 		}
 	}
 }

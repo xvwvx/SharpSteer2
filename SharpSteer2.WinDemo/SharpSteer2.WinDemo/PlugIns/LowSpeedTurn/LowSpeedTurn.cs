@@ -14,7 +14,7 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 {
 	public class LowSpeedTurn : SimpleVehicle
 	{
-		Trail trail;
+		Trail _trail;
 
 		// constructor
         public LowSpeedTurn(IAnnotationService annotations = null)
@@ -48,14 +48,14 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 			_startSpeed += 0.15f;
 
 			// 15 seconds and 150 points along the trail
-			trail = new Trail(15, 150);
+			_trail = new Trail(15, 150);
 		}
 
 		// draw into the scene
 		public void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, Color.Gray);
-			trail.Draw(Annotation.Drawer);
+			_trail.Draw(Annotation.Drawer);
 		}
 
 		// per frame simulation update
@@ -65,7 +65,7 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 
 			// annotation
 			annotation.VelocityAcceleration(this);
-			trail.Record(currentTime, Position);
+			_trail.Record(currentTime, Position);
 		}
 
 		// reset starting positions

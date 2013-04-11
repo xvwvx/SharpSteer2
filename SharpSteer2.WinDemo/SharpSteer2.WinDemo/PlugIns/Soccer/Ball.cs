@@ -14,12 +14,12 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 {
 	public class Ball : SimpleVehicle
 	{
-		Trail trail;
+		Trail _trail;
 
         public Ball(AABBox bbox, IAnnotationService annotations = null)
             :base(annotations)
 		{
-			m_bbox = bbox;
+			_mBbox = bbox;
 			Reset();
 		}
 
@@ -32,8 +32,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			MaxSpeed = 9.0f;         // velocity is clipped to this magnitude
 
 			SetPosition(0, 0, 0);
-			if (trail == null) trail = new Trail(100, 6000);
-			trail.Clear();    // prevent long streaks due to teleportation 
+			if (_trail == null) _trail = new Trail(100, 6000);
+			_trail.Clear();    // prevent long streaks due to teleportation 
 		}
 
 		// per frame simulation update
@@ -42,22 +42,22 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			ApplyBrakingForce(1.5f, elapsedTime);
 			ApplySteeringForce(Velocity, elapsedTime);
 			// are we now outside the field?
-			if (!m_bbox.IsInsideX(Position))
+			if (!_mBbox.IsInsideX(Position))
 			{
 				Vector3 d = Velocity;
 				RegenerateOrthonormalBasis(new Vector3(-d.X, d.Y, d.Z));
 				ApplySteeringForce(Velocity, elapsedTime);
 			}
-			if (!m_bbox.IsInsideZ(Position))
+			if (!_mBbox.IsInsideZ(Position))
 			{
 				Vector3 d = Velocity;
 				RegenerateOrthonormalBasis(new Vector3(d.X, d.Y, -d.Z));
 				ApplySteeringForce(Velocity, elapsedTime);
 			}
-			trail.Record(currentTime, Position);
+			_trail.Record(currentTime, Position);
 		}
 
-		public void Kick(Vector3 dir, float elapsedTime)
+		public void Kick(Vector3 dir)
 		{
 			Speed = (dir.Length());
 			RegenerateOrthonormalBasis(dir);
@@ -67,9 +67,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 		public void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, Color.Green);
-			trail.Draw(Annotation.Drawer);
+			_trail.Draw(Annotation.Drawer);
 		}
 
-		AABBox m_bbox;
+	    readonly AABBox _mBbox;
 	}
 }

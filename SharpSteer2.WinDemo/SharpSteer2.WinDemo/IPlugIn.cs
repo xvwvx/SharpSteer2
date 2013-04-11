@@ -41,6 +41,6 @@ namespace SharpSteer2.WinDemo
 
 		// return an AVGroup (an STL vector of AbstractVehicle pointers) of
 		// all vehicles(/agents/characters) defined by the PlugIn
-		List<IVehicle> Vehicles { get; }
+		IEnumerable<IVehicle> Vehicles { get; }
 	}
 }

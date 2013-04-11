@@ -12,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
-using SharpSteer2.Ctf;
 using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo.PlugIns.Ctf
@@ -175,9 +174,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 #endif
 		}
 
-		public override List<IVehicle> Vehicles
+        public override IEnumerable<IVehicle> Vehicles
 		{
-			get { return _all.ConvertAll<IVehicle>(delegate(CtfBase v) { return (IVehicle)v; }); }
+			get { return _all.ConvertAll<IVehicle>(v => (IVehicle) v); }
 		}
 
 	    private static void DrawHomeBase()

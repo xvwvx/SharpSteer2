@@ -19,7 +19,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 		public MpPursuer(MpWanderer w, IAnnotationService annotations = null)
             :base(annotations)
 		{
-			wanderer = w;
+			_wanderer = w;
 			Reset();
 		}
 
@@ -27,27 +27,27 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 		public override void Reset()
 		{
 			base.Reset();
-			bodyColor = new Color((byte)(255.0f * 0.6f), (byte)(255.0f * 0.4f), (byte)(255.0f * 0.4f)); // redish
-			if(wanderer != null) RandomizeStartingPositionAndHeading();
+			BodyColor = new Color((byte)(255.0f * 0.6f), (byte)(255.0f * 0.4f), (byte)(255.0f * 0.4f)); // redish
+			if(_wanderer != null) RandomizeStartingPositionAndHeading();
 		}
 
 		// one simulation step
 		public void Update(float currentTime, float elapsedTime)
 		{
 			// when pursuer touches quarry ("wanderer"), reset its position
-			float d = Vector3.Distance(Position, wanderer.Position);
-			float r = Radius + wanderer.Radius;
+			float d = Vector3.Distance(Position, _wanderer.Position);
+			float r = Radius + _wanderer.Radius;
 			if (d < r) Reset();
 
 			const float maxTime = 20; // xxx hard-to-justify value
-			ApplySteeringForce(SteerForPursuit(wanderer, maxTime), elapsedTime);
+			ApplySteeringForce(SteerForPursuit(_wanderer, maxTime), elapsedTime);
 
 			// for annotation
-			trail.Record(currentTime, Position);
+			Trail.Record(currentTime, Position);
 		}
 
 		// reset position
-		public void RandomizeStartingPositionAndHeading()
+	    private void RandomizeStartingPositionAndHeading()
 		{
 			// randomize position on a ring between inner and outer radii
 			// centered around the home base
@@ -55,12 +55,12 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 			const float outer = 30;
 			float radius = RandomHelpers.Random(inner, outer);
 			Vector3 randomOnRing = Vector3Helpers.RandomUnitVectorOnXZPlane() * radius;
-			Position = (wanderer.Position + randomOnRing);
+			Position = (_wanderer.Position + randomOnRing);
 
 			// randomize 2D heading
 			RandomizeHeadingOnXZPlane();
 		}
 
-		MpWanderer wanderer;
+	    readonly MpWanderer _wanderer;
 	}
 }

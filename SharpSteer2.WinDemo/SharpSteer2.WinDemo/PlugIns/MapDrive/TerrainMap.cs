@@ -18,47 +18,47 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 	{
 		public TerrainMap(Vector3 c, float x, float z, int r)
 		{
-			center = c;
-			xSize = x;
-			zSize = z;
-			resolution = r;
-			outsideValue = false;
+			Center = c;
+			XSize = x;
+			ZSize = z;
+			Resolution = r;
+			_outsideValue = false;
 
-			map = new bool[resolution * resolution];
-			for (int i = 0; i < resolution * resolution; i++)
+			_map = new bool[Resolution * Resolution];
+			for (int i = 0; i < Resolution * Resolution; i++)
 			{
-				map[i] = false;
+				_map[i] = false;
 			}
 		}
 
 		// clear the map (to false)
 		public void Clear()
 		{
-			for (int i = 0; i < resolution; i++)
-				for (int j = 0; j < resolution; j++)
+			for (int i = 0; i < Resolution; i++)
+				for (int j = 0; j < Resolution; j++)
 					SetMapBit(i, j, false);
 		}
 
 		// get and set a bit based on 2d integer map index
 		public bool GetMapBit(int i, int j)
 		{
-			return map[MapAddress(i, j)];
+			return _map[MapAddress(i, j)];
 		}
 
-		public bool SetMapBit(int i, int j, bool value)
+		public void SetMapBit(int i, int j, bool value)
 		{
-			return map[MapAddress(i, j)] = value;
+			_map[MapAddress(i, j)] = value;
 		}
 
 		// get a value based on a position in 3d world space
-		public bool GetMapValue(Vector3 point)
+	    private bool GetMapValue(Vector3 point)
 		{
-			Vector3 local = point - center;
+			Vector3 local = point - Center;
             local.Y = 0;
 			Vector3 localXZ = local;
 
-			float hxs = xSize / 2;
-			float hzs = zSize / 2;
+			float hxs = XSize / 2;
+			float hzs = ZSize / 2;
 
 			float x = localXZ.X;
 			float z = localXZ.Z;
@@ -67,28 +67,27 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			if (isOut)
 			{
-				return outsideValue;
+				return _outsideValue;
 			}
 			else
 			{
-				float r = (float)resolution; // prevent VC7.1 warning
-				int i = (int)Utilities.RemapInterval(x, -hxs, hxs, 0.0f, r);
-				int j = (int)Utilities.RemapInterval(z, -hzs, hzs, 0.0f, r);
+                int i = (int)Utilities.RemapInterval(x, -hxs, hxs, 0.0f, Resolution);
+                int j = (int)Utilities.RemapInterval(z, -hzs, hzs, 0.0f, Resolution);
 				return GetMapBit(i, j);
 			}
 		}
 
 		public void xxxDrawMap()
 		{
-			float xs = xSize / (float)resolution;
-			float zs = zSize / (float)resolution;
+			float xs = XSize / Resolution;
+			float zs = ZSize / Resolution;
 			Vector3 alongRow = new Vector3(xs, 0, 0);
-			Vector3 nextRow = new Vector3(-xSize, 0, zs);
-			Vector3 g = new Vector3((xSize - xs) / -2, 0, (zSize - zs) / -2);
-			g += center;
-			for (int j = 0; j < resolution; j++)
+			Vector3 nextRow = new Vector3(-XSize, 0, zs);
+			Vector3 g = new Vector3((XSize - xs) / -2, 0, (ZSize - zs) / -2);
+			g += Center;
+			for (int j = 0; j < Resolution; j++)
 			{
-				for (int i = 0; i < resolution; i++)
+				for (int i = 0; i < Resolution; i++)
 				{
 					if (GetMapBit(i, j))
 					{
@@ -97,7 +96,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 						// drawLine (g, g+spikeTop, gWhite);
 
 						// squares
-						float rockHeight = 0;
+						const float rockHeight = 0;
 						Vector3 v1 = new Vector3(+xs / 2, rockHeight, +zs / 2);
 						Vector3 v2 = new Vector3(+xs / 2, rockHeight, -zs / 2);
 						Vector3 v3 = new Vector3(-xs / 2, rockHeight, -zs / 2);
@@ -123,7 +122,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 		public float MinSpacing()
 		{
-			return Math.Min(xSize, zSize) / (float)resolution;
+			return Math.Min(XSize, ZSize) / Resolution;
 		}
 
 		// used to detect if vehicle body is on any obstacles
@@ -159,20 +158,20 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			return 0;
 		}
 
-		public int Cellwidth() { return resolution; }  // xxx cwr
-		public int Cellheight() { return resolution; }  // xxx cwr
+		public int Cellwidth() { return Resolution; }  // xxx cwr
+		public int Cellheight() { return Resolution; }  // xxx cwr
 		public bool IsPassable(Vector3 point) { return !GetMapValue(point); }
 
 
-		public Vector3 center;
-		public float xSize;
-		public float zSize;
-		public int resolution;
+		public Vector3 Center;
+		public readonly float XSize;
+		public readonly float ZSize;
+		public readonly int Resolution;
 
-		public bool outsideValue;
+	    private readonly bool _outsideValue;
 
-		int MapAddress(int i, int j) { return i + (j * resolution); }
+		int MapAddress(int i, int j) { return i + (j * Resolution); }
 
-		bool[] map;
+	    readonly bool[] _map;
 	}
 }

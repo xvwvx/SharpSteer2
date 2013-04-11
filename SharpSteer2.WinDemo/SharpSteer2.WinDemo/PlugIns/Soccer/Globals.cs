@@ -14,7 +14,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 {
 	class Globals
 	{
-		public static Vector3[] PlayerPosition = new Vector3[] {
+		public static readonly Vector3[] PlayerPosition = new Vector3[] {
 			new Vector3(4,0,0),
 			new Vector3(7,0,-5),
 			new Vector3(7,0,5),

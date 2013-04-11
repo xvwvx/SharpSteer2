@@ -8,13 +8,9 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
-using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
-using SharpSteer2.WinDemo.PlugIns.Ctf;
 
-namespace SharpSteer2.Ctf
+namespace SharpSteer2.WinDemo.PlugIns.Ctf
 {
 	public class CtfEnemy : CtfBase
 	{

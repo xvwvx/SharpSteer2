@@ -25,20 +25,20 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 		public override void Reset()
 		{
 			base.Reset();
-			bodyColor = new Color((byte)(255.0f * 0.4f), (byte)(255.0f * 0.6f), (byte)(255.0f * 0.4f)); // greenish
+			BodyColor = new Color((byte)(255.0f * 0.4f), (byte)(255.0f * 0.6f), (byte)(255.0f * 0.4f)); // greenish
 		}
 
 		// one simulation step
 		public void Update(float currentTime, float elapsedTime)
 		{
-			Vector3 wander2d = SteerForWander(elapsedTime);
-            wander2d.Y = 0;
+			Vector3 wander2D = SteerForWander(elapsedTime);
+            wander2D.Y = 0;
 
-			Vector3 steer = Forward + (wander2d * 3);
+			Vector3 steer = Forward + (wander2D * 3);
 			ApplySteeringForce(steer, elapsedTime);
 
 			// for annotation
-			trail.Record(currentTime, Position);
+			Trail.Record(currentTime, Position);
 		}
 	}
 }

@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -55,15 +56,6 @@ namespace SharpSteer2.WinDemo
 		public Matrix ViewMatrix;
 		public Matrix ProjectionMatrix;
 
-	    BoidsPlugIn _boids;
-        LowSpeedTurnPlugIn _lowSpeedTurn;
-        PedestrianPlugIn _pedestrian;
-        CtfPlugIn _ctf;
-        MapDrivePlugIn _mapDrive;
-        MpPlugIn _multiplePersuit;
-        SoccerPlugIn _soccer;
-        OneTurningPlugIn _oneTurning;
-
 		// currently selected plug-in (user can choose or cycle through them)
 	    private static PlugIn _selectedPlugIn = null;
 
@@ -97,14 +89,17 @@ namespace SharpSteer2.WinDemo
 			//FIXME: eijeijei.
 			Annotation.Drawer = new Drawing();
 
-            _boids = new BoidsPlugIn(_annotations);
-            _lowSpeedTurn = new LowSpeedTurnPlugIn(_annotations);
-            _pedestrian = new PedestrianPlugIn(_annotations);
-            _ctf = new CtfPlugIn(_annotations);
-            _mapDrive = new MapDrivePlugIn(_annotations);
-            _multiplePersuit = new MpPlugIn(_annotations);
-            _soccer = new SoccerPlugIn(_annotations);
-            _oneTurning = new OneTurningPlugIn(_annotations);
+// ReSharper disable ObjectCreationAsStatement
+//Constructing these silently updates a static list of all constructed plugins (euch)
+            new BoidsPlugIn(_annotations);
+            new LowSpeedTurnPlugIn(_annotations);
+            new PedestrianPlugIn(_annotations);
+            new CtfPlugIn(_annotations);
+            new MapDrivePlugIn(_annotations);
+            new MpPlugIn(_annotations);
+            new SoccerPlugIn(_annotations);
+            new OneTurningPlugIn(_annotations);
+// ReSharper restore ObjectCreationAsStatement
 
 			IsFixedTimeStep = false;
 		}
@@ -251,7 +246,7 @@ namespace SharpSteer2.WinDemo
 			// "eye-mouse" selection line
 			float minDistance = float.MaxValue;       // smallest distance found so far
 			IVehicle nearest = null;   // vehicle whose distance is smallest
-			List<IVehicle> vehicles = AllVehiclesOfSelectedPlugIn();
+			IEnumerable<IVehicle> vehicles = AllVehiclesOfSelectedPlugIn();
 			foreach (IVehicle vehicle in vehicles)
 			{
 				// distance from this vehicle's center to the selection line:
@@ -317,7 +312,7 @@ namespace SharpSteer2.WinDemo
 
 		// return a group (an STL vector of AbstractVehicle pointers) of all
 		// vehicles(/agents/characters) defined by the currently selected PlugIn
-		static List<IVehicle> AllVehiclesOfSelectedPlugIn()
+		static IEnumerable<IVehicle> AllVehiclesOfSelectedPlugIn()
 		{
 			return _selectedPlugIn.Vehicles;
 		}
@@ -329,13 +324,13 @@ namespace SharpSteer2.WinDemo
 			if (SelectedVehicle != null)
 			{
 				// get a container of all vehicles
-				List<IVehicle> all = AllVehiclesOfSelectedPlugIn();
+			    IVehicle[] all = AllVehiclesOfSelectedPlugIn().ToArray();
 
 				// find selected vehicle in container
-				int i = all.FindIndex(v => v != null && v == SelectedVehicle);
-				if (i >= 0 && i < all.Count)
+				int i = Array.FindIndex(all, v => v != null && v == SelectedVehicle);
+				if (i >= 0 && i < all.Length)
 				{
-					if (i == all.Count - 1)
+                    if (i == all.Length - 1)
 					{
 						// if we are at the end of the container, select the first vehicle
 						SelectedVehicle = all[0];
@@ -365,8 +360,8 @@ namespace SharpSteer2.WinDemo
 			// if no vehicle is selected, and some exist, select the first one
 			if (SelectedVehicle == null)
 			{
-				List<IVehicle> all = AllVehiclesOfSelectedPlugIn();
-				if (all.Count > 0)
+			    IVehicle[] all = AllVehiclesOfSelectedPlugIn().ToArray();
+				if (all.Length > 0)
 					SelectedVehicle = all[0];
 			}
 
@@ -694,12 +689,10 @@ namespace SharpSteer2.WinDemo
 				// express as FPS (inverse of phase time)
 				return String.Format("{0:0.00000} ({1:0} FPS)", phaseTimer, 1 / phaseTimer);
 			}
-			else
-			{
-				// quantify time as a percentage of frame time
-				double fps = Clock.FixedFrameRate;// 1.0f / TargetElapsedTime.TotalSeconds;
-				return String.Format("{0:0.00000} ({1:0}% of 1/{2}sec)", phaseTimer, (100.0f * phaseTimer) / (1.0f / fps), (int)fps);
-			}
+
+		    // quantify time as a percentage of frame time
+		    double fps = Clock.FixedFrameRate;// 1.0f / TargetElapsedTime.TotalSeconds;
+		    return String.Format("{0:0.00000} ({1:0}% of 1/{2}sec)", phaseTimer, (100.0f * phaseTimer) / (1.0f / fps), (int)fps);
 		}
 
 	    private enum Phase

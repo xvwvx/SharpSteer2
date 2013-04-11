@@ -36,16 +36,16 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		//
 		public static PolylinePathway GetTestPath()
 		{
-			if (TestPath == null)
+			if (_testPath == null)
 			{
 				const float pathRadius = 2;
 
 				const int pathPointCount = 7;
 				const float size = 30;
-				float top = 2 * size;
-				float gap = 1.2f * size;
-				float outter = 2 * size;
-				float h = 0.5f;
+				const float top = 2 * size;
+				const float gap = 1.2f * size;
+				const float outter = 2 * size;
+				const float h = 0.5f;
 				Vector3[] pathPoints = new Vector3[pathPointCount]
 					{
 						new Vector3 (h+gap-outter,  0,  h+top-outter), // 0 a
@@ -67,18 +67,18 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 				Endpoint0 = pathPoints[0];
 				Endpoint1 = pathPoints[pathPointCount - 1];
 
-				TestPath = new PolylinePathway(pathPointCount,
+				_testPath = new PolylinePathway(pathPointCount,
 												 pathPoints,
 												 pathRadius,
 												 false);
 			}
-			return TestPath;
+			return _testPath;
 		}
 
-		public static PolylinePathway TestPath = null;
-		public static SphericalObstacle Obstacle1 = new SphericalObstacle();
-		public static SphericalObstacle Obstacle2 = new SphericalObstacle();
-		public static List<IObstacle> Obstacles = new List<IObstacle>();
+        private static PolylinePathway _testPath = null;
+		public static readonly SphericalObstacle Obstacle1 = new SphericalObstacle();
+		public static readonly SphericalObstacle Obstacle2 = new SphericalObstacle();
+		public static readonly List<IObstacle> Obstacles = new List<IObstacle>();
 		public static Vector3 Endpoint0 = Vector3.Zero;
 		public static Vector3 Endpoint1 = Vector3.Zero;
 		public static bool UseDirectedPathFollowing = true;

@@ -22,42 +22,38 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
         public MapDriver(IAnnotationService annotations = null)
             :base(annotations)
 		{
-			map = MakeMap();
-			path = MakePath();
+			Map = MakeMap();
+			Path = MakePath();
 
 			Reset();
 
 			// to compute mean time between collisions
-			sumOfCollisionFreeTimes = 0;
-			countOfCollisionFreeTimes = 0;
+			SumOfCollisionFreeTimes = 0;
+			CountOfCollisionFreeTimes = 0;
 
 			// keep track for reliability statistics
-			collisionLastTime = false;
-			timeOfLastCollision = Demo.Clock.TotalSimulationTime;
+			_collisionLastTime = false;
+			TimeOfLastCollision = Demo.Clock.TotalSimulationTime;
 
 			// keep track of average speed
-			totalDistance = 0;
-			totalTime = 0;
-
-			// keep track of path following failure rate
-			pathFollowTime = 0;
-			pathFollowOffTime = 0;
+			TotalDistance = 0;
+			TotalTime = 0;
 
 			// innitialize counters for various performance data
-			stuckCount = 0;
-			stuckCycleCount = 0;
-			stuckOffPathCount = 0;
-			lapsStarted = 0;
-			lapsFinished = 0;
-			hintGivenCount = 0;
-			hintTakenCount = 0;
+			StuckCount = 0;
+			StuckCycleCount = 0;
+			StuckOffPathCount = 0;
+			LapsStarted = 0;
+			LapsFinished = 0;
+			HintGivenCount = 0;
+			HintTakenCount = 0;
 
 			// follow the path "upstream or downstream" (+1/-1)
-			pathFollowDirection = -1;
+			PathFollowDirection = -1;
 
 			// use curved prediction and incremental steering:
-			curvedSteering = true;
-			incrementalSteering = true;
+			CurvedSteering = true;
+			IncrementalSteering = true;
 		}
 
 		// reset state
@@ -77,14 +73,14 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			MaxForce = MaxSpeed * 0.4f;
 
 			// vehicle is 2 meters wide and 3 meters long
-			halfWidth = 1.0f;
-			halfLength = 1.5f;
+			_halfWidth = 1.0f;
+			_halfLength = 1.5f;
 
 			// init dynamically controlled radius
 			AdjustVehicleRadiusForSpeed();
 
 			// not previously avoiding
-			annotateAvoid = Vector3.Zero;
+			_annotateAvoid = Vector3.Zero;
 
 			// 10 seconds with 200 points along the trail
 			if (_trail == null) _trail = new Trail(10, 200);
@@ -93,19 +89,19 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			_trail.Clear();
 
 			// first pass at detecting "stuck" state
-			stuck = false;
+			Stuck = false;
 
 			// QQQ need to clean up this hack
-			qqqLastNearestObstacle = Vector3.Zero;
+			_qqqLastNearestObstacle = Vector3.Zero;
 
 			// master look ahead (prediction) time
-			baseLookAheadTime = 3;
+			_baseLookAheadTime = 3;
 
-			if (demoSelect == 2)
+			if (DemoSelect == 2)
 			{
-				lapsStarted++;
-				float s = WORLD_SIZE;
-				float d = (float)pathFollowDirection;
+				LapsStarted++;
+				const float s = WORLD_SIZE;
+				float d = PathFollowDirection;
 				Position = (new Vector3(s * d * 0.6f, 0, s * -0.4f));
 				RegenerateOrthonormalBasisUF(Vector3.Right * d);
 			}
@@ -114,17 +110,17 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			ResetStuckCycleDetection();
 
 			// assume no previous steering
-			currentSteering = Vector3.Zero;
+			_currentSteering = Vector3.Zero;
 
 			// assume normal running state
-			dtZero = false;
+			_dtZero = false;
 
 			// QQQ temporary global QQQoaJustScraping
-			QQQoaJustScraping = false;
+			_qqQoaJustScraping = false;
 
 			// state saved for speedometer
-			annoteMaxRelSpeed = annoteMaxRelSpeedCurve = annoteMaxRelSpeedPath = 0;
-			annoteMaxRelSpeed = annoteMaxRelSpeedCurve = annoteMaxRelSpeedPath = 1;
+			AnnoteMaxRelSpeed = AnnoteMaxRelSpeedCurve = AnnoteMaxRelSpeedPath = 0;
+			AnnoteMaxRelSpeed = AnnoteMaxRelSpeedCurve = AnnoteMaxRelSpeedPath = 1;
 		}
 
 
@@ -132,45 +128,47 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		public void Update(float currentTime, float elapsedTime)
 		{
 			// take note when current dt is zero (as in paused) for stat counters
-			dtZero = (elapsedTime == 0);
+// ReSharper disable CompareOfFloatsByEqualityOperator
+			_dtZero = (elapsedTime == 0);
+// ReSharper restore CompareOfFloatsByEqualityOperator
 
 			// pretend we are bigger when going fast
 			AdjustVehicleRadiusForSpeed();
 
 			// state saved for speedometer
 			//      annoteMaxRelSpeed = annoteMaxRelSpeedCurve = annoteMaxRelSpeedPath = 0;
-			annoteMaxRelSpeed = annoteMaxRelSpeedCurve = annoteMaxRelSpeedPath = 1;
+			AnnoteMaxRelSpeed = AnnoteMaxRelSpeedCurve = AnnoteMaxRelSpeedPath = 1;
 
 			// determine combined steering
 			Vector3 steering = Vector3.Zero;
 			bool offPath = !IsBodyInsidePath();
-			if (stuck || offPath || DetectImminentCollision())
+			if (Stuck || offPath || DetectImminentCollision())
 			{
 				// bring vehicle to a stop if we are stuck (newly or previously
 				// stuck, because off path or collision seemed imminent)
 				// (QQQ combine with stuckCycleCount code at end of this function?)
 				//ApplyBrakingForce (curvedSteering ? 3 : 2, elapsedTime); // QQQ
-				ApplyBrakingForce((curvedSteering ? 3.0f : 2.0f), elapsedTime); // QQQ
+				ApplyBrakingForce((CurvedSteering ? 3.0f : 2.0f), elapsedTime); // QQQ
 				// count "off path" events
-				if (offPath && !stuck && (demoSelect == 2)) stuckOffPathCount++;
-				stuck = true;
+				if (offPath && !Stuck && (DemoSelect == 2)) StuckOffPathCount++;
+				Stuck = true;
 
 				// QQQ trying to prevent "creep" during emergency stops
 				ResetAcceleration();
-				currentSteering = Vector3.Zero;
+				_currentSteering = Vector3.Zero;
 			}
 			else
 			{
 				// determine steering for obstacle avoidance (save for annotation)
-				Vector3 avoid = annotateAvoid = SteerToAvoidObstaclesOnMap(LookAheadTimeOA(), map, HintForObstacleAvoidance());
+				Vector3 avoid = _annotateAvoid = SteerToAvoidObstaclesOnMap(LookAheadTimeOA(), HintForObstacleAvoidance());
 				bool needToAvoid = avoid != Vector3.Zero;
 
 				// any obstacles to avoid?
 				if (needToAvoid)
 				{
 					// slow down and turn to avoid the obstacles
-					float targetSpeed = ((curvedSteering && QQQoaJustScraping) ? MaxSpeedForCurvature() : 0);
-					annoteMaxRelSpeed = targetSpeed / MaxSpeed;
+					float targetSpeed = ((CurvedSteering && _qqQoaJustScraping) ? MaxSpeedForCurvature() : 0);
+					AnnoteMaxRelSpeed = targetSpeed / MaxSpeed;
 					float avoidWeight = 3 + (3 * RelativeSpeed()); // ad hoc
 					steering = avoid * avoidWeight;
 					steering += SteerForTargetSpeed(targetSpeed);
@@ -181,7 +179,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					steering = SteerForTargetSpeed(MaxSpeedForCurvature());
 
 					// wander for demo 1
-					if (demoSelect == 1)
+					if (DemoSelect == 1)
 					{
 						Vector3 wander = SteerForWander(elapsedTime);
 						wander.Y = 0;
@@ -193,9 +191,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					}
 
 					// follow the path in demo 2
-					if (demoSelect == 2)
+					if (DemoSelect == 2)
 					{
-						Vector3 pf = SteerToFollowPath(pathFollowDirection, LookAheadTimePF(), path);
+						Vector3 pf = SteerToFollowPath(PathFollowDirection, LookAheadTimePF());
 						if (pf != Vector3.Zero)
 						{
 							// steer to remain on path
@@ -208,25 +206,25 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 						{
 							// path aligment: when neither obstacle avoidance nor
 							// path following is required, align with path segment
-							Vector3 pathHeading = path.TangentAt(Position, pathFollowDirection);
+							Vector3 pathHeading = Path.TangentAt(Position, PathFollowDirection);
 							{
-								Vector3 b = (Position + (Up * 0.2f) + (Forward * halfLength * 1.4f));
-								float l = 2;
+								Vector3 b = (Position + (Up * 0.2f) + (Forward * _halfLength * 1.4f));
+								const float l = 2;
 								annotation.Line(b, b + (Forward * l), Color.Cyan);
 								annotation.Line(b, b + (pathHeading * l), Color.Cyan);
 							}
 							steering += (SteerTowardHeading(pathHeading) *
-										 (path.NearWaypoint(Position) ?
+										 (Path.NearWaypoint(Position) ?
 										  0.5f : 0.1f));
 						}
 					}
 				}
 			}
 
-			if (!stuck)
+			if (!Stuck)
 			{
 				// convert from absolute to incremental steering signal
-				if (incrementalSteering)
+				if (IncrementalSteering)
 					steering = ConvertAbsoluteToIncrementalSteering(steering, elapsedTime);
 				// enforce minimum turning radius
 				steering = AdjustSteeringForMinimumTurningRadius(steering);
@@ -238,11 +236,11 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			// detect getting stuck in cycles -- we are moving but not
 			// making progress down the route (annotate smoothedPosition)
-			if (demoSelect == 2)
+			if (DemoSelect == 2)
 			{
 				bool circles = WeAreGoingInCircles();
-				if (circles && !stuck) stuckCycleCount++;
-				if (circles) stuck = true;
+				if (circles && !Stuck) StuckCycleCount++;
+				if (circles) Stuck = true;
 				annotation.CircleOrDisk(0.5f, Up, SmoothedPosition, Color.White, 12, circles, false);
 			}
 
@@ -251,58 +249,48 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			_trail.Record(currentTime, Position);
 		}
 
-		public void AdjustVehicleRadiusForSpeed()
+	    private void AdjustVehicleRadiusForSpeed()
 		{
-            float minRadius = (float)Math.Sqrt(halfWidth * halfWidth + halfLength * halfLength);
-			float safetyMargin = (curvedSteering ? MathHelper.Lerp(0.0f, 1.5f, RelativeSpeed()) : 0.0f);
+            float minRadius = (float)Math.Sqrt(_halfWidth * _halfWidth + _halfLength * _halfLength);
+			float safetyMargin = (CurvedSteering ? MathHelper.Lerp(0.0f, 1.5f, RelativeSpeed()) : 0.0f);
 			Radius = (minRadius + safetyMargin);
 		}
 
-		public void CollectReliabilityStatistics(float currentTime, float elapsedTime)
+	    private void CollectReliabilityStatistics(float currentTime, float elapsedTime)
 		{
 			// detect obstacle avoidance failure and keep statistics
-			collisionDetected = map.ScanLocalXZRectangle(this,
-														   -halfWidth, halfWidth,
-														   -halfLength, halfLength);
+			_collisionDetected = Map.ScanLocalXZRectangle(this,
+														   -_halfWidth, _halfWidth,
+														   -_halfLength, _halfLength);
 
 			// record stats to compute mean time between collisions
-			float timeSinceLastCollision = currentTime - timeOfLastCollision;
-			if (collisionDetected && !collisionLastTime && timeSinceLastCollision > 1)
+			float timeSinceLastCollision = currentTime - TimeOfLastCollision;
+			if (_collisionDetected && !_collisionLastTime && timeSinceLastCollision > 1)
 			{
-				sumOfCollisionFreeTimes += timeSinceLastCollision;
-				countOfCollisionFreeTimes++;
-				timeOfLastCollision = currentTime;
+				SumOfCollisionFreeTimes += timeSinceLastCollision;
+				CountOfCollisionFreeTimes++;
+				TimeOfLastCollision = currentTime;
 			}
-			collisionLastTime = collisionDetected;
+			_collisionLastTime = _collisionDetected;
 
 			// keep track of average speed
-			totalDistance += Speed * elapsedTime;
-			totalTime += elapsedTime;
-
-			// keep track of path following failure rate
-			// QQQ for now, duplicating this code from the draw method:
-			// if we are following a path but are off the path,
-			// draw a red line to where we should be
-			if (demoSelect == 2)
-			{
-				pathFollowTime += elapsedTime;
-				if (!IsBodyInsidePath()) pathFollowOffTime += elapsedTime;
-			}
+			TotalDistance += Speed * elapsedTime;
+			TotalTime += elapsedTime;
 		}
 
-		public Vector3 HintForObstacleAvoidance()
+	    private Vector3 HintForObstacleAvoidance()
 		{
 			// used only when path following, return zero ("no hint") otherwise
-			if (demoSelect != 2) return Vector3.Zero;
+			if (DemoSelect != 2) return Vector3.Zero;
 
 			// are we heading roughly parallel to the current path segment?
 			Vector3 p = Position;
-			Vector3 pathHeading = path.TangentAt(p, pathFollowDirection);
+			Vector3 pathHeading = Path.TangentAt(p, PathFollowDirection);
 			if (Vector3.Dot(pathHeading, Forward) < 0.8f)
 			{
 				// if not, the "hint" is to turn to align with path heading
-				Vector3 s = Side * halfWidth;
-				float f = halfLength * 2;
+				Vector3 s = Side * _halfWidth;
+				float f = _halfLength * 2;
 				annotation.Line(p + s, p + s + (Forward * f), Color.Black);
 				annotation.Line(p - s, p - s + (Forward * f), Color.Black);
 				annotation.Line(p, p + (pathHeading * 5), Color.Magenta);
@@ -311,13 +299,13 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			else
 			{
 				// when there is a valid nearest obstacle position
-				Vector3 obstacle = qqqLastNearestObstacle;
+				Vector3 obstacle = _qqqLastNearestObstacle;
 				Vector3 o = obstacle + (Up * 0.1f);
 				if (obstacle != Vector3.Zero)
 				{
 					// get offset, distance from obstacle to its image on path
 					float outside;
-					Vector3 onPath = path.MapPointToPath(obstacle, out outside);
+					Vector3 onPath = Path.MapPointToPath(obstacle, out outside);
 					Vector3 offset = onPath - obstacle;
 					float offsetDistance = offset.Length();
 
@@ -325,9 +313,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					if (outside < 0)
 					{
 						// when near the outer edge of a sufficiently wide tube
-						int segmentIndex = path.IndexOfNearestSegment(onPath);
-						float segmentRadius = path.Radii[segmentIndex];
-						float w = halfWidth * 6;
+						int segmentIndex = Path.IndexOfNearestSegment(onPath);
+						float segmentRadius = Path.Radii[segmentIndex];
+						float w = _halfWidth * 6;
 						bool nearEdge = offsetDistance > w;
 						bool wideEnough = segmentRadius > (w * 2);
 						if (nearEdge && wideEnough)
@@ -354,20 +342,12 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			return Vector3.Zero;
 		}
 
-		// like steerToAvoidObstacles, but based on a BinaryTerrainMap indicating
-		// the possitions of impassible regions
-		//
-		public Vector3 SteerToAvoidObstaclesOnMap(float minTimeToCollision, TerrainMap map)
-		{
-			return SteerToAvoidObstaclesOnMap(minTimeToCollision, map, Vector3.Zero); // no steer hint
-		}
-
 		// given a map of obstacles (currently a global, binary map) steer so as
 		// to avoid collisions within the next minTimeToCollision seconds.
 		//
-		public Vector3 SteerToAvoidObstaclesOnMap(float minTimeToCollision, TerrainMap map, Vector3 steerHint)
+	    private Vector3 SteerToAvoidObstaclesOnMap(float minTimeToCollision, Vector3 steerHint)
 		{
-			float spacing = map.MinSpacing() / 2;
+			float spacing = Map.MinSpacing() / 2;
 			float maxSide = Radius;
 			float maxForward = minTimeToCollision * Speed;
 			int maxSamples = (int)(maxForward / spacing);
@@ -376,43 +356,43 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			Vector3 sOffset = Vector3.Zero;
 			float s = spacing / 2;
 
-			int infinity = 9999; // qqq
+			const int infinity = 9999; // qqq
 			int nearestL = infinity;
 			int nearestR = infinity;
 			int nearestWL = infinity;
 			int nearestWR = infinity;
 			Vector3 nearestO = Vector3.Zero;
-			wingDrawFlagL = false;
-			wingDrawFlagR = false;
+			_wingDrawFlagL = false;
+			_wingDrawFlagR = false;
 
 			bool hintGiven = steerHint != Vector3.Zero;
-			if (hintGiven && !dtZero)
-				hintGivenCount++;
+			if (hintGiven && !_dtZero)
+				HintGivenCount++;
 			if (hintGiven)
-				annotation.CircleOrDisk(halfWidth * 0.9f, Up, Position + (Up * 0.2f), Color.White, 12, false, false);
+				annotation.CircleOrDisk(_halfWidth * 0.9f, Up, Position + (Up * 0.2f), Color.White, 12, false, false);
 
 			// QQQ temporary global QQQoaJustScraping
-			QQQoaJustScraping = true;
+			_qqQoaJustScraping = true;
 
 			float signedRadius = 1 / NonZeroCurvatureQQQ();
 			Vector3 localCenterOfCurvature = Side * signedRadius;
 			Vector3 center = Position + localCenterOfCurvature;
 			float sign = signedRadius < 0 ? 1.0f : -1.0f;
 			float arcRadius = signedRadius * -sign;
-			float twoPi = 2 * (float)Math.PI;
+			const float twoPi = 2 * (float)Math.PI;
 			float circumference = twoPi * arcRadius;
 			float rawLength = Speed * minTimeToCollision * sign;
-			float fracLimit = 1.0f / 6.0f;
+			const float fracLimit = 1.0f / 6.0f;
 			float distLimit = circumference * fracLimit;
 			float arcLength = ArcLengthLimit(rawLength, distLimit);
 			float arcAngle = twoPi * arcLength / circumference;
 
 			// XXX temp annotation to show limit on arc angle
-			if (curvedSteering)
+			if (CurvedSteering)
 			{
 				if ((Speed * minTimeToCollision) > (circumference * fracLimit))
 				{
-					float q = twoPi * fracLimit;
+					const float q = twoPi * fracLimit;
 					Vector3 fooz = Position - center;
 					Vector3 booz = Vector3Helpers.RotateAboutGlobalY(fooz, sign * q);
 					annotation.Line(center, center + fooz, Color.Red);
@@ -434,7 +414,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 				Vector3 lObsPos = Vector3.Zero, rObsPos = Vector3.Zero;
 
-				int L = (curvedSteering ?
+				int l = (CurvedSteering ?
 							   (int)(ScanObstacleMap(lOffset,
 													   center,
 													   arcAngle,
@@ -444,8 +424,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 													   Color.Red,
 													   out lObsPos)
 									  / spacing) :
-							   map.ScanXZray(lOffset, step, maxSamples));
-				int R = (curvedSteering ?
+							   Map.ScanXZray(lOffset, step, maxSamples));
+				int r = (CurvedSteering ?
 							   (int)(ScanObstacleMap(rOffset,
 														center,
 													   arcAngle,
@@ -455,42 +435,42 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 													   Color.Red,
 													   out rObsPos)
 									  / spacing) :
-							   map.ScanXZray(rOffset, step, maxSamples));
+							   Map.ScanXZray(rOffset, step, maxSamples));
 
-				if ((L > 0) && (L < nearestL))
+				if ((l > 0) && (l < nearestL))
 				{
-					nearestL = L;
-					if (L < nearestR) nearestO = ((curvedSteering) ?
+					nearestL = l;
+					if (l < nearestR) nearestO = ((CurvedSteering) ?
 												  lObsPos :
-												  lOffset + (step * (float)L));
+												  lOffset + (step * l));
 				}
-				if ((R > 0) && (R < nearestR))
+				if ((r > 0) && (r < nearestR))
 				{
-					nearestR = R;
-					if (R < nearestL) nearestO = ((curvedSteering) ?
+					nearestR = r;
+					if (r < nearestL) nearestO = ((CurvedSteering) ?
 												  rObsPos :
-												  rOffset + (step * (float)R));
+												  rOffset + (step * r));
 				}
 
-				if (!curvedSteering)
+				if (!CurvedSteering)
 				{
-					AnnotateAvoidObstaclesOnMap(lOffset, L, step);
-					AnnotateAvoidObstaclesOnMap(rOffset, R, step);
+					AnnotateAvoidObstaclesOnMap(lOffset, l, step);
+					AnnotateAvoidObstaclesOnMap(rOffset, r, step);
 				}
 
-				if (curvedSteering)
+				if (CurvedSteering)
 				{
 					// QQQ temporary global QQQoaJustScraping
 					bool outermost = s >= maxSide;
-					bool eitherSide = (L > 0) || (R > 0);
-					if (!outermost && eitherSide) QQQoaJustScraping = false;
+					bool eitherSide = (l > 0) || (r > 0);
+					if (!outermost && eitherSide) _qqQoaJustScraping = false;
 				}
 			}
-			qqqLastNearestObstacle = nearestO;
+			_qqqLastNearestObstacle = nearestO;
 
 			// scan "wings"
 			{
-				int wingScans = 4;
+				const int wingScans = 4;
 				// see duplicated code at: QQQ draw sensing "wings"
 				// QQQ should be a parameter of this method
 				Vector3 wingWidth = Side * WingSlope() * maxForward;
@@ -500,14 +480,14 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 				for (int i = 1; i <= wingScans; i++)
 				{
-					float fraction = (float)i / (float)wingScans;
+					float fraction = i / (float)wingScans;
 					Vector3 endside = sOffset + (wingWidth * fraction);
 					Vector3 corridorFront = Forward * maxForward;
 
 					// "loop" from -1 to 1
 					for (int j = -1; j < 2; j += 2)
 					{
-						float k = (float)j; // prevent VC7.1 warning
+						float k = j; // prevent VC7.1 warning
 						Vector3 start = fOffset + (sOffset * k);
 						Vector3 end = fOffset + corridorFront + (endside * k);
 						Vector3 ray = end - start;
@@ -518,7 +498,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 							WingSlope() * maxForward * fraction *
 							(signedRadius < 0 ? 1 : -1) * (j == 1 ? 1 : -1);
 						Vector3 ignore;
-						int scan = (curvedSteering ?
+						int scan = (CurvedSteering ?
 										  (int)(ScanObstacleMap(start,
 																  center,
 																  arcAngle,
@@ -528,9 +508,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 																  afterColor,
 																  out ignore)
 												 / spacing) :
-										  map.ScanXZray(start, step2, raySamples));
+										  Map.ScanXZray(start, step2, raySamples));
 
-						if (!curvedSteering)
+						if (!CurvedSteering)
 							AnnotateAvoidObstaclesOnMap(start, scan, step2);
 
 						if (j == 1)
@@ -543,15 +523,15 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 						}
 					}
 				}
-				wingDrawFlagL = nearestWL != infinity;
-				wingDrawFlagR = nearestWR != infinity;
+				_wingDrawFlagL = nearestWL != infinity;
+				_wingDrawFlagR = nearestWR != infinity;
 			}
 
 			// for annotation
-			savedNearestWR = (float)nearestWR;
-			savedNearestR = (float)nearestR;
-			savedNearestL = (float)nearestL;
-			savedNearestWL = (float)nearestWL;
+			SavedNearestWR = nearestWR;
+			SavedNearestR = nearestR;
+			SavedNearestL = nearestL;
+			SavedNearestWL = nearestWL;
 
 			// flags for compound conditions, used below
 			bool obstacleFreeC = nearestL == infinity && nearestR == infinity;
@@ -564,9 +544,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			// when doing curved steering and we have already detected "just
 			// scarping" but neither wing is free, recind the "just scarping"
 			// QQQ temporary global QQQoaJustScraping
-			bool JS = curvedSteering && QQQoaJustScraping;
-			bool cancelJS = !obstacleFreeWL && !obstacleFreeWR;
-			if (JS && cancelJS) QQQoaJustScraping = false;
+			bool js = CurvedSteering && _qqQoaJustScraping;
+			bool cancelJs = !obstacleFreeWL && !obstacleFreeWR;
+			if (js && cancelJs) _qqQoaJustScraping = false;
 
 
 			// ----------------------------------------------------------
@@ -577,8 +557,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			// no obstacles found on path, return zero steering
 			if (obstacleFreeC)
 			{
-				qqqLastNearestObstacle = Vector3.Zero;
-				AnnotationNoteOAClauseName("obstacleFreeC");
+				_qqqLastNearestObstacle = Vector3.Zero;
 
 				// qqq  this may be in the wrong place (what would be the right
 				// qqq  place?!) but I'm trying to say "even if the path is
@@ -591,9 +570,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			// if the nearest obstacle is way out there, take hint if any
 			//      if (hintGiven && (Math.Min (nearestL, nearestR) > (maxSamples * 0.8f)))
-			if (hintGiven && (Math.Min((float)nearestL, (float)nearestR) > (maxSamples * 0.8f)))
+			if (hintGiven && (Math.Min(nearestL, nearestR) > (maxSamples * 0.8f)))
 			{
-				AnnotationNoteOAClauseName("nearest obstacle is way out there");
 				AnnotationHintWasTaken();
 				if (Vector3.Dot(steerHint, Side) > 0)
 					return Side;
@@ -612,15 +590,11 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			if (Math.Abs(Curvature) > maxCurvature)
 			{
 				Color blue = new Color(0, 0, (byte)(255.0f * 0.8f));
-				AnnotationNoteOAClauseName("min turn radius");
 				annotation.CircleOrDisk(MinimumTurningRadius() * 1.2f, Up,
 										center, blue, 40, false, false);
 				return Side * sign;
 			}
 
-			// if either side is obstacle-free, turn in that direction
-			if (obstacleFreeL || obstacleFreeR)
-				AnnotationNoteOAClauseName("obstacle-free side");
 
 			if (obstacleFreeL) return Side;
 			if (obstacleFreeR) return -Side;
@@ -628,7 +602,6 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			// if wings are clear, turn away from nearest obstacle straight ahead
 			if (obstacleFreeW)
 			{
-				AnnotationNoteOAClauseName("obstacleFreeW");
 				// distance to obs on L and R side of corridor roughtly the same
 				bool same = Math.Abs(nearestL - nearestR) < 5; // within 5
 				// if they are about the same and a hint is given, use hint
@@ -655,55 +628,32 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			bool equallyClear = Math.Abs(nearestWL - nearestWR) < 2; // within 2
 			if (equallyClear && hintGiven)
 			{
-				AnnotationNoteOAClauseName("equallyClear");
 				AnnotationHintWasTaken();
 				if (Vector3.Dot(steerHint, Side) > 0) return Side; else return -Side;
 			}
 
 			// turn towards the side whose "wing" region is less cluttered
 			// (the wing whose nearest obstacle is furthest away)
-			AnnotationNoteOAClauseName("wing less cluttered");
 			if (nearestWL > nearestWR) return Side; else return -Side;
 		}
 
 		// QQQ reconsider calling sequence
 		// called when steerToAvoidObstaclesOnMap decides steering is required
 		// (default action is to do nothing, layered classes can overload it)
-		public void AnnotateAvoidObstaclesOnMap(Vector3 scanOrigin, int scanIndex, Vector3 scanStep)
+	    private void AnnotateAvoidObstaclesOnMap(Vector3 scanOrigin, int scanIndex, Vector3 scanStep)
 		{
 			if (scanIndex > 0)
 			{
-				Vector3 hit = scanOrigin + (scanStep * (float)scanIndex);
+				Vector3 hit = scanOrigin + (scanStep * scanIndex);
 				annotation.Line(scanOrigin, hit, new Color((byte)(255.0f * 0.7f), (byte)(255.0f * 0.3f), (byte)(255.0f * 0.3f)));
 			}
 		}
 
-		public void AnnotationNoteOAClauseName(String clauseName)
+	    private void AnnotationHintWasTaken()
 		{
-			// does noting now, idea was that it might draw 2d text near vehicle
-			// with this state information
-			//
+			if (!_dtZero) HintTakenCount++;
 
-			// print version:
-			//
-			// if (!dtZero) std.cout << clauseName << std.endl;
-
-			// was had been in caller:
-			//
-			//if (!dtZero)
-			//{
-			//    int WR = nearestWR; debugPrint (WR);
-			//    int R  = nearestR;  debugPrint (R);
-			//    int L  = nearestL;  debugPrint (L);
-			//    int WL = nearestWL; debugPrint (WL);
-			//} 
-		}
-
-		public void AnnotationHintWasTaken()
-		{
-			if (!dtZero) hintTakenCount++;
-
-			float r = halfWidth * 0.9f;
+			float r = _halfWidth * 0.9f;
 			Vector3 ff = Forward * r;
 			Vector3 ss = Side * r;
 			Vector3 pp = Position + (Up * 0.2f);
@@ -728,7 +678,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		//        return a "scan results object" with a flag for obstacle found,
 		//        plus distant and position if so.
 		//
-		public float ScanObstacleMap(Vector3 start, Vector3 center, float arcAngle, int segments, float endRadiusChange, Color beforeColor, Color afterColor, out Vector3 returnObstaclePosition)
+	    private float ScanObstacleMap(Vector3 start, Vector3 center, float arcAngle, int segments, float endRadiusChange, Color beforeColor, Color afterColor, out Vector3 returnObstaclePosition)
 		{
 			// "spoke" is initially the vector from center to start,
 			// which is then rotated step by step around center
@@ -739,7 +689,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			float obstacleDistance = 0;
 			returnObstaclePosition = Vector3.Zero;
 			// for spiral "ramps" of changing radius
+// ReSharper disable CompareOfFloatsByEqualityOperator
 			float startRadius = (endRadiusChange == 0) ? 0 : spoke.Length();
+// ReSharper restore CompareOfFloatsByEqualityOperator
 
 			// traverse each segment along arc
 			float sin = 0, cos = 0;
@@ -758,7 +710,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 												   (Math.Max(0,
 												             (startRadius +
 												              endRadiusChange))
-												    / startRadius), (float)(i + 1) / (float)segments));
+												    / startRadius), (i + 1) / (float)segments));
 
 				// construct new scan point: center point, offset by rotated
 				// spoke (possibly adjusting the radius if endRadiusChange!=0)
@@ -778,7 +730,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					float d2 = offset.Length() * 2;
 
 					// when obstacle found: set flag, save distance and position
-					if (!map.IsPassable(newPoint))
+					if (!Map.IsPassable(newPoint))
 					{
 						obstacleFound = true;
 						obstacleDistance = d2 * 0.5f * (i + 1);
@@ -793,44 +745,44 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			return obstacleDistance;
 		}
 
-		public bool DetectImminentCollision()
+	    private bool DetectImminentCollision()
 		{
 			// QQQ  this should be integrated into steerToAvoidObstaclesOnMap
 			// QQQ  since it shares so much infrastructure
 			// QQQ  less so after changes on 3-16-04
 			bool returnFlag = false;
-			float spacing = map.MinSpacing() / 2;
-			float maxSide = halfWidth + spacing;
-			float minDistance = curvedSteering ? 2.0f : 2.5f; // meters
-			float predictTime = curvedSteering ? .75f : 1.3f; // seconds
+			float spacing = Map.MinSpacing() / 2;
+			float maxSide = _halfWidth + spacing;
+			float minDistance = CurvedSteering ? 2.0f : 2.5f; // meters
+			float predictTime = CurvedSteering ? .75f : 1.3f; // seconds
 			float maxForward = Speed * CombinedLookAheadTime(predictTime, minDistance);
 			Vector3 step = Forward * spacing;
-			float s = curvedSteering ? (spacing / 4) : (spacing / 2);
+			float s = CurvedSteering ? (spacing / 4) : (spacing / 2);
 
 			float signedRadius = 1 / NonZeroCurvatureQQQ();
 			Vector3 localCenterOfCurvature = Side * signedRadius;
 			Vector3 center = Position + localCenterOfCurvature;
 			float sign = signedRadius < 0 ? 1.0f : -1.0f;
 			float arcRadius = signedRadius * -sign;
-			float twoPi = 2 * (float)Math.PI;
+			const float twoPi = 2 * (float)Math.PI;
 			float circumference = twoPi * arcRadius;
 			Vector3 qqqLift = new Vector3(0, 0.2f, 0);
-			Vector3 ignore;
 
-			// scan region ahead of vehicle
+		    // scan region ahead of vehicle
 			while (s < maxSide)
 			{
 				Vector3 sOffset = Side * s;
 				Vector3 lOffset = Position + sOffset;
 				Vector3 rOffset = Position - sOffset;
-				float bevel = 0.3f;
+				const float bevel = 0.3f;
 				float fraction = s / maxSide;
-				float scanDist = (halfLength +
+				float scanDist = (_halfLength +
 										MathHelper.Lerp(maxForward,
 													 maxForward * bevel, fraction));
 				float angle = (scanDist * twoPi * sign) / circumference;
 				int samples = (int)(scanDist / spacing);
-				int L = (curvedSteering ?
+			    Vector3 ignore;
+			    int l = (CurvedSteering ?
 							   (int)(ScanObstacleMap(lOffset + qqqLift,
 													   center,
 													   angle,
@@ -840,8 +792,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 													   Color.Cyan,
 													   out ignore)
 									  / spacing) :
-							   map.ScanXZray(lOffset, step, samples));
-				int R = (curvedSteering ?
+							   Map.ScanXZray(lOffset, step, samples));
+				int r = (CurvedSteering ?
 							   (int)(ScanObstacleMap(rOffset + qqqLift,
 													   center,
 													   angle,
@@ -851,15 +803,15 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 													   Color.Cyan,
 													   out ignore)
 									  / spacing) :
-							   map.ScanXZray(rOffset, step, samples));
+							   Map.ScanXZray(rOffset, step, samples));
 
-				returnFlag = returnFlag || (L > 0);
-				returnFlag = returnFlag || (R > 0);
+				returnFlag = returnFlag || (l > 0);
+				returnFlag = returnFlag || (r > 0);
 
 				// annotation
-				if (!curvedSteering)
+				if (!CurvedSteering)
 				{
-					Vector3 d = step * (float)samples;
+					Vector3 d = step * samples;
 					annotation.Line(lOffset, lOffset + d, Color.White);
 					annotation.Line(rOffset, rOffset + d, Color.White);
 				}
@@ -877,7 +829,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// this should be const, but easier for now to ignore that
 		public override Vector3 PredictFuturePosition(float predictionTime)
 		{
-			if (curvedSteering)
+			if (CurvedSteering)
 			{
 				// QQQ this chunk of code is repeated in far too many places,
 				// QQQ it has to be moved inside some utility
@@ -889,7 +841,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				Vector3 center = Position + localCenterOfCurvature;
 				float sign = signedRadius < 0 ? 1.0f : -1.0f;
 				float arcRadius = signedRadius * -sign;
-				float twoPi = 2 * (float)Math.PI;
+				const float twoPi = 2 * (float)Math.PI;
 				float circumference = twoPi * arcRadius;
 				float rawLength = Speed * predictionTime * sign;
 				float arcLength = ArcLengthLimit(rawLength, circumference * 0.25f);
@@ -916,7 +868,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// args are the intended arc length (signed!), and the limit which is
 		// a given (positive!) fraction of the arc's (circle's) circumference
 		//
-		public float ArcLengthLimit(float length, float limit)
+	    private static float ArcLengthLimit(float length, float limit)
 		{
 			if (length > 0)
 				return Math.Min(length, limit);
@@ -937,15 +889,15 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		//
 		// and now its been modified again for curvature-based prediction
 		//
-		public Vector3 SteerToFollowPath(int direction, float predictionTime, GCRoute path)
+	    private Vector3 SteerToFollowPath(int direction, float predictionTime)
 		{
-			if (curvedSteering)
-				return SteerToFollowPathCurve(direction, predictionTime, path);
+			if (CurvedSteering)
+				return SteerToFollowPathCurve(direction, predictionTime);
 			else
-				return SteerToFollowPathLinear(direction, predictionTime, path);
+				return SteerToFollowPathLinear(direction, predictionTime);
 		}
 
-		public Vector3 SteerToFollowPathLinear(int direction, float predictionTime, GCRoute path)
+	    private Vector3 SteerToFollowPathLinear(int direction, float predictionTime)
 		{
 			// our goal will be offset from our path distance by this amount
 			float pathDistanceOffset = direction * predictionTime * Speed;
@@ -955,10 +907,10 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			// measure distance along path of our current and predicted positions
 			float nowPathDistance =
-				path.MapPointToPathDistance(Position);
+				Path.MapPointToPathDistance(Position);
 
 			// are we facing in the correction direction?
-			Vector3 pathHeading = path.TangentAt(Position) * (float)direction;
+			Vector3 pathHeading = Path.TangentAt(Position) * direction;
 			bool correctDirection = Vector3.Dot(pathHeading, Forward) > 0;
 
 			// find the point on the path nearest the predicted future position
@@ -966,11 +918,11 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			// XXX special path-defined object which includes two Vector3s and a 
 			// XXX bool (onPath,tangent (ignored), withinPath)
 			float futureOutside;
-			Vector3 onPath = path.MapPointToPath(futurePosition, out futureOutside);
+			Vector3 onPath = Path.MapPointToPath(futurePosition, out futureOutside);
 
 			// determine if we are currently inside the path tube
 			float nowOutside;
-			Vector3 nowOnPath = path.MapPointToPath(Position, out nowOutside);
+			Vector3 nowOnPath = Path.MapPointToPath(Position, out nowOutside);
 
 			// no steering is required if our present and future positions are
 			// inside the path tube and we are facing in the correct direction
@@ -989,20 +941,20 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				float targetPathDistance = (nowPathDistance +
 												  (pathDistanceOffset *
 												   (correctDirection ? 1 : 0.1f)));
-				Vector3 target = path.MapPathDistanceToPoint(targetPathDistance);
+				Vector3 target = Path.MapPathDistanceToPoint(targetPathDistance);
 
 
 				// if we are on one segment and target is on the next segment and
 				// the dot of the tangents of the two segments is negative --
 				// increase the target offset to compensate the fold back
-				int ip = path.IndexOfNearestSegment(Position);
-				int it = path.IndexOfNearestSegment(target);
+				int ip = Path.IndexOfNearestSegment(Position);
+				int it = Path.IndexOfNearestSegment(target);
 				if (((ip + direction) == it) &&
-					(path.DotSegmentUnitTangents(it, ip) < -0.1f))
+					(Path.DotSegmentUnitTangents(it, ip) < -0.1f))
 				{
 					float newTargetPathDistance =
 						nowPathDistance + (pathDistanceOffset * 2);
-					target = path.MapPathDistanceToPoint(newTargetPathDistance);
+					target = Path.MapPathDistanceToPoint(newTargetPathDistance);
 				}
 
 				AnnotatePathFollowing(futurePosition, onPath, target, futureOutside);
@@ -1030,21 +982,21 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// QQQ this does not handle the case when we AND futurePosition
 		// QQQ are outside, say when approach the path from far away
 		//
-		public Vector3 SteerToFollowPathCurve(int direction, float predictionTime, GCRoute path)
+	    private Vector3 SteerToFollowPathCurve(int direction, float predictionTime)
 		{
 			// predict our future position (based on current curvature and speed)
 			Vector3 futurePosition = PredictFuturePosition(predictionTime);
 			// find the point on the path nearest the predicted future position
 			float futureOutside;
-			Vector3 onPath = path.MapPointToPath(futurePosition, out futureOutside);
-			Vector3 pathHeading = path.TangentAt(onPath, direction);
+			Vector3 onPath = Path.MapPointToPath(futurePosition, out futureOutside);
+			Vector3 pathHeading = Path.TangentAt(onPath, direction);
 			Vector3 rawBraking = Forward * MaxForce * -1;
 			Vector3 braking = ((futureOutside < 0) ? Vector3.Zero : rawBraking);
 			//qqq experimental wrong-way-fixer
 			float nowOutside;
-			Vector3 nowTangent = Vector3.Zero;
+			Vector3 nowTangent;
 			Vector3 p = Position;
-			Vector3 nowOnPath = path.MapPointToPath(p, out nowTangent, out nowOutside);
+			Vector3 nowOnPath = Path.MapPointToPath(p, out nowTangent, out nowOutside);
 			nowTangent *= (float)direction;
 			float alignedness = Vector3.Dot(nowTangent, Forward);
 
@@ -1082,7 +1034,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 									   Position, futureOutside);
 
 				// two cases, if entering a turn (a waypoint between path segments)
-				if (path.NearWaypoint(onPath) && (futureOutside > 0))
+				if (Path.NearWaypoint(onPath) && (futureOutside > 0))
 				{
 					// steer to align with next path segment
 					annotation.Circle3D(0.5f, futurePosition, Up, Color.Red, 8);
@@ -1100,7 +1052,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			}
 		}
 
-		public void PerFrameAnnotation()
+	    private void PerFrameAnnotation()
 		{
 			Vector3 p = Position;
 
@@ -1108,10 +1060,10 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			annotation.CircleOrDisk(Radius, Up, p, Color.Black, 32, false, false);
 
 			// draw forward sensing corridor and wings ( for non-curved case)
-			if (!curvedSteering)
+			if (!CurvedSteering)
 			{
 				float corLength = Speed * LookAheadTimeOA();
-				if (corLength > halfLength)
+				if (corLength > _halfLength)
 				{
 					Vector3 corFront = Forward * corLength;
 					Vector3 corBack = Vector3.Zero; // (was bbFront)
@@ -1120,7 +1072,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					Vector3 c2 = p + corSide + corFront;
 					Vector3 c3 = p - corSide + corFront;
 					Vector3 c4 = p - corSide + corBack;
-					Color color = ((annotateAvoid != Vector3.Zero) ? Color.Red : Color.Yellow);
+					Color color = ((_annotateAvoid != Vector3.Zero) ? Color.Red : Color.Yellow);
 					annotation.Line(c1, c2, color);
 					annotation.Line(c2, c3, color);
 					annotation.Line(c3, c4, color);
@@ -1130,10 +1082,10 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					Vector3 wingTipL = c2 + wingWidth;
 					Vector3 wingTipR = c3 - wingWidth;
 					Color wingColor = Color.Orange;
-					if (wingDrawFlagL) annotation.Line(c2, wingTipL, wingColor);
-					if (wingDrawFlagL) annotation.Line(c1, wingTipL, wingColor);
-					if (wingDrawFlagR) annotation.Line(c3, wingTipR, wingColor);
-					if (wingDrawFlagR) annotation.Line(c4, wingTipR, wingColor);
+					if (_wingDrawFlagL) annotation.Line(c2, wingTipL, wingColor);
+					if (_wingDrawFlagL) annotation.Line(c1, wingTipL, wingColor);
+					if (_wingDrawFlagR) annotation.Line(c3, wingTipR, wingColor);
+					if (_wingDrawFlagR) annotation.Line(c4, wingTipR, wingColor);
 				}
 			}
 
@@ -1149,14 +1101,14 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		{
 			// for now: draw as a 2d bounding box on the ground
 			Color bodyColor = Color.Black;
-			if (stuck) bodyColor = Color.Yellow;
+			if (Stuck) bodyColor = Color.Yellow;
 			if (!IsBodyInsidePath()) bodyColor = Color.Orange;
-			if (collisionDetected) bodyColor = Color.Red;
+			if (_collisionDetected) bodyColor = Color.Red;
 
 			// draw vehicle's bounding box on gound plane (its "shadow")
 			Vector3 p = Position;
-			Vector3 bbSide = Side * halfWidth;
-			Vector3 bbFront = Forward * halfLength;
+			Vector3 bbSide = Side * _halfWidth;
+			Vector3 bbFront = Forward * _halfLength;
 			Vector3 bbHeight = new Vector3(0, 0.1f, 0);
 			Drawing.DrawQuadrangle(p - bbFront + bbSide + bbHeight,
 							p + bbFront + bbSide + bbHeight,
@@ -1172,7 +1124,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		}
 
 		// called when steerToFollowPath decides steering is required
-		public void AnnotatePathFollowing(Vector3 future, Vector3 onPath, Vector3 target, float outside)
+	    private void AnnotatePathFollowing(Vector3 future, Vector3 onPath, Vector3 target, float outside)
 		{
 			Color toTargetColor = new Color(0, (byte)(255.0f * 0.6f), 0);
 			Color insidePathColor = new Color((byte)(255.0f * 0.6f), (byte)(255.0f * 0.6f), 0);
@@ -1180,7 +1132,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			Color futurePositionColor = new Color((byte)(255.0f * 0.5f), (byte)(255.0f * 0.5f), (byte)(255.0f * 0.6f));
 
 			// draw line from our position to our predicted future position
-			if (!curvedSteering)
+			if (!CurvedSteering)
 				annotation.Line(Position, future, futurePositionColor);
 
 			// draw line from our position to our steering target on the path
@@ -1190,7 +1142,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			// projection onto the path, the change from dark to light color
 			// indicates the boundary of the tube.
 
-			float o = outside + Radius + (curvedSteering ? 1.0f : 0.0f);
+			float o = outside + Radius + (CurvedSteering ? 1.0f : 0.0f);
 			Vector3 boundaryOffset = (onPath - future);
 			boundaryOffset.Normalize();
 			boundaryOffset *= o;
@@ -1202,24 +1154,24 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 		public void DrawMap()
 		{
-			float xs = map.xSize / (float)map.resolution;
-			float zs = map.zSize / (float)map.resolution;
+			float xs = Map.XSize / Map.Resolution;
+			float zs = Map.ZSize / Map.Resolution;
 			Vector3 alongRow = new Vector3(xs, 0, 0);
-			Vector3 nextRow = new Vector3(-map.xSize, 0, zs);
-			Vector3 g = new Vector3((map.xSize - xs) / -2, 0, (map.zSize - zs) / -2);
-			g += map.center;
-			for (int j = 0; j < map.resolution; j++)
+			Vector3 nextRow = new Vector3(-Map.XSize, 0, zs);
+			Vector3 g = new Vector3((Map.XSize - xs) / -2, 0, (Map.ZSize - zs) / -2);
+			g += Map.Center;
+			for (int j = 0; j < Map.Resolution; j++)
 			{
-				for (int i = 0; i < map.resolution; i++)
+				for (int i = 0; i < Map.Resolution; i++)
 				{
-					if (map.GetMapBit(i, j))
+					if (Map.GetMapBit(i, j))
 					{
 						// spikes
 						// Vector3 spikeTop (0, 5.0f, 0);
 						// drawLine (g, g+spikeTop, Color.White);
 
 						// squares
-						float rockHeight = 0;
+					    const float rockHeight = 0;
 						Vector3 v1 = new Vector3(+xs / 2, rockHeight, +zs / 2);
 						Vector3 v2 = new Vector3(+xs / 2, rockHeight, -zs / 2);
 						Vector3 v3 = new Vector3(-xs / 2, rockHeight, -zs / 2);
@@ -1255,29 +1207,29 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			Color color = new Color(vColor);
 
 			Vector3 down = new Vector3(0, -0.1f, 0);
-			for (int i = 0; i < path.PointCount; i++)
+			for (int i = 0; i < Path.PointCount; i++)
 			{
-				Vector3 endPoint0 = path.Points[i] + down;
+				Vector3 endPoint0 = Path.Points[i] + down;
 				if (i > 0)
 				{
-					Vector3 endPoint1 = path.Points[i - 1] + down;
+					Vector3 endPoint1 = Path.Points[i - 1] + down;
 
-					float legWidth = path.Radii[i];
+					float legWidth = Path.Radii[i];
 
 					Drawing.DrawXZWideLine(endPoint0, endPoint1, color, legWidth * 2);
-					Drawing.DrawLine(path.Points[i], path.Points[i - 1], new Color(pathColor));
+					Drawing.DrawLine(Path.Points[i], Path.Points[i - 1], new Color(pathColor));
 					Drawing.DrawXZDisk(legWidth, endPoint0, color, 24);
 					Drawing.DrawXZDisk(legWidth, endPoint1, color, 24);
 				}
 			}
 		}
 
-		public GCRoute MakePath()
+	    private static GCRoute MakePath()
 		{
 			// a few constants based on world size
-			float m = WORLD_SIZE * 0.4f; // main diamond size
-			float n = WORLD_SIZE / 8;    // notch size
-			float o = WORLD_SIZE * 2;    // outside of the sand
+			const float m = WORLD_SIZE * 0.4f; // main diamond size
+			const float n = WORLD_SIZE / 8; // notch size
+			const float o = WORLD_SIZE * 2; // outside of the sand
 
 			// construction vectors
 			Vector3 p = new Vector3(0, 0, m);
@@ -1302,31 +1254,31 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			Vector3 i = u - p;
 
 			// return Path object
-			int pathPointCount = 9;
+			const int pathPointCount = 9;
 			Vector3[] pathPoints = new Vector3[] { a, b, c, d, e, f, g, h, i };
-			float k = 10.0f;
+			const float k = 10.0f;
 			float[] pathRadii = new float[] { k, k, k, k, k, k, k, k, k };
 			return new GCRoute(pathPointCount, pathPoints, pathRadii, false);
 		}
 
-		public TerrainMap MakeMap()
+	    private static TerrainMap MakeMap()
 		{
 			return new TerrainMap(Vector3.Zero, WORLD_SIZE, WORLD_SIZE, (int)WORLD_SIZE + 1);
 		}
 
 		public bool HandleExitFromMap()
 		{
-			if (demoSelect == 2)
+			if (DemoSelect == 2)
 			{
 				// for path following, do wrap-around (teleport) and make new map
 				float px = Position.X;
 				float fx = Forward.X;
-				float ws = WORLD_SIZE * 0.51f; // slightly past edge
+				const float ws = WORLD_SIZE * 0.51f; // slightly past edge
 				if (((fx > 0) && (px > ws)) || ((fx < 0) && (px < -ws)))
 				{
 					// bump counters
-					lapsStarted++;
-					lapsFinished++;
+					LapsStarted++;
+					LapsFinished++;
 
 					Vector3 camOffsetBefore = Demo.Camera.Position - Position;
 
@@ -1357,7 +1309,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			{
 				// for the non-path-following demos:
 				// reset simulation if the vehicle drives through the fence
-				if (Position.Length() > WorldDiag) Reset();
+				if (Position.Length() > _worldDiag) Reset();
 			}
 			return false;
 		}
@@ -1366,79 +1318,81 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// QQQ move this utility to SimpleVehicle?
 		public float RelativeSpeed() { return Speed / MaxSpeed; }
 
-		public float WingSlope()
+	    private float WingSlope()
 		{
-			return MathHelper.Lerp((curvedSteering ? 0.3f : 0.35f),
+			return MathHelper.Lerp((CurvedSteering ? 0.3f : 0.35f),
 								0.06f, RelativeSpeed());
 		}
 
-		public void ResetStuckCycleDetection()
+	    private void ResetStuckCycleDetection()
 		{
 			ResetSmoothedPosition(Position + (Forward * -80)); // qqq
 		}
 
 		// QQQ just a stop gap, not quite right
 		// (say for example we were going around a circle with radius > 10)
-		public bool WeAreGoingInCircles()
+	    private bool WeAreGoingInCircles()
 		{
 			Vector3 offset = SmoothedPosition - Position;
 			return offset.Length() < 10;
 		}
 
-		public float LookAheadTimeOA()
+	    private float LookAheadTimeOA()
 		{
-			float minTime = (baseLookAheadTime *
-								   (curvedSteering ?
+			float minTime = (_baseLookAheadTime *
+								   (CurvedSteering ?
 									MathHelper.Lerp(0.4f, 0.7f, RelativeSpeed()) :
 									0.66f));
 			return CombinedLookAheadTime(minTime, 3);
 		}
 
-		public float LookAheadTimePF()
+	    private float LookAheadTimePF()
 		{
-			return CombinedLookAheadTime(baseLookAheadTime, 3);
+			return CombinedLookAheadTime(_baseLookAheadTime, 3);
 		}
 
 		// QQQ maybe move to SimpleVehicle ?
 		// compute a "look ahead time" with two components, one based on
 		// minimum time to (say) a collision and one based on minimum distance
 		// arg 1 is "seconds into the future", arg 2 is "meters ahead"
-		public float CombinedLookAheadTime(float minTime, float minDistance)
+	    private float CombinedLookAheadTime(float minTime, float minDistance)
 		{
+// ReSharper disable CompareOfFloatsByEqualityOperator
 			if (Speed == 0) return 0;
+// ReSharper restore CompareOfFloatsByEqualityOperator
 			return Math.Max(minTime, minDistance / Speed);
 		}
 
 		// is vehicle body inside the path?
 		// (actually tests if all four corners of the bounbding box are inside)
 		//
-		public bool IsBodyInsidePath()
+	    private bool IsBodyInsidePath()
 		{
-			if (demoSelect == 2)
+			if (DemoSelect == 2)
 			{
-				Vector3 bbSide = Side * halfWidth;
-				Vector3 bbFront = Forward * halfLength;
-				return (path.IsInsidePath(Position - bbFront + bbSide) &&
-						path.IsInsidePath(Position + bbFront + bbSide) &&
-						path.IsInsidePath(Position + bbFront - bbSide) &&
-						path.IsInsidePath(Position - bbFront - bbSide));
+				Vector3 bbSide = Side * _halfWidth;
+				Vector3 bbFront = Forward * _halfLength;
+				return (Path.IsInsidePath(Position - bbFront + bbSide) &&
+						Path.IsInsidePath(Position + bbFront + bbSide) &&
+						Path.IsInsidePath(Position + bbFront - bbSide) &&
+						Path.IsInsidePath(Position - bbFront - bbSide));
 			}
 			return true;
 		}
 
-		public Vector3 ConvertAbsoluteToIncrementalSteering(Vector3 absolute, float elapsedTime)
+	    private Vector3 ConvertAbsoluteToIncrementalSteering(Vector3 absolute, float elapsedTime)
 		{
 			Vector3 curved = ConvertLinearToCurvedSpaceGlobal(absolute);
-			Utilities.BlendIntoAccumulator(elapsedTime * 8.0f, curved, ref currentSteering);
+			Utilities.BlendIntoAccumulator(elapsedTime * 8.0f, curved, ref _currentSteering);
 			{
 				// annotation
 				Vector3 u = new Vector3(0, 0.5f, 0);
 				Vector3 p = Position;
 				annotation.Line(p + u, p + u + absolute, Color.Red);
 				annotation.Line(p + u, p + u + curved, Color.Yellow);
-				annotation.Line(p + u * 2, p + u * 2 + currentSteering, Color.Green);
+				annotation.Line(p + u * 2, p + u * 2 + _currentSteering, Color.Green);
 			}
-			return currentSteering;
+			return _currentSteering;
 		}
 
 		// QQQ new utility 2-25-04 -- may replace inline code elsewhere
@@ -1449,7 +1403,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// centered on the current center of curvature and passing through the
 		// vehicle's position().
 		//
-		public Vector3 ConvertLinearToCurvedSpaceGlobal(Vector3 linear)
+	    private Vector3 ConvertLinearToCurvedSpaceGlobal(Vector3 linear)
 		{
 			Vector3 trimmedLinear = Vector3Helpers.TruncateLength(linear, MaxForce);
 
@@ -1461,7 +1415,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			float arcLength = Vector3.Dot(trimmedLinear, Forward);
 			//
 			float arcRadius = signedRadius * -sign;
-			float twoPi = 2 * (float)Math.PI;
+			const float twoPi = 2 * (float)Math.PI;
 			float circumference = twoPi * arcRadius;
 			float arcAngle = twoPi * arcLength / circumference;
 			// ---------- this block imported from steerToAvoidObstaclesOnMap
@@ -1488,9 +1442,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		}
 
 		// approximate value for the Polaris Ranger 6x6: 16 feet, 5 meters
-		public float MinimumTurningRadius() { return 5.0f; }
+	    private static float MinimumTurningRadius() { return 5.0f; }
 
-		public Vector3 AdjustSteeringForMinimumTurningRadius(Vector3 steering)
+	    private Vector3 AdjustSteeringForMinimumTurningRadius(Vector3 steering)
 		{
 			float maxCurvature = 1 / (MinimumTurningRadius() * 1.1f);
 
@@ -1529,10 +1483,10 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// QQQ Presumably it would be better to get rid of this routine and
 		// QQQ redesign the arguments of scanObstacleMap
 		//
-		public float NonZeroCurvatureQQQ()
+	    private float NonZeroCurvatureQQQ()
 		{
 			float c = Curvature;
-			float minCurvature = 1.0f / 100000.0f; // 100,000 meter radius
+			const float minCurvature = 1.0f / 100000.0f; // 100,000 meter radius
 			bool tooSmall = (c < minCurvature) && (c > -minCurvature);
 			return (tooSmall ? minCurvature : c);
 		}
@@ -1540,11 +1494,11 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// QQQ ad hoc speed limitation based on path orientation...
 		// QQQ should be renamed since it is based on more than curvature
 		//
-		public float MaxSpeedForCurvature()
+	    private float MaxSpeedForCurvature()
 		{
 			float maxRelativeSpeed = 1;
 
-			if (curvedSteering)
+			if (CurvedSteering)
 			{
 				// compute an ad hoc "relative curvature"
 				float absC = Math.Abs(Curvature);
@@ -1553,35 +1507,35 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 				// map from full throttle when straight to 10% at max curvature
 				float curveSpeed = MathHelper.Lerp(1.0f, 0.1f, relativeCurvature);
-				annoteMaxRelSpeedCurve = curveSpeed;
+				AnnoteMaxRelSpeedCurve = curveSpeed;
 
-				if (demoSelect != 2)
+				if (DemoSelect != 2)
 				{
 					maxRelativeSpeed = curveSpeed;
 				}
 				else
 				{
 					// heading (unit tangent) of the path segment of interest
-					Vector3 pathHeading = path.TangentAt(Position, pathFollowDirection);
+					Vector3 pathHeading = Path.TangentAt(Position, PathFollowDirection);
 					// measure how parallel we are to the path
 					float parallelness = Vector3.Dot(pathHeading, Forward);
 
 					// determine relative speed for this heading
-					float mw = 0.2f;
+					const float mw = 0.2f;
 					float headingSpeed = ((parallelness < 0) ? mw :
 												MathHelper.Lerp(mw, 1.0f, parallelness));
 					maxRelativeSpeed = Math.Min(curveSpeed, headingSpeed);
-					annoteMaxRelSpeedPath = headingSpeed;
+					AnnoteMaxRelSpeedPath = headingSpeed;
 				}
 			}
-			annoteMaxRelSpeed = maxRelativeSpeed;
+			AnnoteMaxRelSpeed = maxRelativeSpeed;
 			return MaxSpeed * maxRelativeSpeed;
 		}
 
 		// xxx library candidate
 		// xxx assumes (but does not check or enforce) heading is unit length
 		//
-		public Vector3 SteerTowardHeading(Vector3 desiredGlobalHeading)
+	    private Vector3 SteerTowardHeading(Vector3 desiredGlobalHeading)
 		{
 			Vector3 headingError = desiredGlobalHeading - Forward;
 			headingError.Normalize();
@@ -1592,7 +1546,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 		// XXX this should eventually be in a library, make it a first
 		// XXX class annotation queue, tie in with drawXZArc
-		public void AnnotationXZArc(Vector3 start, Vector3 center, float arcLength, int segments, Color color)
+	    private void AnnotationXZArc(Vector3 start, Vector3 center, float arcLength, int segments, Color color)
 		{
 			// "spoke" is initially the vector from center to start,
 			// it is then rotated around its tail
@@ -1600,7 +1554,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			// determine the angular step per segment
 			float radius = spoke.Length();
-			float twoPi = 2 * (float)Math.PI;
+			const float twoPi = 2 * (float)Math.PI;
 			float circumference = twoPi * radius;
 			float arcAngle = twoPi * arcLength / circumference;
 			float step = arcAngle / segments;
@@ -1619,86 +1573,82 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		}
 
 		// map of obstacles
-		public TerrainMap map;
+		public readonly TerrainMap Map;
 
 		// route for path following (waypoints and legs)
-		public GCRoute path;
+		public readonly GCRoute Path;
 
 		// follow the path "upstream or downstream" (+1/-1)
-		public int pathFollowDirection;
+		public int PathFollowDirection;
 
 		// master look ahead (prediction) time
-		public float baseLookAheadTime;
+	    private float _baseLookAheadTime;
 
 		// vehicle dimentions in meters
-		public float halfWidth;
-		public float halfLength;
+	    private float _halfWidth;
+	    private float _halfLength;
 
 		// keep track of failure rate (when vehicle is on top of obstacle)
-		public bool collisionDetected;
-		public bool collisionLastTime;
-		public float timeOfLastCollision;
-		public float sumOfCollisionFreeTimes;
-		public int countOfCollisionFreeTimes;
+	    private bool _collisionDetected;
+	    private bool _collisionLastTime;
+		public float TimeOfLastCollision;
+		public float SumOfCollisionFreeTimes;
+		public int CountOfCollisionFreeTimes;
 
 		// keep track of average speed
-		public float totalDistance;
-		public float totalTime;
-
-		// keep track of path following failure rate
-		// (these are probably obsolete now, replaced by stuckOffPathCount)
-		public float pathFollowTime;
-		public float pathFollowOffTime;
+		public float TotalDistance;
+		public float TotalTime;
 
 		// take note when current dt is zero (as in paused) for stat counters
-		public bool dtZero;
+	    private bool _dtZero;
 
 		// state saved for annotation
-		public Vector3 annotateAvoid;
-		public bool wingDrawFlagL, wingDrawFlagR;
+	    private Vector3 _annotateAvoid;
+	    private bool _wingDrawFlagL;
+	    private bool _wingDrawFlagR;
 
-		// QQQ first pass at detecting "stuck" state
-		public bool stuck;
-		public int stuckCount;
-		public int stuckCycleCount;
-		public int stuckOffPathCount;
+	    // QQQ first pass at detecting "stuck" state
+		public bool Stuck;
+		public int StuckCount;
+		public int StuckCycleCount;
+		public int StuckOffPathCount;
 
-		public Vector3 qqqLastNearestObstacle;
+	    private Vector3 _qqqLastNearestObstacle;
 
-		public int lapsStarted;
-		public int lapsFinished;
+		public int LapsStarted;
+		public int LapsFinished;
 
 		// QQQ temporary global QQQoaJustScraping
 		// QQQ replace this global flag with a cleaner mechanism
-		public bool QQQoaJustScraping;
+	    private bool _qqQoaJustScraping;
 
-		public int hintGivenCount;
-		public int hintTakenCount;
+		public int HintGivenCount;
+		public int HintTakenCount;
 
 		// for "curvature-based incremental steering" -- contains the current
 		// steering into which new incremental steering is blended
-		public Vector3 currentSteering;
+	    private Vector3 _currentSteering;
 
 		// use curved prediction and incremental steering:
-		public bool curvedSteering;
-		public bool incrementalSteering;
+		public bool CurvedSteering;
+		public bool IncrementalSteering;
 
 		// save obstacle avoidance stats for annotation
 		// (nearest obstacle in each of the four zones)
-		public static float savedNearestWR = 0;
-		public static float savedNearestR = 0;
-		public static float savedNearestL = 0;
-		public static float savedNearestWL = 0;
+		public static float SavedNearestWR = 0;
+		public static float SavedNearestR = 0;
+		public static float SavedNearestL = 0;
+		public static float SavedNearestWL = 0;
 
-		public float annoteMaxRelSpeed;
-		public float annoteMaxRelSpeedCurve;
-		public float annoteMaxRelSpeedPath;
+		public float AnnoteMaxRelSpeed;
+		public float AnnoteMaxRelSpeedCurve;
+		public float AnnoteMaxRelSpeedPath;
 
 		// which of the three demo modes is selected
-		public static int demoSelect = 2;
+		public static int DemoSelect = 2;
 
 		// size of the world (the map actually)
 	    public const float WORLD_SIZE = 200;
-	    public static readonly float WorldDiag = (float)Math.Sqrt((WORLD_SIZE * WORLD_SIZE) / 2);
+	    private static readonly float _worldDiag = (float)Math.Sqrt((WORLD_SIZE * WORLD_SIZE) / 2);
 	}
 }

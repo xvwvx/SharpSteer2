@@ -215,7 +215,9 @@ namespace SharpSteer2.WinDemo
 			// is the "global up"/"vertical" offset constraint enabled?  (it forces
 			// the camera's global-up (Y) cordinate to be a above/below the target
 			// vehicle by a given offset.)
+// ReSharper disable CompareOfFloatsByEqualityOperator
 			bool constrainUp = (FixedDistanceVerticalOffset != 0);
+// ReSharper restore CompareOfFloatsByEqualityOperator
 
 			// vector offset from target to current camera position
             Vector3 adjustedPosition = new Vector3(Position.X, (constrainUp) ? Target.Y : Position.Y, Position.Z);
@@ -225,22 +227,22 @@ namespace SharpSteer2.WinDemo
 			float distance = offset.Length();
 
 			// move camera only when geometry is well-defined (avoid degenerate case)
+// ReSharper disable CompareOfFloatsByEqualityOperator
 			if (distance == 0)
+// ReSharper restore CompareOfFloatsByEqualityOperator
 			{
 				return Position;
 			}
-			else
-			{
-				// unit vector along original offset
-                Vector3 unitOffset = offset / distance;
 
-				// new offset of length XXX
-                float xxxDistance = (float)Math.Sqrt(FixedDistanceDistance * FixedDistanceDistance - FixedDistanceVerticalOffset * FixedDistanceVerticalOffset);
-                Vector3 newOffset = unitOffset * xxxDistance;
+	        // unit vector along original offset
+	        Vector3 unitOffset = offset / distance;
 
-				// return new camera position: adjust distance to target
-				return Target + newOffset + new Vector3(0, FixedDistanceVerticalOffset, 0);
-			}
+	        // new offset of length XXX
+	        float xxxDistance = (float)Math.Sqrt(FixedDistanceDistance * FixedDistanceDistance - FixedDistanceVerticalOffset * FixedDistanceVerticalOffset);
+	        Vector3 newOffset = unitOffset * xxxDistance;
+
+	        // return new camera position: adjust distance to target
+	        return Target + newOffset + new Vector3(0, FixedDistanceVerticalOffset, 0);
 		}
 
 		// Smoothly move camera ...

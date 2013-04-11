@@ -16,29 +16,29 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 	{
 		public AABBox(Vector3 min, Vector3 max)
 		{
-			m_min = min;
-			m_max = max;
+			_min = min;
+			_max = max;
 		}
 		public bool IsInsideX(Vector3 p)
 		{
-			return !(p.X < m_min.X || p.X > m_max.X);
+			return !(p.X < _min.X || p.X > _max.X);
 		}
 		public bool IsInsideZ(Vector3 p)
 		{
-			return !(p.Z < m_min.Z || p.Z > m_max.Z);
+			return !(p.Z < _min.Z || p.Z > _max.Z);
 		}
 		public void Draw()
 		{
-			Vector3 b = new Vector3(m_min.X, 0, m_max.Z);
-			Vector3 c = new Vector3(m_max.X, 0, m_min.Z);
+			Vector3 b = new Vector3(_min.X, 0, _max.Z);
+			Vector3 c = new Vector3(_max.X, 0, _min.Z);
 			Color color = new Color(255, 255, 0);
-			Drawing.DrawLineAlpha(m_min, b, color, 1.0f);
-			Drawing.DrawLineAlpha(b, m_max, color, 1.0f);
-			Drawing.DrawLineAlpha(m_max, c, color, 1.0f);
-			Drawing.DrawLineAlpha(c, m_min, color, 1.0f);
+			Drawing.DrawLineAlpha(_min, b, color, 1.0f);
+			Drawing.DrawLineAlpha(b, _max, color, 1.0f);
+			Drawing.DrawLineAlpha(_max, c, color, 1.0f);
+			Drawing.DrawLineAlpha(c, _min, color, 1.0f);
 		}
 
-		Vector3 m_min;
-		Vector3 m_max;
+		Vector3 _min;
+		Vector3 _max;
 	}
 }

@@ -10,7 +10,7 @@
 
 using Microsoft.Xna.Framework;
 
-namespace SharpSteer2
+namespace SharpSteer2.WinDemo
 {
 	/// <summary>
 	/// PolylinePathway: a simple implementation of the Pathway protocol.  The path

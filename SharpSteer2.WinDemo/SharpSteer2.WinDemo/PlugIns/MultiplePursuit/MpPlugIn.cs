@@ -19,7 +19,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 		public MpPlugIn(IAnnotationService annotations)
 		{
             _annotations = annotations;
-			allMP = new List<MpBase>();
+			_allMp = new List<MpBase>();
 		}
 
 		public override String Name { get { return "Multiple Pursuit"; } }
@@ -29,18 +29,18 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 		public override void Open()
 		{
 			// create the wanderer, saving a pointer to it
-            wanderer = new MpWanderer(_annotations);
-			allMP.Add(wanderer);
+            _wanderer = new MpWanderer(_annotations);
+			_allMp.Add(_wanderer);
 
 			// create the specified number of pursuers, save pointers to them
 			const int pursuerCount = 30;
 			for (int i = 0; i < pursuerCount; i++)
-				allMP.Add(new MpPursuer(wanderer, _annotations));
+				_allMp.Add(new MpPursuer(_wanderer, _annotations));
 			//pBegin = allMP.begin() + 1;  // iterator pointing to first pursuer
 			//pEnd = allMP.end();          // iterator pointing to last pursuer
 
 			// initialize camera
-			Demo.SelectedVehicle = wanderer;
+			Demo.SelectedVehicle = _wanderer;
 			Demo.Camera.Mode = Camera.CameraMode.StraightDown;
 			Demo.Camera.FixedDistanceDistance = Demo.CAMERA_TARGET_DISTANCE;
 			Demo.Camera.FixedDistanceVerticalOffset = Demo.CAMERA2_D_ELEVATION;
@@ -49,12 +49,12 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 		public override void Update(float currentTime, float elapsedTime)
 		{
 			// update the wanderer
-			wanderer.Update(currentTime, elapsedTime);
+			_wanderer.Update(currentTime, elapsedTime);
 
 			// update each pursuer
-			for (int i = 1; i < allMP.Count; i++)
+			for (int i = 1; i < _allMp.Count; i++)
 			{
-				((MpPursuer)allMP[i]).Update(currentTime, elapsedTime);
+				((MpPursuer)_allMp[i]).Update(currentTime, elapsedTime);
 			}
 		}
 
@@ -64,7 +64,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 			IVehicle selected = Demo.SelectedVehicle;
 
 			// vehicle nearest mouse (to be highlighted)
-			IVehicle nearMouse = null;//Demo.vehicleNearestToMouse ();
+			IVehicle nearMouse = Demo.VehicleNearestToMouse();
 
 			// update camera
 			Demo.UpdateCamera(elapsedTime, selected);
@@ -73,7 +73,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 			Demo.GridUtility(selected.Position);
 
 			// draw each vehicles
-			for (int i = 0; i < allMP.Count; i++) allMP[i].Draw();
+			for (int i = 0; i < _allMp.Count; i++) _allMp[i].Draw();
 
 			// highlight vehicle nearest mouse
 			Demo.HighlightVehicleUtility(nearMouse);
@@ -83,14 +83,14 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 		public override void Close()
 		{
 			// delete wanderer, all pursuers, and clear list
-			allMP.Clear();
+			_allMp.Clear();
 		}
 
 		public override void Reset()
 		{
 			// reset wanderer and pursuers
-			wanderer.Reset();
-			for (int i = 1; i < allMP.Count; i++) ((MpPursuer)allMP[i]).Reset();
+			_wanderer.Reset();
+			for (int i = 1; i < _allMp.Count; i++) _allMp[i].Reset();
 
 			// immediately jump to default camera position
 			Demo.Camera.DoNotSmoothNextMove();
@@ -98,14 +98,14 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 		}
 
 		//const AVGroup& allVehicles () {return (const AVGroup&) allMP;}
-		public override List<IVehicle> Vehicles
+        public override IEnumerable<IVehicle> Vehicles
 		{
-			get { return allMP.ConvertAll<IVehicle>(delegate(MpBase m) { return (IVehicle)m; }); }
+			get { return _allMp.ConvertAll<IVehicle>(m => (IVehicle) m); }
 		}
 
 		// a group (STL vector) of all vehicles
-		List<MpBase> allMP;
+	    readonly List<MpBase> _allMp;
 
-		MpWanderer wanderer;
+		MpWanderer _wanderer;
 	}
 }

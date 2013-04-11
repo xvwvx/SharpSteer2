@@ -20,7 +20,7 @@ namespace SharpSteer2.WinDemo
 		public abstract void Redraw(float currentTime, float elapsedTime);
 		public abstract void Close();
 		public abstract String Name { get; }
-		public abstract List<IVehicle> Vehicles { get; }
+		public abstract IEnumerable<IVehicle> Vehicles { get; }
 
 		// prototypes for function pointers used with PlugIns
 		public delegate void PlugInCallBackFunction(PlugIn clientObject);

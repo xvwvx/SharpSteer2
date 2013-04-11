@@ -16,17 +16,16 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 {
 	public class Player : SimpleVehicle
 	{
-		Trail trail;
+		Trail _trail;
 
 		// constructor
         public Player(List<Player> others, List<Player> allplayers, Ball ball, bool isTeamA, int id, IAnnotationService annotations = null)
             :base(annotations)
 		{
-			m_others = others;
-			m_AllPlayers = allplayers;
-			m_Ball = ball;
-			b_ImTeamA = isTeamA;
-			m_MyID = id;
+            _allPlayers = allplayers;
+			_ball = ball;
+			_imTeamA = isTeamA;
+			_myID = id;
 
 			Reset();
 		}
@@ -40,61 +39,61 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			MaxSpeed = 10;         // velocity is clipped to this magnitude
 
 			// Place me on my part of the field, looking at oponnents goal
-			SetPosition(b_ImTeamA ? RandomHelpers.Random() * 20 : -RandomHelpers.Random() * 20, 0, (RandomHelpers.Random() - 0.5f) * 20);
-			if (m_MyID < 9)
+			SetPosition(_imTeamA ? RandomHelpers.Random() * 20 : -RandomHelpers.Random() * 20, 0, (RandomHelpers.Random() - 0.5f) * 20);
+			if (_myID < 9)
 			{
-				if (b_ImTeamA)
-					Position = (Globals.PlayerPosition[m_MyID]);
+				if (_imTeamA)
+					Position = (Globals.PlayerPosition[_myID]);
 				else
-					Position = (new Vector3(-Globals.PlayerPosition[m_MyID].X, Globals.PlayerPosition[m_MyID].Y, Globals.PlayerPosition[m_MyID].Z));
+					Position = (new Vector3(-Globals.PlayerPosition[_myID].X, Globals.PlayerPosition[_myID].Y, Globals.PlayerPosition[_myID].Z));
 			}
-			m_home = Position;
+			_home = Position;
 
-			if (trail == null) trail = new Trail(10, 60);
-			trail.Clear();    // prevent long streaks due to teleportation 
+			if (_trail == null) _trail = new Trail(10, 60);
+			_trail.Clear();    // prevent long streaks due to teleportation 
 		}
 
 		// per frame simulation update
-		public void Update(float currentTime, float elapsedTime)
+		public void Update(float elapsedTime)
 		{
 			// if I hit the ball, kick it.
-			float distToBall = Vector3.Distance(Position, m_Ball.Position);
-			float sumOfRadii = Radius + m_Ball.Radius;
+			float distToBall = Vector3.Distance(Position, _ball.Position);
+			float sumOfRadii = Radius + _ball.Radius;
 			if (distToBall < sumOfRadii)
-				m_Ball.Kick((m_Ball.Position - Position) * 50, elapsedTime);
+				_ball.Kick((_ball.Position - Position) * 50);
 
 			// otherwise consider avoiding collisions with others
-			Vector3 collisionAvoidance = SteerToAvoidNeighbors(1, m_AllPlayers);
+			Vector3 collisionAvoidance = SteerToAvoidNeighbors(1, _allPlayers);
 			if (collisionAvoidance != Vector3.Zero)
 				ApplySteeringForce(collisionAvoidance, elapsedTime);
 			else
 			{
-				float distHomeToBall = Vector3.Distance(m_home, m_Ball.Position);
+				float distHomeToBall = Vector3.Distance(_home, _ball.Position);
 				if (distHomeToBall < 12)
 				{
 					// go for ball if I'm on the 'right' side of the ball
-					if (b_ImTeamA ? Position.X > m_Ball.Position.X : Position.X < m_Ball.Position.X)
+					if (_imTeamA ? Position.X > _ball.Position.X : Position.X < _ball.Position.X)
 					{
-						Vector3 seekTarget = xxxSteerForSeek(m_Ball.Position);
+						Vector3 seekTarget = xxxSteerForSeek(_ball.Position);
 						ApplySteeringForce(seekTarget, elapsedTime);
 					}
 					else
 					{
 						if (distHomeToBall < 12)
 						{
-							float Z = m_Ball.Position.Z - Position.Z > 0 ? -1.0f : 1.0f;
-							Vector3 behindBall = m_Ball.Position + (b_ImTeamA ? new Vector3(2, 0, Z) : new Vector3(-2, 0, Z));
+							float z = _ball.Position.Z - Position.Z > 0 ? -1.0f : 1.0f;
+							Vector3 behindBall = _ball.Position + (_imTeamA ? new Vector3(2, 0, z) : new Vector3(-2, 0, z));
 							Vector3 behindBallForce = xxxSteerForSeek(behindBall);
 							annotation.Line(Position, behindBall, Color.Green);
-							Vector3 evadeTarget = xxxSteerForFlee(m_Ball.Position);
+							Vector3 evadeTarget = xxxSteerForFlee(_ball.Position);
 							ApplySteeringForce(behindBallForce * 10 + evadeTarget, elapsedTime);
 						}
 					}
 				}
 				else	// Go home
 				{
-					Vector3 seekTarget = xxxSteerForSeek(m_home);
-					Vector3 seekHome = xxxSteerForSeek(m_home);
+					Vector3 seekTarget = xxxSteerForSeek(_home);
+					Vector3 seekHome = xxxSteerForSeek(_home);
 					ApplySteeringForce(seekTarget + seekHome, elapsedTime);
 				}
 
@@ -104,16 +103,15 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 		// draw this character/vehicle into the scene
 		public void Draw()
 		{
-			Drawing.DrawBasic2dCircularVehicle(this, b_ImTeamA ? Color.Red : Color.Blue);
-			trail.Draw(Annotation.Drawer);
+			Drawing.DrawBasic2dCircularVehicle(this, _imTeamA ? Color.Red : Color.Blue);
+			_trail.Draw(Annotation.Drawer);
 		}
 
 		// per-instance reference to its group
-		List<Player> m_others;
-		List<Player> m_AllPlayers;
-		Ball m_Ball;
-		bool b_ImTeamA;
-		int m_MyID;
-		Vector3 m_home;
+	    readonly List<Player> _allPlayers;
+	    readonly Ball _ball;
+	    readonly bool _imTeamA;
+	    readonly int _myID;
+		Vector3 _home;
 	}
 }

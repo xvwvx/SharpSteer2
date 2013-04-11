@@ -212,7 +212,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		}
 
 		// return an AVGroup containing each boid of the flock
-		public override List<IVehicle> Vehicles
+		public override IEnumerable<IVehicle> Vehicles
 		{
 			get { return _flock.ConvertAll<IVehicle>(v => (IVehicle) v); }
 		}

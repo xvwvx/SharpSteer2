@@ -57,7 +57,7 @@ namespace SharpSteer2.WinDemo
             case PrimitiveType.TriangleList:
 				primitiveCount = _vertices.Count / 3;
 				break;
-            case PrimitiveType.TriangleStrip://.TriangleFan:
+            case PrimitiveType.TriangleStrip:
 				primitiveCount = _vertices.Count - 2;
 				break;
 			}
@@ -113,8 +113,8 @@ namespace SharpSteer2.WinDemo
 			{
                 AddVertex(a);
                 AddVertex(b);
-                AddVertex(c);
                 AddVertex(d);
+                AddVertex(c);
 			}
 			drawEnd();
 		}

@@ -9,6 +9,7 @@
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace SharpSteer2.WinDemo.PlugIns.MapDrive
@@ -24,7 +25,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// construct a GCRoute given the number of points (vertices), an
 		// array of points, an array of per-segment path radii, and a flag
 		// indiating if the path is connected at the end.
-		public GCRoute(int pointCount, Vector3[] points, float[] radii, bool cyclic)
+		public GCRoute(int pointCount, Vector3[] points, IList<float> radii, bool cyclic)
 		{
 			Initialize(pointCount, points, radii[0], cyclic);
 
@@ -133,7 +134,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			int nextIndex = segmentIndex + pathFollowDirection;
 			bool insideNextSegment = IsInsidePathSegment(point, nextIndex);
 			int i = (segmentIndex + (insideNextSegment ? pathFollowDirection : 0));
-			return Normals[i] * (float)pathFollowDirection;
+			return Normals[i] * pathFollowDirection;
 		}
 
 		// is the given point "near" a waypoint of this path?  ("near" == closer
@@ -154,7 +155,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// is the given point inside the path tube of the given segment
 		// number?  (currently not used. this seemed like a useful utility,
 		// but wasn't right for the problem I was trying to solve)
-		public bool IsInsidePathSegment(Vector3 point, int segmentIndex)
+	    private bool IsInsidePathSegment(Vector3 point, int segmentIndex)
 		{
 			if (segmentIndex < 1 || segmentIndex >= PointCount) return false;
 
