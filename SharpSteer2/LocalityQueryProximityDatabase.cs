@@ -75,37 +75,29 @@ namespace SharpSteer2
 	/// <summary>
 	/// A AbstractProximityDatabase-style wrapper for the LQ bin lattice system
 	/// </summary>
-	public class LocalityQueryProximityDatabase<ContentType> : IProximityDatabase<ContentType>
-		where ContentType : class
+	public class LocalityQueryProximityDatabase<T> : IProximityDatabase<T> where T : class
 	{
-		// "token" to represent objects stored in the database
-		public class TokenType : ITokenForProximityDatabase<ContentType>
+		/// <summary>
+        /// "token" to represent objects stored in the database
+		/// </summary>
+		private sealed class TokenType : ITokenForProximityDatabase<T>
 		{
-			LocalityQueryDB.ClientProxy _proxy;
-		    readonly LocalityQueryDB _lq;
+			LocalityQueryDatabase.ClientProxy _proxy;
+		    readonly LocalityQueryDatabase _lq;
 
-			// constructor
-			public TokenType(ContentType parentObject, LocalityQueryProximityDatabase<ContentType> lqsd)
+			public TokenType(T parentObject, LocalityQueryProximityDatabase<T> lqsd)
 			{
-				_proxy = new LocalityQueryDB.ClientProxy(parentObject);
-				_lq = lqsd._lq;
+				_proxy = new LocalityQueryDatabase.ClientProxy(parentObject);
+			    _lq = lqsd._lq;
 			}
 
-			public void Dispose()
+		    public void Dispose()
 			{
-				Dispose(true);
-				GC.SuppressFinalize(this);
-			}
-			protected virtual void Dispose(bool disposing)
-			{
-				if (_proxy != null)
-				{
-					System.Diagnostics.Debug.Assert(disposing);
+		        if (_proxy == null)
+		            return;
 
-					// remove this token from the database's vector
-					_lq.RemoveFromBin(_proxy);
-					_proxy = null;
-				}
+		        _lq.RemoveFromBin(_proxy);
+		        _proxy = null;
 			}
 
 			// the client obj calls this each time its position changes
@@ -115,7 +107,7 @@ namespace SharpSteer2
 			}
 
 			// find all neighbors within the given sphere (as center and radius)
-            public void FindNeighbors(Vector3 center, float radius, List<ContentType> results)
+            public void FindNeighbors(Vector3 center, float radius, List<T> results)
 			{
 				_lq.MapOverAllObjectsInLocality(center, radius, perNeighborCallBackFunction, results);
 			}
@@ -123,14 +115,14 @@ namespace SharpSteer2
 			// called by LQ for each clientObject in the specified neighborhood:
 			// push that clientObject onto the ContentType vector in void*
 			// clientQueryState
-			public static void perNeighborCallBackFunction(Object clientObject, float distanceSquared, Object clientQueryState)
+		    private static void perNeighborCallBackFunction(Object clientObject, float distanceSquared, Object clientQueryState)
 			{
-				List<ContentType> results = (List<ContentType>)clientQueryState;
-				results.Add((ContentType)clientObject);
+				List<T> results = (List<T>)clientQueryState;
+				results.Add((T)clientObject);
 			}
 		}
 
-	    readonly LocalityQueryDB _lq;
+	    readonly LocalityQueryDatabase _lq;
 
 		// constructor
         public LocalityQueryProximityDatabase(Vector3 center, Vector3 dimensions, Vector3 divisions)
@@ -138,11 +130,11 @@ namespace SharpSteer2
 			Vector3 halfsize = dimensions * 0.5f;
 			Vector3 origin = center - halfsize;
 
-			_lq = new LocalityQueryDB(origin, dimensions, (int)Math.Round(divisions.X), (int)Math.Round(divisions.Y), (int)Math.Round(divisions.Z));
+			_lq = new LocalityQueryDatabase(origin, dimensions, (int)Math.Round(divisions.X), (int)Math.Round(divisions.Y), (int)Math.Round(divisions.Z));
 		}
 
 		// allocate a token to represent a given client obj in this database
-		public ITokenForProximityDatabase<ContentType> AllocateToken(ContentType parentObject)
+		public ITokenForProximityDatabase<T> AllocateToken(T parentObject)
 		{
 			return new TokenType(parentObject, this);
 		}

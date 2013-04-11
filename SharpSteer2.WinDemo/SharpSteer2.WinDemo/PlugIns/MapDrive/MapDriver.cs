@@ -325,7 +325,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					{
 						// when near the outer edge of a sufficiently wide tube
 						int segmentIndex = path.IndexOfNearestSegment(onPath);
-						float segmentRadius = path.radii[segmentIndex];
+						float segmentRadius = path.Radii[segmentIndex];
 						float w = halfWidth * 6;
 						bool nearEdge = offsetDistance > w;
 						bool wideEnough = segmentRadius > (w * 2);
@@ -1261,7 +1261,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				{
 					Vector3 endPoint1 = path.Points[i - 1] + down;
 
-					float legWidth = path.radii[i];
+					float legWidth = path.Radii[i];
 
 					Drawing.DrawXZWideLine(endPoint0, endPoint1, color, legWidth * 2);
 					Drawing.DrawLine(path.Points[i], path.Points[i - 1], new Color(pathColor));

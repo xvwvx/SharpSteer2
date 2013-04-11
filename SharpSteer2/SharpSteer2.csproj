@@ -102,8 +102,8 @@
     <Compile Include="ITokenForProximityDatabase.cs" />
     <Compile Include="IVehicle.cs" />
     <Compile Include="LocalSpace.cs" />
-    <Compile Include="LQDatabase.cs" />
-    <Compile Include="LQProximityDatabase.cs" />
+    <Compile Include="LocalityQueryDatabase.cs" />
+    <Compile Include="LocalityQueryProximityDatabase.cs" />
     <Compile Include="NullAnnotationService.cs" />
     <Compile Include="Obstacle.cs" />
     <Compile Include="Pathway.cs" />

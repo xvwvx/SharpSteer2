@@ -24,11 +24,11 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// construct a GCRoute given the number of points (vertices), an
 		// array of points, an array of per-segment path radii, and a flag
 		// indiating if the path is connected at the end.
-		public GCRoute(int _pointCount, Vector3[] _points, float[] _radii, bool _cyclic)
+		public GCRoute(int pointCount, Vector3[] points, float[] radii, bool cyclic)
 		{
-			Initialize(_pointCount, _points, _radii[0], _cyclic);
+			Initialize(pointCount, points, radii[0], cyclic);
 
-			radii = new float[PointCount];
+			Radii = new float[PointCount];
 
 			// loop over all points
 			for (int i = 0; i < PointCount; i++)
@@ -36,8 +36,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				// copy in point locations, closing cycle when appropriate
 				bool closeCycle = Cyclic && (i == PointCount - 1);
 				int j = closeCycle ? 0 : i;
-				Points[i] = _points[j];
-				radii[i] = _radii[i];
+				Points[i] = points[j];
+				Radii[i] = radii[i];
 			}
 		}
 
@@ -64,7 +64,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 				// measure how far original point is outside the Pathway's "tube"
 				// (negative values (from 0 to -radius) measure "insideness")
-				float o = d - radii[i];
+				float o = d - Radii[i];
 
 				// when this is the smallest "outsideness" seen so far, take
 				// note and save the corresponding point-on-path and tangent
@@ -144,7 +144,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			for (int i = 1; i < PointCount; i++)
 			{
 				// return true if near enough to this waypoint
-				float r = Math.Max(radii[i], radii[(i + 1) % PointCount]);
+				float r = Math.Max(Radii[i], Radii[(i + 1) % PointCount]);
 				float d = (point - Points[i]).Length();
 				if (d < r) return true;
 			}
@@ -167,13 +167,13 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			// measure how far original point is outside the Pathway's "tube"
 			// (negative values (from 0 to -radius) measure "insideness")
-			float o = d - radii[i];
+			float o = d - Radii[i];
 
 			// return true if point is inside the tube
 			return o < 0;
 		}
 
 		// per-segment radius (width) array
-		public float[] radii;
+		public readonly float[] Radii;
 	}
 }

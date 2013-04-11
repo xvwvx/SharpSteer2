@@ -56,12 +56,12 @@ namespace SharpSteer2
 		// returns pointer to the next PlugIn in "selection order"
 		public PlugIn Next()
 		{
-			for (int i = 0; i < itemsInRegistry; i++)
+			for (int i = 0; i < _itemsInRegistry; i++)
 			{
-				if (this == registry[i])
+				if (this == _registry[i])
 				{
-					bool atEnd = (i == (itemsInRegistry - 1));
-					return registry[atEnd ? 0 : i + 1];
+					bool atEnd = (i == (_itemsInRegistry - 1));
+					return _registry[atEnd ? 0 : i + 1];
 				}
 			}
 			return null;
@@ -80,9 +80,9 @@ namespace SharpSteer2
 		{
 			if (String.IsNullOrEmpty(name) == false)
 			{
-				for (int i = 0; i < itemsInRegistry; i++)
+				for (int i = 0; i < _itemsInRegistry; i++)
 				{
-					PlugIn pi = registry[i];
+					PlugIn pi = _registry[i];
 					String s = pi.Name;
 					if (String.IsNullOrEmpty(s) && name == s)
 						return pi;
@@ -94,9 +94,9 @@ namespace SharpSteer2
 		// apply a given function to all PlugIns in the class registry
 		public static void ApplyToAll(PlugInCallBackFunction f)
 		{
-			for (int i = 0; i < itemsInRegistry; i++)
+			for (int i = 0; i < _itemsInRegistry; i++)
 			{
-				f(registry[i]);
+				f(_registry[i]);
 			}
 		}
 
@@ -107,19 +107,19 @@ namespace SharpSteer2
 			// another inline shell sort implementation...
 
 			// starting at each of the first n-1 elements of the array
-			for (int i = 0; i < itemsInRegistry - 1; i++)
+			for (int i = 0; i < _itemsInRegistry - 1; i++)
 			{
 				// scan over subsequent pairs, swapping if larger value is first
-				for (int j = i + 1; j < itemsInRegistry; j++)
+				for (int j = i + 1; j < _itemsInRegistry; j++)
 				{
-					float iKey = registry[i].SelectionOrderSortKey;
-					float jKey = registry[j].SelectionOrderSortKey;
+					float iKey = _registry[i].SelectionOrderSortKey;
+					float jKey = _registry[j].SelectionOrderSortKey;
 
 					if (iKey > jKey)
 					{
-						PlugIn temporary = registry[i];
-						registry[i] = registry[j];
-						registry[j] = temporary;
+						PlugIn temporary = _registry[i];
+						_registry[i] = _registry[j];
+						_registry[j] = temporary;
 					}
 				}
 			}
@@ -129,29 +129,29 @@ namespace SharpSteer2
 		public static PlugIn FindDefault()
 		{
 			// return NULL if no PlugIns exist
-			if (itemsInRegistry == 0) return null;
+			if (_itemsInRegistry == 0) return null;
 
 			// otherwise, return the first PlugIn that requests initial selection
-			for (int i = 0; i < itemsInRegistry; i++)
+			for (int i = 0; i < _itemsInRegistry; i++)
 			{
-				if (registry[i].RequestInitialSelection) return registry[i];
+				if (_registry[i].RequestInitialSelection) return _registry[i];
 			}
 
 			// otherwise, return the "first" PlugIn (in "selection order")
-			return registry[0];
+			return _registry[0];
 		}
 
 		// save this instance in the class's registry of instances
 		void AddToRegistry()
 		{
 			// save this instance in the registry
-			registry[itemsInRegistry++] = this;
+			_registry[_itemsInRegistry++] = this;
 		}
 
 		// This array stores a list of all PlugIns.  It is manipulated by the
 		// constructor and destructor, and used in findByName and applyToAll.
-		const int totalSizeOfRegistry = 1000;
-		static int itemsInRegistry = 0;
-		static PlugIn[] registry = new PlugIn[totalSizeOfRegistry];
+		const int TOTAL_SIZE_OF_REGISTRY = 1000;
+		static int _itemsInRegistry = 0;
+		static readonly PlugIn[] _registry = new PlugIn[TOTAL_SIZE_OF_REGISTRY];
 	}
 }

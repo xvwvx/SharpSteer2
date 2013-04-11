@@ -32,7 +32,6 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 			MaxSpeed = 3.0f;       // velocity is clipped to this magnitude
 			trail = new Trail();
 			trail.Clear();    // prevent long streaks due to teleportation 
-			GaudyPursuitAnnotation = true; // select use of 9-color annotation
 		}
 
 		// draw into the scene

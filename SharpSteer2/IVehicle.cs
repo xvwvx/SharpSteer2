@@ -14,13 +14,19 @@ namespace SharpSteer2
 {
 	public interface IVehicle : ILocalSpace
 	{
-        // mass (defaults to unity so acceleration=force)
+        /// <summary>
+        /// mass (defaults to unity so acceleration=force)
+        /// </summary>
 		float Mass { get; set; }
 
-        // size of bounding sphere, for obstacle avoidance, etc.
+        /// <summary>
+        /// size of bounding sphere, for obstacle avoidance, etc.
+        /// </summary>
 		float Radius { get; set; }
 
-        // velocity of vehicle
+        /// <summary>
+        /// velocity of vehicle
+        /// </summary>
         Vector3 Velocity { get; }
 
 		/// <summary>
@@ -28,21 +34,26 @@ namespace SharpSteer2
 		/// </summary>
 		Vector3 Acceleration { get; }
 		
-		// speed of vehicle (may be faster than taking magnitude of velocity)
+		/// <summary>
+        /// speed of vehicle (may be faster than taking magnitude of velocity)
+		/// </summary>
 		float Speed { get; set; }
 
-        // predict position of this vehicle at some time in the future
-        //(assumes velocity remains constant)
+        /// <summary>
+        /// predict position of this vehicle at some time in the future (assumes velocity remains constant)
+        /// </summary>
+        /// <param name="predictionTime"></param>
+        /// <returns></returns>
         Vector3 PredictFuturePosition(float predictionTime);
 
-        // ----------------------------------------------------------------------
-        // XXX this vehicle-model-specific functionality functionality seems out
-        // XXX of place on the abstract base class, but for now it is expedient
-
-        // the maximum steering force this vehicle can apply
+        /// <summary>
+        /// the maximum steering force this vehicle can apply
+        /// </summary>
 		float MaxForce { get; set; }
 
-        // the maximum speed this vehicle is allowed to move
+        /// <summary>
+        /// the maximum speed this vehicle is allowed to move
+        /// </summary>
 		float MaxSpeed { get; set; }
 	}
 }

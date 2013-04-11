@@ -18,19 +18,37 @@ namespace SharpSteer2
 	/// </summary>
 	public abstract class Pathway
 	{
-		// Given an arbitrary point ("A"), returns the nearest point ("P") on
-		// this path.  Also returns, via output arguments, the path tangent at
-		// P and a measure of how far A is outside the Pathway's "tube".  Note
-		// that a negative distance indicates A is inside the Pathway.
+        /// <summary>
+        /// Given an arbitrary point ("A"), returns the nearest point ("P") on
+        /// this path.  Also returns, via output arguments, the path tangent at
+        /// P and a measure of how far A is outside the Pathway's "tube".  Note
+        /// that a negative distance indicates A is inside the Pathway.
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="tangent"></param>
+        /// <param name="outside"></param>
+        /// <returns></returns>
         public abstract Vector3 MapPointToPath(Vector3 point, out Vector3 tangent, out float outside);
 
-		// given a distance along the path, convert it to a point on the path
+        /// <summary>
+        /// given a distance along the path, convert it to a point on the path
+        /// </summary>
+        /// <param name="pathDistance"></param>
+        /// <returns></returns>
         public abstract Vector3 MapPathDistanceToPoint(float pathDistance);
 
-		// Given an arbitrary point, convert it to a distance along the path.
+        /// <summary>
+        /// Given an arbitrary point, convert it to a distance along the path.
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns></returns>
         public abstract float MapPointToPathDistance(Vector3 point);
 
-		// is the given point inside the path tube?
+		/// <summary>
+        /// is the given point inside the path tube?
+		/// </summary>
+		/// <param name="point"></param>
+		/// <returns></returns>
         public bool IsInsidePath(Vector3 point)
 		{
 			float outside;
@@ -39,7 +57,11 @@ namespace SharpSteer2
 			return outside < 0;
 		}
 
-		// how far outside path tube is the given point?  (negative is inside)
+		/// <summary>
+        /// how far outside path tube is the given point?  (negative is inside)
+		/// </summary>
+		/// <param name="point"></param>
+		/// <returns></returns>
         public float HowFarOutsidePath(Vector3 point)
 		{
 			float outside;

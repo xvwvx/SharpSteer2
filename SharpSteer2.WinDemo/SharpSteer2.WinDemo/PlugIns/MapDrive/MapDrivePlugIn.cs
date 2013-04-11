@@ -353,12 +353,12 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				bool upstream = vehicle.pathFollowDirection > 0;
 				int entryIndex = upstream ? 1 : count - 1;
 				int exitIndex = upstream ? count - 1 : 1;
-				float lastExitRadius = vehicle.path.radii[exitIndex];
+				float lastExitRadius = vehicle.path.Radii[exitIndex];
 				for (int i = 1; i < count; i++)
 				{
-					vehicle.path.radii[i] = Utilities.Random(4, 19);
+					vehicle.path.Radii[i] = Utilities.Random(4, 19);
 				}
-				vehicle.path.radii[entryIndex] = lastExitRadius;
+				vehicle.path.Radii[entryIndex] = lastExitRadius;
 			}
 
 			// mark path-boundary map cells as obstacles

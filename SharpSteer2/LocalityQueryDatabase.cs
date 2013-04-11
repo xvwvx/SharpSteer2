@@ -18,7 +18,7 @@ namespace SharpSteer2
 	/// these would be created, by a call to lqCreateDatabase, for a given
 	/// application.
 	/// </summary>
-	class LocalityQueryDB
+	class LocalityQueryDatabase
 	{
 		// type for a pointer to a function used to map over client objects
 		public delegate void LQCallBackFunction(Object clientObject, float distanceSquared, Object clientQueryState);
@@ -83,7 +83,7 @@ namespace SharpSteer2
 		 * This routine also allocates the bin array, and initialize its
 		 * contents.
 		 */
-		public LocalityQueryDB(Vector3 origin, Vector3 size, int divx, int divy, int divz)
+		public LocalityQueryDatabase(Vector3 origin, Vector3 size, int divx, int divy, int divz)
 		{
 			_origin = origin;
 			_size = size;
@@ -239,11 +239,17 @@ namespace SharpSteer2
 				maxBinX, maxBinY, maxBinZ);
 		}
 
-		/* Given a bin's list of client proxies, traverse the list and invoke
-		the given lqCallBackFunction on each obj that falls within the
-		search radius.  */
-
-	    private void TraverseBinClientObjectList(ClientProxy co, float radiusSquared, LQCallBackFunction func, Object state, Vector3 position)
+		/// <summary>
+		/// Given a bin's list of client proxies, traverse the list and invoke
+		/// the given lqCallBackFunction on each obj that falls within the
+		/// search radius.
+		/// </summary>
+		/// <param name="co"></param>
+		/// <param name="radiusSquared"></param>
+		/// <param name="func"></param>
+		/// <param name="state"></param>
+		/// <param name="position"></param>
+	    private static void TraverseBinClientObjectList(ClientProxy co, float radiusSquared, LQCallBackFunction func, Object state, Vector3 position)
 		{
 			while (co != null)
 			{
@@ -261,10 +267,21 @@ namespace SharpSteer2
 			}
 		}
 
-		/* This subroutine of lqMapOverAllObjectsInLocality efficiently
-		   traverses of subset of bins specified by max and min bin
-		   coordinates. */
-
+        /// <summary>
+        /// This subroutine of lqMapOverAllObjectsInLocality efficiently
+		/// traverses of subset of bins specified by max and min bin
+		/// coordinates.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="radius"></param>
+        /// <param name="func"></param>
+        /// <param name="clientQueryState"></param>
+        /// <param name="minBinX"></param>
+        /// <param name="minBinY"></param>
+        /// <param name="minBinZ"></param>
+        /// <param name="maxBinX"></param>
+        /// <param name="maxBinY"></param>
+        /// <param name="maxBinZ"></param>
 	    private void MapOverAllObjectsInLocalityClipped(Vector3 center, float radius,
 							   LQCallBackFunction func,
 							   Object clientQueryState,
@@ -311,10 +328,15 @@ namespace SharpSteer2
 			}
 		}
 
-		/* If the query region (sphere) extends outside of the "super-brick"
-		   we need to check for objects in the catch-all "other" bin which
-		   holds any object which are not inside the regular sub-bricks  */
-
+        /// <summary>
+        /// If the query region (sphere) extends outside of the "super-brick"
+		/// we need to check for objects in the catch-all "other" bin which
+		/// holds any object which are not inside the regular sub-bricks
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="radius"></param>
+        /// <param name="func"></param>
+        /// <param name="clientQueryState"></param>
 	    private void MapOverAllOutsideObjects(Vector3 center, float radius, LQCallBackFunction func, Object clientQueryState)
 		{
 			ClientProxy co = _bins[_bins.Length - 1];
@@ -324,9 +346,7 @@ namespace SharpSteer2
 			TraverseBinClientObjectList(co, radiusSquared, func, clientQueryState, center);
 		}
 
-		/* public helper function */
-
-	    private void MapOverAllObjectsInBin(ClientProxy binProxyList, LQCallBackFunction func, Object clientQueryState)
+	    private static void MapOverAllObjectsInBin(ClientProxy binProxyList, LQCallBackFunction func, Object clientQueryState)
 		{
 			// walk down proxy list, applying call-back function to each one
 			while (binProxyList != null)
