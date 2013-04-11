@@ -120,7 +120,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			Drawing.Draw2dTextAt3dLocation("start", Vector3.zero, Color.Green);
 #endif
 			// update camera, tracking test vehicle
-			Demo.UpdateCamera(currentTime, elapsedTime, Demo.SelectedVehicle);
+			Demo.UpdateCamera(elapsedTime, Demo.SelectedVehicle);
 		}
 
 		public override void Close()

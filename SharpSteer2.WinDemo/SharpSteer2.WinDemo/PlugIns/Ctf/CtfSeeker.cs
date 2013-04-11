@@ -31,7 +31,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			BodyColor = new Color((byte)(255.0f * 0.4f), (byte)(255.0f * 0.4f), (byte)(255.0f * 0.6f)); // blueish
 			Globals.Seeker = this;
 			State = SeekerState.Running;
-			evading = false;
+			_evading = false;
 		}
 
 		// per frame simulation update
@@ -48,7 +48,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			}
 			else
 			{
-				ApplyBrakingForce(Globals.BrakingRate, elapsedTime);
+				ApplyBrakingForce(Globals.BRAKING_RATE, elapsedTime);
 			}
 			ApplySteeringForce(steer, elapsedTime);
 
@@ -58,7 +58,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		}
 
 		// is there a clear path to the goal?
-		public bool IsPathToGoalClear()
+	    private bool IsPathToGoalClear()
 		{
 			float sideThreshold = Radius * 8.0f;
 			float behindThreshold = Radius * 2.0f;
@@ -73,7 +73,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			bool xxxReturn = true;
 
 			// loop over enemies
-			for (int i = 0; i < Globals.CtfEnemyCount; i++)
+			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
 			{
 				// short name for this enemy
 				CtfEnemy e = Globals.CtfEnemies[i];
@@ -130,7 +130,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			return xxxReturn;
 		}
 
-		public Vector3 SteeringForSeeker()
+	    private Vector3 SteeringForSeeker()
 		{
 			// determine if obstacle avodiance is needed
 			bool clearPath = IsPathToGoalClear();
@@ -189,24 +189,24 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			}
 		}
 
-		public void UpdateState(float currentTime)
+	    private void UpdateState(float currentTime)
 		{
 			// if we reach the goal before being tagged, switch to atGoal state
 			if (State == SeekerState.Running)
 			{
 				float baseDistance = Vector3.Distance(Position, Globals.HomeBaseCenter);
-				if (baseDistance < (Radius + Globals.HomeBaseRadius)) State = SeekerState.AtGoal;
+				if (baseDistance < (Radius + Globals.HOME_BASE_RADIUS)) State = SeekerState.AtGoal;
 			}
 
 			// update lastRunningTime (holds off reset time)
 			if (State == SeekerState.Running)
 			{
-				lastRunningTime = currentTime;
+				_lastRunningTime = currentTime;
 			}
 			else
 			{
-				float resetDelay = 4;
-				float resetTime = lastRunningTime + resetDelay;
+				const float resetDelay = 4;
+				float resetTime = _lastRunningTime + resetDelay;
 				if (currentTime > resetTime)
 				{
 					// xxx a royal hack (should do this internal to CTF):
@@ -227,7 +227,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			case SeekerState.Running:
 				if (Avoiding)
 					seekerStateString = "avoid obstacle";
-				else if (evading)
+				else if (_evading)
 					seekerStateString = "seek and evade";
 				else
 					seekerStateString = "seek goal";
@@ -250,7 +250,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			// display status in the upper left corner of the window
 			StringBuilder status = new StringBuilder();
 			status.Append(seekerStateString);
-			status.AppendFormat("\n{0} obstacles [F1/F2]", obstacleCount);
+			status.AppendFormat("\n{0} obstacles [F1/F2]", ObstacleCount);
 			status.AppendFormat("\n{0} restarts", Globals.ResetCount);
 			Vector3 screenLocation = new Vector3(15, 50, 0);
 			Drawing.Draw2dTextAt2dLocation(status.ToString(), screenLocation, Color.LightGray);
@@ -262,7 +262,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			float goalDistance = Vector3.Distance(Globals.HomeBaseCenter, Position);
 
 			// sum up weighted evasion
-			for (int i = 0; i < Globals.CtfEnemyCount; i++)
+			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
 			{
 				CtfEnemy e = Globals.CtfEnemies[i];
 				Vector3 eOffset = e.Position - Position;
@@ -292,11 +292,11 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			return evade;
 		}
 
-		public Vector3 XXXSteerToEvadeAllDefenders()
+	    private Vector3 XXXSteerToEvadeAllDefenders()
 		{
 			// sum up weighted evasion
 			Vector3 evade = Vector3.Zero;
-			for (int i = 0; i < Globals.CtfEnemyCount; i++)
+			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
 			{
 				CtfEnemy e = Globals.CtfEnemies[i];
 				Vector3 eOffset = e.Position - Position;
@@ -325,28 +325,27 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			return evade;
 		}
 
-		public void AdjustObstacleAvoidanceLookAhead(bool clearPath)
+	    private void AdjustObstacleAvoidanceLookAhead(bool clearPath)
 		{
 			if (clearPath)
 			{
-				evading = false;
+				_evading = false;
 				float goalDistance = Vector3.Distance(Globals.HomeBaseCenter, Position);
 				bool headingTowardGoal = IsAhead(Globals.HomeBaseCenter, 0.98f);
-				bool isNear = (goalDistance / Speed) < Globals.AvoidancePredictTimeMax;
+				bool isNear = (goalDistance / Speed) < Globals.AVOIDANCE_PREDICT_TIME_MAX;
 				bool useMax = headingTowardGoal && !isNear;
-				Globals.AvoidancePredictTime = (useMax ? Globals.AvoidancePredictTimeMax : Globals.AvoidancePredictTimeMin);
+				Globals.AvoidancePredictTime = (useMax ? Globals.AVOIDANCE_PREDICT_TIME_MAX : Globals.AVOIDANCE_PREDICT_TIME_MIN);
 			}
 			else
 			{
-				evading = true;
-				Globals.AvoidancePredictTime = Globals.AvoidancePredictTimeMin;
+				_evading = true;
+				Globals.AvoidancePredictTime = Globals.AVOIDANCE_PREDICT_TIME_MIN;
 			}
 		}
 
-		public void ClearPathAnnotation(float sideThreshold, float behindThreshold, Vector3 goalDirection)
+	    private void ClearPathAnnotation(float sideThreshold, float behindThreshold, Vector3 goalDirection)
 		{
-			Vector3 behindSide = Side * sideThreshold;
-			Vector3 behindBack = Forward * -behindThreshold;
+		    Vector3 behindBack = Forward * -behindThreshold;
 			Vector3 pbb = Position + behindBack;
 			Vector3 gun = LocalRotateForwardToSide(goalDirection);
 			Vector3 gn = gun * sideThreshold;
@@ -359,7 +358,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		}
 
 		public SeekerState State;
-		bool evading; // xxx store steer sub-state for anotation
-		float lastRunningTime; // for auto-reset
+		bool _evading; // xxx store steer sub-state for anotation
+		float _lastRunningTime; // for auto-reset
 	}
 }

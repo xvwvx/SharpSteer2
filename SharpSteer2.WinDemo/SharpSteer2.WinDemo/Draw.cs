@@ -24,53 +24,52 @@ namespace SharpSteer2.WinDemo
 
 	public class Drawing : IDraw
 	{
-		public static Demo game = null;
-		static CullMode cullMode;
-		static Color curColor;
-		static PrimitiveType curMode;
-		static List<VertexPositionColor> vertices = new List<VertexPositionColor>();
-		static LocalSpace localSpace = new LocalSpace();
+		public static Demo Game = null;
+	    static Color _curColor;
+		static PrimitiveType _curMode;
+		static readonly List<VertexPositionColor> _vertices = new List<VertexPositionColor>();
+		static readonly LocalSpace _localSpace = new LocalSpace();
 
 		static void SetColor(Color color)
 		{
-			curColor = color;
+			_curColor = color;
 		}
 
         static void drawBegin(PrimitiveType mode)
 		{
-			curMode = mode;
+			_curMode = mode;
 		}
 
 		static void drawEnd()
 		{
 			int primitiveCount = 0;
 
-			switch (curMode)
+			switch (_curMode)
 			{
 			case PrimitiveType.LineList:
 	
-				primitiveCount = vertices.Count / 2;
+				primitiveCount = _vertices.Count / 2;
 				break;
 			case PrimitiveType.LineStrip:
-				vertices.Add(vertices[0]);
-				primitiveCount = vertices.Count - 1;
+				_vertices.Add(_vertices[0]);
+				primitiveCount = _vertices.Count - 1;
 				break;
             case PrimitiveType.TriangleList:
-				primitiveCount = vertices.Count / 3;
+				primitiveCount = _vertices.Count / 3;
 				break;
             case PrimitiveType.TriangleStrip://.TriangleFan:
-				primitiveCount = vertices.Count - 2;
+				primitiveCount = _vertices.Count - 2;
 				break;
 			}
 
-            game.Graphics.GraphicsDevice.DrawUserPrimitives(curMode, vertices.ToArray(), 0, primitiveCount);
+            Game.Graphics.GraphicsDevice.DrawUserPrimitives(_curMode, _vertices.ToArray(), 0, primitiveCount);
 
-			vertices.Clear();
+			_vertices.Clear();
 		}
 
 		static void AddVertex(Vector3 v)
 		{
-			vertices.Add(new VertexPositionColor(v, curColor));
+			_vertices.Add(new VertexPositionColor(v, _curColor));
 		}
 
 		static void BeginDoubleSidedDrawing()
@@ -138,7 +137,7 @@ namespace SharpSteer2.WinDemo
 
 		public static void DrawLine(Vector3 startPoint, Vector3 endPoint, Color color)
 		{
-			if (Demo.IsDrawPhase == true)
+			if (Demo.IsDrawPhase)
 			{
 				iDrawLine(startPoint, endPoint, color);
 			}
@@ -152,7 +151,7 @@ namespace SharpSteer2.WinDemo
 		public static void DrawLineAlpha(Vector3 startPoint, Vector3 endPoint, Color color, float alpha)
 		{
 			Color c = new Color(color.R, color.G, color.B, (byte)(255.0f * alpha));
-			if (Demo.IsDrawPhase == true)
+			if (Demo.IsDrawPhase)
 			{
 				iDrawLine(startPoint, endPoint, c);
 			}
@@ -174,7 +173,7 @@ namespace SharpSteer2.WinDemo
 		{
 			Vector3 offset = endPoint - startPoint;
 			offset.Normalize();
-            Vector3 perp = localSpace.LocalRotateForwardToSide(offset);
+            Vector3 perp = _localSpace.LocalRotateForwardToSide(offset);
 			Vector3 radius = perp * width / 2;
 
 			Vector3 a = startPoint + radius;
@@ -291,40 +290,30 @@ namespace SharpSteer2.WinDemo
 		{
 			Vector3 s = size / 2.0f;  // half of main diagonal
 
-			Vector3 a = new Vector3(+s.X, +s.Y, +s.Z);
-			Vector3 b = new Vector3(+s.X, -s.Y, +s.Z);
-			Vector3 c = new Vector3(-s.X, -s.Y, +s.Z);
-			Vector3 d = new Vector3(-s.X, +s.Y, +s.Z);
+			Vector3 a = localSpace.GlobalizePosition(new Vector3(+s.X, +s.Y, +s.Z));
+			Vector3 b = localSpace.GlobalizePosition(new Vector3(+s.X, -s.Y, +s.Z));
+			Vector3 c = localSpace.GlobalizePosition(new Vector3(-s.X, -s.Y, +s.Z));
+			Vector3 d = localSpace.GlobalizePosition(new Vector3(-s.X, +s.Y, +s.Z));
 
-			Vector3 e = new Vector3(+s.X, +s.Y, -s.Z);
-			Vector3 f = new Vector3(+s.X, -s.Y, -s.Z);
-			Vector3 g = new Vector3(-s.X, -s.Y, -s.Z);
-			Vector3 h = new Vector3(-s.X, +s.Y, -s.Z);
+			Vector3 e = localSpace.GlobalizePosition(new Vector3(+s.X, +s.Y, -s.Z));
+			Vector3 f = localSpace.GlobalizePosition(new Vector3(+s.X, -s.Y, -s.Z));
+			Vector3 g = localSpace.GlobalizePosition(new Vector3(-s.X, -s.Y, -s.Z));
+			Vector3 h = localSpace.GlobalizePosition(new Vector3(-s.X, +s.Y, -s.Z));
 
-			Vector3 A = localSpace.GlobalizePosition(a);
-			Vector3 B = localSpace.GlobalizePosition(b);
-			Vector3 C = localSpace.GlobalizePosition(c);
-			Vector3 D = localSpace.GlobalizePosition(d);
+			iDrawLine(a, b, color);
+			iDrawLine(b, c, color);
+			iDrawLine(c, d, color);
+			iDrawLine(d, a, color);
 
-			Vector3 E = localSpace.GlobalizePosition(e);
-			Vector3 F = localSpace.GlobalizePosition(f);
-			Vector3 G = localSpace.GlobalizePosition(g);
-			Vector3 H = localSpace.GlobalizePosition(h);
+			iDrawLine(a, e, color);
+			iDrawLine(b, f, color);
+			iDrawLine(c, g, color);
+			iDrawLine(d, h, color);
 
-			iDrawLine(A, B, color);
-			iDrawLine(B, C, color);
-			iDrawLine(C, D, color);
-			iDrawLine(D, A, color);
-
-			iDrawLine(A, E, color);
-			iDrawLine(B, F, color);
-			iDrawLine(C, G, color);
-			iDrawLine(D, H, color);
-
-			iDrawLine(E, F, color);
-			iDrawLine(F, G, color);
-			iDrawLine(G, H, color);
-			iDrawLine(H, E, color);
+			iDrawLine(e, f, color);
+			iDrawLine(f, g, color);
+			iDrawLine(g, h, color);
+			iDrawLine(h, e, color);
 		}
 
 		public static void DrawXZCircle(float radius, Vector3 center, Color color, int segments)
@@ -338,7 +327,7 @@ namespace SharpSteer2.WinDemo
 		}
 
 		// drawing utility used by both drawXZCircle and drawXZDisk
-		public static void DrawXZCircleOrDisk(float radius, Vector3 center, Color color, int segments, bool filled)
+	    private static void DrawXZCircleOrDisk(float radius, Vector3 center, Color color, int segments, bool filled)
 		{
 			// draw a circle-or-disk on the XZ plane
 			DrawCircleOrDisk(radius, Vector3.Zero, center, color, segments, filled, false);
@@ -348,7 +337,7 @@ namespace SharpSteer2.WinDemo
 		public static void DrawBasic2dCircularVehicle(IVehicle vehicle, Color color)
 		{
 			// "aspect ratio" of body (as seen from above)
-			float x = 0.5f;
+			const float x = 0.5f;
 			float y = (float)Math.Sqrt(1 - (x * x));
 
 			// radius and position of vehicle
@@ -376,7 +365,7 @@ namespace SharpSteer2.WinDemo
 		// a simple 3d vehicle
 		public static void DrawBasic3dSphericalVehicle(IVehicle vehicle, Color color)
 		{
-			Vector3 vColor = new Vector3((float)color.R / 255.0f, (float)color.G / 255.0f, (float)color.B / 255.0f);
+			Vector3 vColor = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
 
 			// "aspect ratio" of body (as seen from above)
 			const float x = 0.5f;
@@ -420,7 +409,7 @@ namespace SharpSteer2.WinDemo
 		// a simple sphere
 		public static void DrawBasic3dSphere(Vector3 position, float radius, Color color)
 		{
-			Vector3 vColor = new Vector3((float)color.R / 255.0f, (float)color.G / 255.0f, (float)color.B / 255.0f);
+			Vector3 vColor = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
 
 			// "aspect ratio" of body (as seen from above)
 			const float x = 0.5f;
@@ -465,12 +454,12 @@ namespace SharpSteer2.WinDemo
 		// specified by "filled" argument) and handles both special case 2d circles
 		// on the XZ plane or arbitrary circles in 3d space (as specified by "in3d"
 		// argument)
-		public static void DrawCircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3d)
+		public static void DrawCircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3D)
 		{
-			if (Demo.IsDrawPhase == true)
+			if (Demo.IsDrawPhase)
 			{
 				LocalSpace ls = new LocalSpace();
-				if (in3d)
+				if (in3D)
 				{
 					// define a local space with "axis" as the Y/up direction
 					// (XXX should this be a method on  LocalSpace?)
@@ -489,7 +478,7 @@ namespace SharpSteer2.WinDemo
 
 				// point to be rotated about the (local) Y axis, angular step size
 				Vector3 pointOnCircle = new Vector3(radius, 0, 0);
-				float step = (float)(2 * Math.PI) / (float)segments;
+				float step = (float)(2 * Math.PI) / segments;
 
 				// set drawing color
                 SetColor(color);
@@ -498,7 +487,7 @@ namespace SharpSteer2.WinDemo
 				drawBegin(filled ? PrimitiveType.TriangleStrip : PrimitiveType.LineStrip);
 
 				// for the filled case, first emit the center point
-                if (filled) AddVertex(in3d ? ls.Position : center);
+                if (filled) AddVertex(in3D ? ls.Position : center);
 
 				// rotate p around the circle in "segments" steps
 				float sin = 0, cos = 0;
@@ -507,7 +496,7 @@ namespace SharpSteer2.WinDemo
 				{
 					// emit next point on circle, either in 3d (globalized out
 					// of the local space), or in 2d (offset from the center)
-                    AddVertex(in3d ? ls.GlobalizePosition(pointOnCircle) : pointOnCircle + center);
+                    AddVertex(in3D ? ls.GlobalizePosition(pointOnCircle) : pointOnCircle + center);
 
 					// rotate point one more step around circle
                     pointOnCircle = Vector3Helpers.RotateAboutGlobalY(pointOnCircle, step, ref sin, ref cos);
@@ -519,7 +508,7 @@ namespace SharpSteer2.WinDemo
 			}
 			else
 			{
-				DeferredCircle.AddToBuffer(radius, axis, center, color, segments, filled, in3d);
+				DeferredCircle.AddToBuffer(radius, axis, center, color, segments, filled, in3D);
 			}
 		}
 
@@ -551,22 +540,16 @@ namespace SharpSteer2.WinDemo
 			// the 3d point.
 
 			// set text color and raster position
-			Vector3 p = game.Graphics.GraphicsDevice.Viewport.Project(location, game.ProjectionMatrix, game.ViewMatrix, game.WorldMatrix);
-			TextEntry textEntry = new TextEntry();
-			textEntry.Color = color;
-			textEntry.Position = new Vector2(p.X, p.Y);
-			textEntry.Text = text;
-			game.AddText(textEntry);
+			Vector3 p = Game.Graphics.GraphicsDevice.Viewport.Project(location, Game.ProjectionMatrix, Game.ViewMatrix, Game.WorldMatrix);
+			TextEntry textEntry = new TextEntry { Color = color, Position = new Vector2(p.X, p.Y), Text = text };
+		    Game.AddText(textEntry);
 		}
 
 		public static void Draw2dTextAt2dLocation(String text, Vector3 location, Color color)
 		{
 			// set text color and raster position
-			TextEntry textEntry = new TextEntry();
-			textEntry.Color = color;
-			textEntry.Position = new Vector2(location.X, location.Y);
-			textEntry.Text = text;
-			game.AddText(textEntry);
+			TextEntry textEntry = new TextEntry { Color = color, Position = new Vector2(location.X, location.Y), Text = text };
+		    Game.AddText(textEntry);
 		}
 
 		public static float GetWindowWidth()

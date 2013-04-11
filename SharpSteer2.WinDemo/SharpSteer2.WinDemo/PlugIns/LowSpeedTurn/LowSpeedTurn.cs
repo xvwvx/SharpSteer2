@@ -30,10 +30,10 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 			base.Reset();
 
 			// speed along Forward direction.
-			Speed = startSpeed;
+			Speed = _startSpeed;
 
 			// initial position along X axis
-			SetPosition(startX, 0, 0);
+			SetPosition(_startX, 0, 0);
 
 			// steering force clip magnitude
 			MaxForce = 0.3f;
@@ -42,10 +42,10 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 			MaxSpeed = 1.5f;
 
 			// for next instance: step starting location
-			startX += 2;
+			_startX += 2;
 
 			// for next instance: step speed
-			startSpeed += 0.15f;
+			_startSpeed += 0.15f;
 
 			// 15 seconds and 150 points along the trail
 			trail = new Trail(15, 150);
@@ -55,7 +55,7 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 		public void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, Color.Gray);
-			trail.Draw(Annotation.drawer);
+			trail.Draw(Annotation.Drawer);
 		}
 
 		// per frame simulation update
@@ -71,18 +71,18 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 		// reset starting positions
 		public static void ResetStarts()
 		{
-			startX = 0;
-			startSpeed = 0;
+			_startX = 0;
+			_startSpeed = 0;
 		}
 
 		// constant steering force
-		public Vector3 Steering
+	    private static Vector3 Steering
 		{
 			get { return new Vector3(1, 0, -1); }
 		}
 
 		// for stepping the starting conditions for next vehicle
-		static float startX;
-		static float startSpeed;
+		static float _startX;
+		static float _startSpeed;
 	}
 }

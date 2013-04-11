@@ -42,10 +42,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
         private readonly IAnnotationService _annotations;
 
 		public CtfPlugIn(IAnnotationService annotations)
-			: base()
 		{
             _annotations = annotations;
-			all = new List<CtfBase>();
+			_all = new List<CtfBase>();
 		}
 
 		public override String Name { get { return "Capture the Flag"; } }
@@ -56,14 +55,14 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		{
 			// create the seeker ("hero"/"attacker")
             Globals.CtfSeeker = new CtfSeeker(_annotations);
-			all.Add(Globals.CtfSeeker);
+			_all.Add(Globals.CtfSeeker);
 
 			// create the specified number of enemies, 
 			// storing pointers to them in an array.
-			for (int i = 0; i < Globals.CtfEnemyCount; i++)
+			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
 			{
 				Globals.CtfEnemies[i] = new CtfEnemy(_annotations);
-				all.Add(Globals.CtfEnemies[i]);
+				_all.Add(Globals.CtfEnemies[i]);
 			}
 
 			// initialize camera
@@ -84,7 +83,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			Globals.CtfSeeker.Update(currentTime, elapsedTime);
 
 			// update each enemy
-			for (int i = 0; i < Globals.CtfEnemyCount; i++)
+			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
 			{
 				Globals.CtfEnemies[i].Update(currentTime, elapsedTime);
 			}
@@ -96,10 +95,10 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			IVehicle selected = Demo.SelectedVehicle;
 
 			// vehicle nearest mouse (to be highlighted)
-			IVehicle nearMouse = null;//FIXME: Demo.vehicleNearestToMouse ();
+			IVehicle nearMouse = Demo.VehicleNearestToMouse ();
 
 			// update camera
-			Demo.UpdateCamera(currentTime, elapsedTime, selected);
+			Demo.UpdateCamera(elapsedTime, selected);
 
 			// draw "ground plane" centered between base and selected vehicle
 			Vector3 goalOffset = Globals.HomeBaseCenter - Demo.Camera.Position;
@@ -117,7 +116,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			DrawHomeBase();
 
 			// draw each enemy
-			for (int i = 0; i < Globals.CtfEnemyCount; i++) Globals.CtfEnemies[i].Draw();
+			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++) Globals.CtfEnemies[i].Draw();
 
 			// highlight vehicle nearest mouse
 			Demo.HighlightVehicleUtility(nearMouse);
@@ -129,13 +128,13 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			Globals.CtfSeeker = null;
 
 			// delete each enemy
-			for (int i = 0; i < Globals.CtfEnemyCount; i++)
+			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
 			{
 				Globals.CtfEnemies[i] = null;
 			}
 
 			// clear the group of all vehicles
-			all.Clear();
+			_all.Clear();
 		}
 
 		public override void Reset()
@@ -145,7 +144,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 
 			// reset the seeker ("hero"/"attacker") and enemies
 			Globals.CtfSeeker.Reset();
-			for (int i = 0; i < Globals.CtfEnemyCount; i++) Globals.CtfEnemies[i].Reset();
+			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++) Globals.CtfEnemies[i].Reset();
 
 			// reset camera position
 			Demo.Position2dCamera(Globals.CtfSeeker);
@@ -178,21 +177,21 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 
 		public override List<IVehicle> Vehicles
 		{
-			get { return all.ConvertAll<IVehicle>(delegate(CtfBase v) { return (IVehicle)v; }); }
+			get { return _all.ConvertAll<IVehicle>(delegate(CtfBase v) { return (IVehicle)v; }); }
 		}
 
-		public void DrawHomeBase()
+	    private static void DrawHomeBase()
 		{
 			Vector3 up = new Vector3(0, 0.01f, 0);
 			Color atColor = new Color((byte)(255.0f * 0.3f), (byte)(255.0f * 0.3f), (byte)(255.0f * 0.5f));
 			Color noColor = Color.Gray;
-			bool reached = Globals.CtfSeeker.State == CtfSeeker.SeekerState.AtGoal;
+			bool reached = Globals.CtfSeeker.State == CtfBase.SeekerState.AtGoal;
 			Color baseColor = (reached ? atColor : noColor);
-			Drawing.DrawXZDisk(Globals.HomeBaseRadius, Globals.HomeBaseCenter, baseColor, 40);
-			Drawing.DrawXZDisk(Globals.HomeBaseRadius / 15, Globals.HomeBaseCenter + up, Color.Black, 20);
+			Drawing.DrawXZDisk(Globals.HOME_BASE_RADIUS, Globals.HomeBaseCenter, baseColor, 40);
+			Drawing.DrawXZDisk(Globals.HOME_BASE_RADIUS / 15, Globals.HomeBaseCenter + up, Color.Black, 20);
 		}
 
-		public void DrawObstacles()
+	    private static void DrawObstacles()
 		{
 			Color color = new Color((byte)(255.0f * 0.8f), (byte)(255.0f * 0.6f), (byte)(255.0f * 0.4f));
 			List<SphericalObstacle> allSO = CtfBase.AllObstacles;
@@ -203,6 +202,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		}
 
 		// a group (STL vector) of all vehicles in the PlugIn
-		List<CtfBase> all;
+	    readonly List<CtfBase> _all;
 	}
 }

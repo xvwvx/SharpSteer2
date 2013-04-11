@@ -41,8 +41,6 @@ namespace SharpSteer2.WinDemo
 			// position has a fixed local offset from the vehicle.
 			OffsetPOV,
 
-			// cmFixedPositionTracking // xxx maybe?
-
 			// marks the end of the list for cycling (to cmStartMode+1)
 			EndMode
 		}
@@ -51,11 +49,11 @@ namespace SharpSteer2.WinDemo
 		// xxx vectors are not being set, construct a temporary local space for
 		// xxx the camera view -- so as not to make the camera behave
 		// xxx differently (which is to say, correctly) during mouse adjustment.
-		LocalSpace ls;
+		LocalSpace _ls;
 		public LocalSpace xxxls()
 		{
-			ls.RegenerateOrthonormalBasis(Target - Position, Up);
-			return ls;
+			_ls.RegenerateOrthonormalBasis(Target - Position, Up);
+			return _ls;
 		}
 
 		// "look at" point, center of view
@@ -66,8 +64,8 @@ namespace SharpSteer2.WinDemo
 
 		// aim at predicted position of vehicleToTrack, this far into thefuture
 		public float AimLeadTime;
-		protected bool smoothNextMove;
-		protected float smoothMoveSpeed;
+	    private bool _smoothNextMove;
+	    private float _smoothMoveSpeed;
 
 		// current mode for this camera instance
 		public CameraMode Mode;
@@ -85,7 +83,7 @@ namespace SharpSteer2.WinDemo
 		public float LookDownDistance;             // fixed vertical offset from it
 
 		// "fixed local offset" camera mode parameters
-        public Vector3 FixedLocalOffset;
+	    private Vector3 _fixedLocalOffset;
 
 		// "offset POV" camera mode parameters
         public Vector3 PovOffset;
@@ -102,7 +100,7 @@ namespace SharpSteer2.WinDemo
 			// reset camera's position and orientation
 			ResetLocalSpace();
 
-			ls = new LocalSpace();
+			_ls = new LocalSpace();
 
 			// "look at" point, center of view
 			Target = Vector3.Zero;
@@ -114,10 +112,10 @@ namespace SharpSteer2.WinDemo
 			AimLeadTime = 1;
 
 			// make first update abrupt
-			smoothNextMove = false;
+			_smoothNextMove = false;
 
 			// relative rate at which camera transitions proceed
-			smoothMoveSpeed = 1.5f;
+			_smoothMoveSpeed = 1.5f;
 
 			// select camera aiming mode
 			Mode = CameraMode.Fixed;
@@ -135,14 +133,14 @@ namespace SharpSteer2.WinDemo
 			FixedUp = Vector3.Up;
 
 			// "fixed local offset" camera mode parameters
-			FixedLocalOffset = new Vector3(5, 5, -5);
+			_fixedLocalOffset = new Vector3(5, 5, -5);
 
 			// "offset POV" camera mode parameters
 			PovOffset = new Vector3(0, 1, -3);
 		}
 
 		// per frame simulation update
-		public void Update(float currentTime, float elapsedTime, bool simulationPaused)
+		public void Update(float elapsedTime, bool simulationPaused = false)
 		{
 			// vehicle being tracked (just a reference with a more concise name)
 			IVehicle v = VehicleToTrack;
@@ -154,7 +152,7 @@ namespace SharpSteer2.WinDemo
             Vector3 newUp = Up;
 
 			// prediction time to compensate for lag caused by smoothing moves
-			float antiLagTime = simulationPaused ? 0 : 1 / smoothMoveSpeed;
+			float antiLagTime = simulationPaused ? 0 : 1 / _smoothMoveSpeed;
 
 			// aim at a predicted future position of the target vehicle
 			float predictionTime = AimLeadTime + antiLagTime;
@@ -172,7 +170,7 @@ namespace SharpSteer2.WinDemo
 				if (noVehicle) break;
 				newUp = Vector3.Up; // xxx maybe this should be v.up ?
 				newTarget = v.PredictFuturePosition(predictionTime);
-				newPosition = ConstantDistanceHelper(elapsedTime);
+				newPosition = ConstantDistanceHelper();
 				break;
 
 			case CameraMode.StraightDown:
@@ -187,7 +185,7 @@ namespace SharpSteer2.WinDemo
 				if (noVehicle) break;
 				newUp = v.Up;
 				newTarget = v.PredictFuturePosition(predictionTime);
-				newPosition = v.GlobalizePosition(FixedLocalOffset);
+				newPosition = v.GlobalizePosition(_fixedLocalOffset);
 				break;
 
 			case CameraMode.OffsetPOV:
@@ -198,12 +196,10 @@ namespace SharpSteer2.WinDemo
 					Vector3 globalOffset = v.GlobalizeDirection(PovOffset);
 					newPosition = futurePosition + globalOffset;
 					// XXX hack to improve smoothing between modes (no effect on aim)
-					float L = 10;
-					newTarget = newPosition + (v.Forward * L);
+					const float l = 10;
+					newTarget = newPosition + (v.Forward * l);
 					break;
 				}
-			default:
-				break;
 			}
 
 			// blend from current position/target/up towards new values
@@ -213,13 +209,8 @@ namespace SharpSteer2.WinDemo
 			//FIXME: drawCameraLookAt(position(), target, up());
 		}
 
-		public void Update(float currentTime, float elapsedTime)
-		{
-			Update(currentTime, elapsedTime, false);
-		}
-
-		// helper function for "drag behind" mode
-        protected Vector3 ConstantDistanceHelper(float elapsedTime)
+	    // helper function for "drag behind" mode
+	    private Vector3 ConstantDistanceHelper()
 		{
 			// is the "global up"/"vertical" offset constraint enabled?  (it forces
 			// the camera's global-up (Y) cordinate to be a above/below the target
@@ -253,11 +244,11 @@ namespace SharpSteer2.WinDemo
 		}
 
 		// Smoothly move camera ...
-		public void SmoothCameraMove(Vector3 newPosition, Vector3 newTarget, Vector3 newUp, float elapsedTime)
+	    private void SmoothCameraMove(Vector3 newPosition, Vector3 newTarget, Vector3 newUp, float elapsedTime)
 		{
-			if (smoothNextMove)
+			if (_smoothNextMove)
 			{
-				float smoothRate = elapsedTime * smoothMoveSpeed;
+				float smoothRate = elapsedTime * _smoothMoveSpeed;
 
                 Vector3 tempPosition = Position;
                 Vector3 tempUp = Up;
@@ -277,7 +268,7 @@ namespace SharpSteer2.WinDemo
 			}
 			else
 			{
-				smoothNextMove = true;
+				_smoothNextMove = true;
 
 				Position = newPosition;
 				Target = newTarget;
@@ -287,7 +278,7 @@ namespace SharpSteer2.WinDemo
 
 		public void DoNotSmoothNextMove()
 		{
-			smoothNextMove = false;
+			_smoothNextMove = false;
 		}
 
 		// adjust the offset vector of the current camera mode based on a
@@ -341,9 +332,9 @@ namespace SharpSteer2.WinDemo
 				}
 			case CameraMode.FixedLocalOffset:
 				{
-                    Vector3 offset = v.GlobalizeDirection(FixedLocalOffset);
+                    Vector3 offset = v.GlobalizeDirection(_fixedLocalOffset);
                     Vector3 adjusted = MouseAdjustPolar(adjustment, offset);
-					FixedLocalOffset = v.LocalizeDirection(adjusted);
+					_fixedLocalOffset = v.LocalizeDirection(adjusted);
 					break;
 				}
 			case CameraMode.OffsetPOV:
@@ -356,12 +347,10 @@ namespace SharpSteer2.WinDemo
 					PovOffset = v.LocalizeDirection(adjusted);
 					break;
 				}
-			default:
-				break;
 			}
 		}
 
-        public Vector3 MouseAdjust2(bool polar, Vector3 adjustment, Vector3 offsetToAdjust)
+	    private Vector3 MouseAdjust2(bool polar, Vector3 adjustment, Vector3 offsetToAdjust)
 		{
 			// value to be returned
             Vector3 result = offsetToAdjust;
@@ -390,11 +379,12 @@ namespace SharpSteer2.WinDemo
 			return result;
 		}
 
-		public Vector3 MouseAdjustPolar(Vector3 adjustment, Vector3 offsetToAdjust)
+	    private Vector3 MouseAdjustPolar(Vector3 adjustment, Vector3 offsetToAdjust)
 		{
 			return MouseAdjust2(true, adjustment, offsetToAdjust);
 		}
-		public Vector3 MouseAdjustOrtho(Vector3 adjustment, Vector3 offsetToAdjust)
+
+	    private Vector3 MouseAdjustOrtho(Vector3 adjustment, Vector3 offsetToAdjust)
 		{
 			return MouseAdjust2(false, adjustment, offsetToAdjust);
 		}
@@ -430,7 +420,7 @@ namespace SharpSteer2.WinDemo
 		}
 
 		// the mode that comes after the given mode (used by selectNextMode)
-		protected CameraMode SuccessorMode(CameraMode cm)
+	    private static CameraMode SuccessorMode(CameraMode cm)
 		{
 			return (CameraMode)(((int)cm) + 1);
 		}

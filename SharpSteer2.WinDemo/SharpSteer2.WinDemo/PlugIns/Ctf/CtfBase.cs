@@ -11,7 +11,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using SharpSteer2.Ctf;
 using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo.PlugIns.Ctf
@@ -22,7 +21,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		protected Trail Trail;
 
 		// constructor
-		public CtfBase(IAnnotationService annotations = null)
+	    protected CtfBase(IAnnotationService annotations = null)
             :base(annotations)
 		{
 			Reset();
@@ -49,7 +48,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		public virtual void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, BodyColor);
-			Trail.Draw(Annotation.drawer);
+			Trail.Draw(Annotation.Drawer);
 		}
 
 		// annotate when actively avoiding obstacles
@@ -60,14 +59,14 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		{
 			Vector3 boxSide = Side * Radius;
 			Vector3 boxFront = Forward * minDistanceToCollision;
-			Vector3 FR = Position + boxFront - boxSide;
-			Vector3 FL = Position + boxFront + boxSide;
-			Vector3 BR = Position - boxSide;
-			Vector3 BL = Position + boxSide;
-			annotation.Line(FR, FL, Color.White);
-			annotation.Line(FL, BL, Color.White);
-			annotation.Line(BL, BR, Color.White);
-			annotation.Line(BR, FR, Color.White);
+			Vector3 fr = Position + boxFront - boxSide;
+			Vector3 fl = Position + boxFront + boxSide;
+			Vector3 br = Position - boxSide;
+			Vector3 bl = Position + boxSide;
+			annotation.Line(fr, fl, Color.White);
+			annotation.Line(fl, bl, Color.White);
+			annotation.Line(bl, br, Color.White);
+			annotation.Line(br, fr, Color.White);
 		}
 
 		public void DrawHomeBase()
@@ -75,17 +74,17 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			Vector3 up = new Vector3(0, 0.01f, 0);
 			Color atColor = new Color((byte)(255.0f * 0.3f), (byte)(255.0f * 0.3f), (byte)(255.0f * 0.5f));
 			Color noColor = Color.Gray;
-			bool reached = Globals.CtfSeeker.State == CtfSeeker.SeekerState.AtGoal;
+			bool reached = Globals.CtfSeeker.State == SeekerState.AtGoal;
 			Color baseColor = (reached ? atColor : noColor);
-			Drawing.DrawXZDisk(Globals.HomeBaseRadius, Globals.HomeBaseCenter, baseColor, 40);
-			Drawing.DrawXZDisk(Globals.HomeBaseRadius / 15, Globals.HomeBaseCenter + up, Color.Black, 20);
+			Drawing.DrawXZDisk(Globals.HOME_BASE_RADIUS, Globals.HomeBaseCenter, baseColor, 40);
+			Drawing.DrawXZDisk(Globals.HOME_BASE_RADIUS / 15, Globals.HomeBaseCenter + up, Color.Black, 20);
 		}
 
-		public void RandomizeStartingPositionAndHeading()
+	    private void RandomizeStartingPositionAndHeading()
 		{
 			// randomize position on a ring between inner and outer radii
 			// centered around the home base
-			float rRadius = RandomHelpers.Random(Globals.MinStartRadius, Globals.MaxStartRadius);
+			float rRadius = RandomHelpers.Random(Globals.MIN_START_RADIUS, Globals.MAX_START_RADIUS);
 			Vector3 randomOnRing = Vector3Helpers.RandomUnitVectorOnXZPlane() * rRadius;
 			Position = (Globals.HomeBaseCenter + randomOnRing);
 
@@ -111,26 +110,26 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		}
 
 		// for draw method
-		public Color BodyColor;
+	    protected Color BodyColor;
 
 		// xxx store steer sub-state for anotation
-		public bool Avoiding;
+	    protected bool Avoiding;
 
 		// dynamic obstacle registry
 		public static void InitializeObstacles()
 		{
 			// start with 40% of possible obstacles
-			if (obstacleCount == -1)
+			if (ObstacleCount == -1)
 			{
-				obstacleCount = 0;
-				for (int i = 0; i < (maxObstacleCount * 0.4); i++)
+				ObstacleCount = 0;
+				for (int i = 0; i < (MAX_OBSTACLE_COUNT * 0.4); i++)
 					AddOneObstacle();
 			}
 		}
 
 		public static void AddOneObstacle()
 		{
-			if (obstacleCount < maxObstacleCount)
+			if (ObstacleCount < MAX_OBSTACLE_COUNT)
 			{
 				// pick a random center and radius,
 				// loop until no overlap with other obstacles and the home base
@@ -141,7 +140,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 				do
 				{
 					r = RandomHelpers.Random(1.5f, 4);
-					c = Vector3Helpers.RandomVectorOnUnitRadiusXZDisk() * Globals.MaxStartRadius * 1.1f;
+					c = Vector3Helpers.RandomVectorOnUnitRadiusXZDisk() * Globals.MAX_START_RADIUS * 1.1f;
 					minClearance = float.MaxValue;
 					System.Diagnostics.Debug.WriteLine(String.Format("[{0}, {1}, {2}]", c.X, c.Y, c.Z));
 					for (int so = 0; so < AllObstacles.Count; so++)
@@ -149,28 +148,28 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 						minClearance = TestOneObstacleOverlap(minClearance, r, AllObstacles[so].Radius, c, AllObstacles[so].Center);
 					}
 
-					minClearance = TestOneObstacleOverlap(minClearance, r, Globals.HomeBaseRadius - requiredClearance, c, Globals.HomeBaseCenter);
+					minClearance = TestOneObstacleOverlap(minClearance, r, Globals.HOME_BASE_RADIUS - requiredClearance, c, Globals.HomeBaseCenter);
 				}
 				while (minClearance < requiredClearance);
 
 				// add new non-overlapping obstacle to registry
 				AllObstacles.Add(new SphericalObstacle(r, c));
-				obstacleCount++;
+				ObstacleCount++;
 			}
 		}
 
 		public static void RemoveOneObstacle()
 		{
-			if (obstacleCount > 0)
-			{
-				obstacleCount--;
-				AllObstacles.RemoveAt(obstacleCount);
-			}
+		    if (ObstacleCount <= 0)
+		        return;
+
+		    ObstacleCount--;
+		    AllObstacles.RemoveAt(ObstacleCount);
 		}
 
-		public float MinDistanceToObstacle(Vector3 point)
+	    private static float MinDistanceToObstacle(Vector3 point)
 		{
-			float r = 0;
+			const float r = 0;
 			Vector3 c = point;
 			float minClearance = float.MaxValue;
 			for (int so = 0; so < AllObstacles.Count; so++)
@@ -188,8 +187,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			return minClearance;
 		}
 
-		protected static int obstacleCount = -1;
-		protected const int maxObstacleCount = 100;
-		public static List<SphericalObstacle> AllObstacles = new List<SphericalObstacle>();
+		protected static int ObstacleCount = -1;
+	    private const int MAX_OBSTACLE_COUNT = 100;
+		public static readonly List<SphericalObstacle> AllObstacles = new List<SphericalObstacle>();
 	}
 }

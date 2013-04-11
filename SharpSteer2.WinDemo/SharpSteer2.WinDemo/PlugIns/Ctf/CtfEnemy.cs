@@ -37,7 +37,7 @@ namespace SharpSteer2.Ctf
 		{
 			// determine upper bound for pursuit prediction time
 			float seekerToGoalDist = Vector3.Distance(Globals.HomeBaseCenter, Globals.Seeker.Position);
-			float adjustedDistance = seekerToGoalDist - Radius - Globals.HomeBaseRadius;
+			float adjustedDistance = seekerToGoalDist - Radius - Globals.HOME_BASE_RADIUS;
 			float seekerToGoalTime = ((adjustedDistance < 0) ? 0 : (adjustedDistance / Globals.Seeker.Speed));
 			float maxPredictionTime = seekerToGoalTime * 0.9f;
 
@@ -45,7 +45,7 @@ namespace SharpSteer2.Ctf
 			Vector3 steer = Vector3.Zero;
 			if (Globals.Seeker.State == SeekerState.Running)
 			{
-				Vector3 avoidance = SteerToAvoidObstacles(Globals.AvoidancePredictTimeMin, AllObstacles);
+				Vector3 avoidance = SteerToAvoidObstacles(Globals.AVOIDANCE_PREDICT_TIME_MIN, AllObstacles);
 
 				// saved for annotation
 				Avoiding = (avoidance == Vector3.Zero);
@@ -57,7 +57,7 @@ namespace SharpSteer2.Ctf
 			}
 			else
 			{
-				ApplyBrakingForce(Globals.BrakingRate, elapsedTime);
+				ApplyBrakingForce(Globals.BRAKING_RATE, elapsedTime);
 			}
 			ApplySteeringForce(steer, elapsedTime);
 

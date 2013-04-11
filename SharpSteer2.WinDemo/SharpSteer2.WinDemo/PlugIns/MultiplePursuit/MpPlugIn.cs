@@ -67,7 +67,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 			IVehicle nearMouse = null;//Demo.vehicleNearestToMouse ();
 
 			// update camera
-			Demo.UpdateCamera(currentTime, elapsedTime, selected);
+			Demo.UpdateCamera(elapsedTime, selected);
 
 			// draw "ground plane"
 			Demo.GridUtility(selected.Position);

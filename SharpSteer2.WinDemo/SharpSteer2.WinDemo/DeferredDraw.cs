@@ -16,21 +16,21 @@ namespace SharpSteer2.WinDemo
 	{
 		static DeferredLine()
 		{
-			deferredLineArray = new DeferredLine[size];
-			for (int i = 0; i < size; i++)
+			_deferredLineArray = new DeferredLine[SIZE];
+			for (int i = 0; i < SIZE; i++)
 			{
-				deferredLineArray[i] = new DeferredLine();
+				_deferredLineArray[i] = new DeferredLine();
 			}
 		}
 
 		public static void AddToBuffer(Vector3 s, Vector3 e, Color c)
 		{
-			if (index < size)
+			if (_index < SIZE)
 			{
-				deferredLineArray[index].startPoint = s;
-				deferredLineArray[index].endPoint = e;
-				deferredLineArray[index].color = c;
-				index++;
+				_deferredLineArray[_index]._startPoint = s;
+				_deferredLineArray[_index]._endPoint = e;
+				_deferredLineArray[_index]._color = c;
+				_index++;
 			}
 			else
 			{
@@ -41,48 +41,48 @@ namespace SharpSteer2.WinDemo
 		public static void DrawAll()
 		{
 			// draw all lines in the buffer
-			for (int i = 0; i < index; i++)
+			for (int i = 0; i < _index; i++)
 			{
-				DeferredLine dl = deferredLineArray[i];
-				Drawing.iDrawLine(dl.startPoint, dl.endPoint, dl.color);
+				DeferredLine dl = _deferredLineArray[i];
+				Drawing.iDrawLine(dl._startPoint, dl._endPoint, dl._color);
 			}
 
 			// reset buffer index
-			index = 0;
+			_index = 0;
 		}
 
-		Vector3 startPoint;
-		Vector3 endPoint;
-		Color color;
+		Vector3 _startPoint;
+		Vector3 _endPoint;
+		Color _color;
 
-		static int index = 0;
-		const int size = 3000;
-		static DeferredLine[] deferredLineArray;
+		static int _index = 0;
+		const int SIZE = 3000;
+		static readonly DeferredLine[] _deferredLineArray;
 	}
 
 	public class DeferredCircle
 	{
 		static DeferredCircle()
 		{
-			deferredCircleArray = new DeferredCircle[size];
-			for (int i = 0; i < size; i++)
+			_deferredCircleArray = new DeferredCircle[SIZE];
+			for (int i = 0; i < SIZE; i++)
 			{
-				deferredCircleArray[i] = new DeferredCircle();
+				_deferredCircleArray[i] = new DeferredCircle();
 			}
 		}
 
-		public static void AddToBuffer(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3d)
+		public static void AddToBuffer(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3D)
 		{
-			if (index < size)
+			if (_index < SIZE)
 			{
-				deferredCircleArray[index].radius = radius;
-				deferredCircleArray[index].axis = axis;
-				deferredCircleArray[index].center = center;
-				deferredCircleArray[index].color = color;
-				deferredCircleArray[index].segments = segments;
-				deferredCircleArray[index].filled = filled;
-				deferredCircleArray[index].in3d = in3d;
-				index++;
+				_deferredCircleArray[_index]._radius = radius;
+				_deferredCircleArray[_index]._axis = axis;
+				_deferredCircleArray[_index]._center = center;
+				_deferredCircleArray[_index]._color = color;
+				_deferredCircleArray[_index]._segments = segments;
+				_deferredCircleArray[_index]._filled = filled;
+				_deferredCircleArray[_index]._in3D = in3D;
+				_index++;
 			}
 			else
 			{
@@ -93,26 +93,26 @@ namespace SharpSteer2.WinDemo
 		public static void DrawAll()
 		{
 			// draw all circles in the buffer
-			for (int i = 0; i < index; i++)
+			for (int i = 0; i < _index; i++)
 			{
-				DeferredCircle dc = deferredCircleArray[i];
-				Drawing.DrawCircleOrDisk(dc.radius, dc.axis, dc.center, dc.color, dc.segments, dc.filled, dc.in3d);
+				DeferredCircle dc = _deferredCircleArray[i];
+				Drawing.DrawCircleOrDisk(dc._radius, dc._axis, dc._center, dc._color, dc._segments, dc._filled, dc._in3D);
 			}
 
 			// reset buffer index
-			index = 0;
+			_index = 0;
 		}
 
-		float radius;
-		Vector3 axis;
-		Vector3 center;
-		Color color;
-		int segments;
-		bool filled;
-		bool in3d;
+		float _radius;
+		Vector3 _axis;
+		Vector3 _center;
+		Color _color;
+		int _segments;
+		bool _filled;
+		bool _in3D;
 
-		static int index = 0;
-		const int size = 500;
-		static DeferredCircle[] deferredCircleArray;
+		static int _index = 0;
+		const int SIZE = 500;
+		static readonly DeferredCircle[] _deferredCircleArray;
 	}
 }

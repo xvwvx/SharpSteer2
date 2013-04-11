@@ -13,19 +13,19 @@ using Microsoft.Xna.Framework;
 
 namespace SharpSteer2.WinDemo
 {
-	public class Annotation : IAnnotationService
+	public sealed class Annotation : IAnnotationService
 	{
-		bool isEnabled;
-		List<Trail> trails;
+		bool _isEnabled;
+	    readonly List<Trail> _trails;
 
 		//HACK: change the IDraw to a IDrawService
-		public static IDraw drawer;
+		public static IDraw Drawer;
 
 		// constructor
 		public Annotation()
 		{
-			isEnabled = true;
-			trails = new List<Trail>();
+			_isEnabled = true;
+			_trails = new List<Trail>();
 		}
 
 		/// <summary>
@@ -33,36 +33,36 @@ namespace SharpSteer2.WinDemo
 		/// </summary>
 		public bool IsEnabled
 		{
-			get { return isEnabled; }
-			set { isEnabled = value; }
+			get { return _isEnabled; }
+			set { _isEnabled = value; }
 		}
 
 		/// <summary>
 		/// Adds a Trail.
 		/// </summary>
 		/// <param name="trail">The trail to add.</param>
-		public virtual void AddTrail(Trail trail)
+		public void AddTrail(Trail trail)
 		{
-			trails.Add(trail);
+			_trails.Add(trail);
 		}
 
 		/// <summary>
 		/// Removes the specified Trail.
 		/// </summary>
 		/// <param name="trail">The trail to remove.</param>
-		public virtual void RemoveTrail(Trail trail)
+		public void RemoveTrail(Trail trail)
 		{
-			trails.Remove(trail);
+			_trails.Remove(trail);
 		}
 
 		/// <summary>
 		/// Draws all registered Trails.
 		/// </summary>
-		public virtual void DrawTrails(IDraw drawer)
+		public void DrawTrails(IDraw drawer)
 		{
-			for (int i = 0; i < trails.Count; i++)
+			for (int i = 0; i < _trails.Count; i++)
 			{
-				trails[i].Draw(drawer);
+				_trails[i].Draw(drawer);
 			}
 		}
 
@@ -79,93 +79,93 @@ namespace SharpSteer2.WinDemo
 		//       "segments" is the number of line segments used to draw the circle
 
 		// draw an opaque colored line segment between two locations in space
-		public virtual void Line(Vector3 startPoint, Vector3 endPoint, Color color)
+		public void Line(Vector3 startPoint, Vector3 endPoint, Color color)
 		{
-			if (isEnabled == true && drawer != null)
+			if (_isEnabled && Drawer != null)
 			{
-				drawer.Line(startPoint, endPoint, color);
+				Drawer.Line(startPoint, endPoint, color);
 			}
 		}
 
 		// draw a circle on the XZ plane
-		public virtual void CircleXZ(float radius, Vector3 center, Color color, int segments)
+		public void CircleXZ(float radius, Vector3 center, Color color, int segments)
 		{
 			CircleOrDiskXZ(radius, center, color, segments, false);
 		}
 
 		// draw a disk on the XZ plane
-		public virtual void DiskXZ(float radius, Vector3 center, Color color, int segments)
+		public void DiskXZ(float radius, Vector3 center, Color color, int segments)
 		{
 			CircleOrDiskXZ(radius, center, color, segments, true);
 		}
 
 		// draw a circle perpendicular to the given axis
-		public virtual void Circle3D(float radius, Vector3 center, Vector3 axis, Color color, int segments)
+		public void Circle3D(float radius, Vector3 center, Vector3 axis, Color color, int segments)
 		{
 			CircleOrDisk3D(radius, center, axis, color, segments, false);
 		}
 
 		// draw a disk perpendicular to the given axis
-		public virtual void Disk3D(float radius, Vector3 center, Vector3 axis, Color color, int segments)
+		public void Disk3D(float radius, Vector3 center, Vector3 axis, Color color, int segments)
 		{
 			CircleOrDisk3D(radius, center, axis, color, segments, true);
 		}
 
 		// ------------------------------------------------------------------------
 		// support for annotation circles
-		public virtual void CircleOrDiskXZ(float radius, Vector3 center, Color color, int segments, bool filled)
+		public void CircleOrDiskXZ(float radius, Vector3 center, Color color, int segments, bool filled)
 		{
 			CircleOrDisk(radius, Vector3.Zero, center, color, segments, filled, false);
 		}
 
-		public virtual void CircleOrDisk3D(float radius, Vector3 center, Vector3 axis, Color color, int segments, bool filled)
+		public void CircleOrDisk3D(float radius, Vector3 center, Vector3 axis, Color color, int segments, bool filled)
 		{
 			CircleOrDisk(radius, axis, center, color, segments, filled, true);
 		}
 
-		public virtual void CircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3D)
+		public void CircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3D)
 		{
-			if (isEnabled == true && drawer != null)
+			if (_isEnabled && Drawer != null)
 			{
-				drawer.CircleOrDisk(radius, axis, center, color, segments, filled, in3D);
+				Drawer.CircleOrDisk(radius, axis, center, color, segments, filled, in3D);
 			}
 		}
 
 		// called when steerToAvoidObstacles decides steering is required
 		// (default action is to do nothing, layered classes can overload it)
-		public virtual void AvoidObstacle(float minDistanceToCollision)
+		public void AvoidObstacle(float minDistanceToCollision)
 		{
 		}
 
 		// called when steerToFollowPath decides steering is required
 		// (default action is to do nothing, layered classes can overload it)
-		public virtual void PathFollowing(Vector3 future, Vector3 onPath, Vector3 target, float outside)
+		public void PathFollowing(Vector3 future, Vector3 onPath, Vector3 target, float outside)
 		{
 		}
 
 		// called when steerToAvoidCloseNeighbors decides steering is required
 		// (default action is to do nothing, layered classes can overload it)
-		public virtual void AvoidCloseNeighbor(IVehicle other, float additionalDistance)
+		public void AvoidCloseNeighbor(IVehicle other, float additionalDistance)
 		{
 		}
 
 		// called when steerToAvoidNeighbors decides steering is required
 		// (default action is to do nothing, layered classes can overload it)
-		public virtual void AvoidNeighbor(IVehicle threat, float steer, Vector3 ourFuture, Vector3 threatFuture)
+		public void AvoidNeighbor(IVehicle threat, float steer, Vector3 ourFuture, Vector3 threatFuture)
 		{
 		}
 
-		public virtual void VelocityAcceleration(IVehicle vehicle)
+		public void VelocityAcceleration(IVehicle vehicle)
 		{
 			VelocityAcceleration(vehicle, 3, 3);
 		}
 
-		public virtual void VelocityAcceleration(IVehicle vehicle, float maxLength)
+		public void VelocityAcceleration(IVehicle vehicle, float maxLength)
 		{
 			VelocityAcceleration(vehicle, maxLength, maxLength);
 		}
 
-		public virtual void VelocityAcceleration(IVehicle vehicle, float maxLengthAcceleration, float maxLengthVelocity)
+		public void VelocityAcceleration(IVehicle vehicle, float maxLengthAcceleration, float maxLengthVelocity)
 		{
 			const byte desat = 102;
 			Color vColor = new Color(255, desat, 255); // pinkish

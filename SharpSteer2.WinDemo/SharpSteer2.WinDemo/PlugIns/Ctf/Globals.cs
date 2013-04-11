@@ -16,20 +16,20 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 	class Globals
 	{
 		public static readonly Vector3 HomeBaseCenter = new Vector3(0, 0, 0);
-		public const float HomeBaseRadius = 1.5f;
+		public const float HOME_BASE_RADIUS = 1.5f;
 
-		public const float MinStartRadius = 30;
-		public const float MaxStartRadius = 40;
+		public const float MIN_START_RADIUS = 30;
+		public const float MAX_START_RADIUS = 40;
 
-		public const float BrakingRate = 0.75f;
+		public const float BRAKING_RATE = 0.75f;
 
 		public static readonly Color EvadeColor = new Color((byte)(255.0f * 0.6f), (byte)(255.0f * 0.6f), (byte)(255.0f * 0.3f)); // annotation
 		public static readonly Color SeekColor = new Color((byte)(255.0f * 0.3f), (byte)(255.0f * 0.6f), (byte)(255.0f * 0.6f)); // annotation
 		public static readonly Color ClearPathColor = new Color((byte)(255.0f * 0.3f), (byte)(255.0f * 0.6f), (byte)(255.0f * 0.3f)); // annotation
 
-		public const float AvoidancePredictTimeMin = 0.9f;
-		public const float AvoidancePredictTimeMax = 2;
-		public static float AvoidancePredictTime = AvoidancePredictTimeMin;
+		public const float AVOIDANCE_PREDICT_TIME_MIN = 0.9f;
+		public const float AVOIDANCE_PREDICT_TIME_MAX = 2;
+		public static float AvoidancePredictTime = AVOIDANCE_PREDICT_TIME_MIN;
 
 		public static bool EnableAttackSeek = true; // for testing (perhaps retain for UI control?)
 		public static bool EnableAttackEvade = true; // for testing (perhaps retain for UI control?)
@@ -46,7 +46,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		// XXX consider using STL (any advantage? consistency?)
 
 		public static CtfSeeker CtfSeeker = null;
-		public static int CtfEnemyCount = 4;
-		public static CtfEnemy[] CtfEnemies = new CtfEnemy[CtfEnemyCount];
+	    public const int CTF_ENEMY_COUNT = 4;
+	    public static readonly CtfEnemy[] CtfEnemies = new CtfEnemy[CTF_ENEMY_COUNT];
 	}
 }

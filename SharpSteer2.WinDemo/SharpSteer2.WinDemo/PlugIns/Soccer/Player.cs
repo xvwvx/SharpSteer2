@@ -105,7 +105,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 		public void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, b_ImTeamA ? Color.Red : Color.Blue);
-			trail.Draw(Annotation.drawer);
+			trail.Draw(Annotation.Drawer);
 		}
 
 		// per-instance reference to its group

@@ -67,7 +67,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 		public void Draw()
 		{
 			Drawing.DrawBasic2dCircularVehicle(this, Color.Green);
-			trail.Draw(Annotation.drawer);
+			trail.Draw(Annotation.Drawer);
 		}
 
 		AABBox m_bbox;

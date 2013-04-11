@@ -24,7 +24,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		public BoidsPlugIn(IAnnotationService annotations)
 		{
             _annotations = annotations;
-			flock = new List<Boid>();
+			_flock = new List<Boid>();
 		}
 
 		public override String Name { get { return "Boids"; } }
@@ -37,11 +37,11 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		public override void Open()
 		{
 			// make the database used to accelerate proximity queries
-			cyclePD = -1;
+			_cyclePD = -1;
 			NextPD();
 
 			// make default-sized flock
-			population = 0;
+			_population = 0;
 			for (int i = 0; i < 200; i++) AddBoidToFlock();
 
 			// initialize camera
@@ -61,9 +61,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		public override void Update(float currentTime, float elapsedTime)
 		{
 			// update flock simulation for each boid
-			for (int i = 0; i < flock.Count; i++)
+			for (int i = 0; i < _flock.Count; i++)
 			{
-				flock[i].Update(currentTime, elapsedTime);
+				_flock[i].Update(elapsedTime);
 			}
 		}
 
@@ -73,15 +73,15 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 			IVehicle selected = Demo.SelectedVehicle;
 
 			// vehicle nearest mouse (to be highlighted)
-			IVehicle nearMouse = null;// Demo.vehicleNearestToMouse();
+			IVehicle nearMouse = Demo.VehicleNearestToMouse();
 
 			// update camera
-			Demo.UpdateCamera(currentTime, elapsedTime, selected);
+			Demo.UpdateCamera(elapsedTime, selected);
 
 			DrawObstacles();
 
 			// draw each boid in flock
-			for (int i = 0; i < flock.Count; i++) flock[i].Draw();
+			for (int i = 0; i < _flock.Count; i++) _flock[i].Draw();
 
 			// highlight vehicle nearest mouse
 			Demo.DrawCircleHighlightOnVehicle(nearMouse, 1, Color.LightGray);
@@ -91,15 +91,15 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 
 			// display status in the upper left corner of the window
 			StringBuilder status = new StringBuilder();
-			status.AppendFormat("[F1/F2] {0} boids", population);
+			status.AppendFormat("[F1/F2] {0} boids", _population);
 			status.Append("\n[F3]    PD type: ");
-			switch (cyclePD)
+			switch (_cyclePD)
 			{
 			case 0: status.Append("LQ bin lattice"); break;
 			case 1: status.Append("brute force"); break;
 			}
 			status.Append("\n[F4]    Boundary: ");
-			switch (Boid.boundaryCondition)
+			switch (Boid.BoundaryCondition)
 			{
 			case 0: status.Append("steer back when outside"); break;
 			case 1: status.Append("wrap around (teleport)"); break;
@@ -111,17 +111,17 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		public override void Close()
 		{
 			// delete each member of the flock
-			while (population > 0) RemoveBoidFromFlock();
+			while (_population > 0) RemoveBoidFromFlock();
 
 			// delete the proximity database
-			pd = null;
+			_pd = null;
 		}
 
 		public override void Reset()
 		{
             // reset each boid in flock
-            for (int i = 0; i < flock.Count; i++)
-                flock[i].Reset();
+            for (int i = 0; i < _flock.Count; i++)
+                _flock[i].Reset();
 
             // reset camera position
             Demo.Position3dCamera(Demo.SelectedVehicle);
@@ -133,37 +133,33 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		// for purposes of demonstration, allow cycling through various
 		// types of proximity databases.  this routine is called when the
 		// Demo user pushes a function key.
-		public void NextPD()
+	    private void NextPD()
 		{
-			// save pointer to old PD
-			IProximityDatabase<IVehicle> oldPD = pd;
-
-			// allocate new PD
+	        // allocate new PD
 			const int totalPD = 2;
-			switch (cyclePD = (cyclePD + 1) % totalPD)
+			switch (_cyclePD = (_cyclePD + 1) % totalPD)
 			{
 			case 0:
 				{
 					Vector3 center = Vector3.Zero;
 					const float div = 10.0f;
 					Vector3 divisions = new Vector3(div, div, div);
-					float diameter = Boid.worldRadius * 1.1f * 2;
+					const float diameter = Boid.WORLD_RADIUS * 1.1f * 2;
 					Vector3 dimensions = new Vector3(diameter, diameter, diameter);
-					pd = new LocalityQueryProximityDatabase<IVehicle>(center, dimensions, divisions);
+					_pd = new LocalityQueryProximityDatabase<IVehicle>(center, dimensions, divisions);
 					break;
 				}
 			case 1:
 				{
-					pd = new BruteForceProximityDatabase<IVehicle>();
+					_pd = new BruteForceProximityDatabase<IVehicle>();
 					break;
 				}
 			}
 
 			// switch each boid to new PD
-			for (int i = 0; i < flock.Count; i++) flock[i].NewPD(pd);
+			for (int i = 0; i < _flock.Count; i++) _flock[i].NewPD(_pd);
 
 			// delete old PD (if any)
-			oldPD = null;
 		}
 
 		public override void HandleFunctionKeys(Keys key)
@@ -192,51 +188,48 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 #endif
 		}
 
-		public void AddBoidToFlock()
+	    private void AddBoidToFlock()
 		{
-			population++;
-			Boid boid = new Boid(pd, _annotations);
-			flock.Add(boid);
-			if (population == 1) Demo.SelectedVehicle = boid;
+			_population++;
+			Boid boid = new Boid(_pd, _annotations);
+			_flock.Add(boid);
+			if (_population == 1) Demo.SelectedVehicle = boid;
 		}
 
-		public void RemoveBoidFromFlock()
+	    private void RemoveBoidFromFlock()
 		{
-			if (population > 0)
-			{
-				// save a pointer to the last boid, then remove it from the flock
-				population--;
-				Boid boid = flock[population];
-				flock.RemoveAt(population);
+	        if (_population <= 0)
+	            return;
 
-				// if it is Demo's selected vehicle, unselect it
-				if (boid == Demo.SelectedVehicle)
-					Demo.SelectedVehicle = null;
+	        // save a pointer to the last boid, then remove it from the flock
+	        _population--;
+	        Boid boid = _flock[_population];
+	        _flock.RemoveAt(_population);
 
-				// delete the Boid
-				boid = null;
-			}
+	        // if it is Demo's selected vehicle, unselect it
+	        if (boid == Demo.SelectedVehicle)
+	            Demo.SelectedVehicle = null;
 		}
 
 		// return an AVGroup containing each boid of the flock
 		public override List<IVehicle> Vehicles
 		{
-			get { return flock.ConvertAll<IVehicle>(delegate(Boid v) { return (IVehicle)v; }); }
+			get { return _flock.ConvertAll<IVehicle>(v => (IVehicle) v); }
 		}
 
 		// flock: a group (STL vector) of pointers to all boids
-		public List<Boid> flock;
+	    private readonly List<Boid> _flock;
 
 		// pointer to database used to accelerate proximity queries
-		public IProximityDatabase<IVehicle> pd;
+	    private IProximityDatabase<IVehicle> _pd;
 
 		// keep track of current flock size
-		public int population;
+	    private int _population;
 
 		// which of the various proximity databases is currently in use
-		public int cyclePD;
+	    private int _cyclePD;
 
-		public void DrawObstacles()
+	    private static void DrawObstacles()
 		{
 			//Color color = new Color((byte)(255.0f * 0.8f), (byte)(255.0f * 0.6f), (byte)(255.0f * 0.4f));
 			List<SphericalObstacle> allSO = Boid.AllObstacles;

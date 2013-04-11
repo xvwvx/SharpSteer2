@@ -16,18 +16,17 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 {
 	class LowSpeedTurnPlugIn : PlugIn
 	{
-		const int lstCount = 5;
-		const float lstLookDownDistance = 18;
-		static Vector3 lstViewCenter = new Vector3(7, 0, -2);
-		static Vector3 lstPlusZ = new Vector3(0, 0, 1);
+		const int LST_COUNT = 5;
+		const float LST_LOOK_DOWN_DISTANCE = 18;
+		static readonly Vector3 _lstViewCenter = new Vector3(7, 0, -2);
+		static readonly Vector3 _lstPlusZ = new Vector3(0, 0, 1);
 
         private readonly IAnnotationService _annotations;
 
 		public LowSpeedTurnPlugIn(IAnnotationService annotations)
-			: base()
 		{
             _annotations = annotations;
-			all = new List<WinDemo.PlugIns.LowSpeedTurn.LowSpeedTurn>();
+			_all = new List<LowSpeedTurn>();
 		}
 
 		public override String Name { get { return "Low Speed Turn"; } }
@@ -39,18 +38,18 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 			// create a given number of agents with stepped inital parameters,
 			// store pointers to them in an array.
 			LowSpeedTurn.ResetStarts();
-			for (int i = 0; i < lstCount; i++) all.Add(new LowSpeedTurn(_annotations));
+			for (int i = 0; i < LST_COUNT; i++) _all.Add(new LowSpeedTurn(_annotations));
 
 			// initial selected vehicle
-			Demo.SelectedVehicle = all[0];
+			Demo.SelectedVehicle = _all[0];
 
 			// initialize camera
 			Demo.Camera.Mode = Camera.CameraMode.Fixed;
-			Demo.Camera.FixedUp = lstPlusZ;
-			Demo.Camera.FixedTarget = lstViewCenter;
-			Demo.Camera.FixedPosition = lstViewCenter;
-			Demo.Camera.FixedPosition.Y += lstLookDownDistance;
-			Demo.Camera.LookDownDistance = lstLookDownDistance;
+			Demo.Camera.FixedUp = _lstPlusZ;
+			Demo.Camera.FixedTarget = _lstViewCenter;
+			Demo.Camera.FixedPosition = _lstViewCenter;
+			Demo.Camera.FixedPosition.Y += LST_LOOK_DOWN_DISTANCE;
+			Demo.Camera.LookDownDistance = LST_LOOK_DOWN_DISTANCE;
 			Demo.Camera.FixedDistanceVerticalOffset = Demo.CAMERA2_D_ELEVATION;
 			Demo.Camera.FixedDistanceDistance = Demo.CAMERA_TARGET_DISTANCE;
 		}
@@ -58,9 +57,9 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 		public override void Update(float currentTime, float elapsedTime)
 		{
 			// update, draw and annotate each agent
-			for (int i = 0; i < all.Count; i++)
+			for (int i = 0; i < _all.Count; i++)
 			{
-				all[i].Update(currentTime, elapsedTime);
+				_all[i].Update(currentTime, elapsedTime);
 			}
 		}
 
@@ -70,19 +69,19 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 			IVehicle selected = Demo.SelectedVehicle;
 
 			// vehicle nearest mouse (to be highlighted)
-			IVehicle nearMouse = null;//FIXME: Demo.vehicleNearestToMouse ();
+			IVehicle nearMouse = Demo.VehicleNearestToMouse();
 
 			// update camera
-			Demo.UpdateCamera(currentTime, elapsedTime, selected);
+			Demo.UpdateCamera(elapsedTime, selected);
 
 			// draw "ground plane"
 			Demo.GridUtility(selected.Position);
 
 			// update, draw and annotate each agent
-			for (int i = 0; i < all.Count; i++)
+			for (int i = 0; i < _all.Count; i++)
 			{
 				// draw this agent
-				WinDemo.PlugIns.LowSpeedTurn.LowSpeedTurn agent = all[i];
+				LowSpeedTurn agent = _all[i];
 				agent.Draw();
 
 				// display speed near agent's screen position
@@ -99,21 +98,21 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 
 		public override void Close()
 		{
-			all.Clear();
+			_all.Clear();
 		}
 
 		public override void Reset()
 		{
 			// reset each agent
-			WinDemo.PlugIns.LowSpeedTurn.LowSpeedTurn.ResetStarts();
-			for (int i = 0; i < all.Count; i++) all[i].Reset();
+			LowSpeedTurn.ResetStarts();
+			for (int i = 0; i < _all.Count; i++) _all[i].Reset();
 		}
 
 		public override List<IVehicle> Vehicles
 		{
-			get { return all.ConvertAll<IVehicle>(delegate(WinDemo.PlugIns.LowSpeedTurn.LowSpeedTurn v) { return (IVehicle)v; }); }
+			get { return _all.ConvertAll<IVehicle>(v => (IVehicle) v); }
 		}
 
-		List<WinDemo.PlugIns.LowSpeedTurn.LowSpeedTurn> all; // for allVehicles
+	    readonly List<LowSpeedTurn> _all; // for allVehicles
 	}
 }

@@ -60,7 +60,7 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 			Drawing.Draw2dTextAt3dLocation("start", Vector3.Zero, Color.Green);
 
 			// update camera, tracking test vehicle
-			Demo.UpdateCamera(currentTime, elapsedTime, oneTurning);
+			Demo.UpdateCamera(elapsedTime, oneTurning);
 		}
 
 		public override void Close()

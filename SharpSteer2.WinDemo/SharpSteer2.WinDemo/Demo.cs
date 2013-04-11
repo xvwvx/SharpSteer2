@@ -44,7 +44,7 @@ namespace SharpSteer2.WinDemo
 	    private const int PREFERRED_WINDOW_HEIGHT = 640;
 
 	    public readonly GraphicsDeviceManager Graphics;
-		public Effect Effect;
+	    private Effect _effect;
 		EffectParameter _effectParamWorldViewProjection;
 
 	    readonly ContentManager _content;
@@ -65,7 +65,7 @@ namespace SharpSteer2.WinDemo
         OneTurningPlugIn _oneTurning;
 
 		// currently selected plug-in (user can choose or cycle through them)
-		public static PlugIn SelectedPlugIn = null;
+	    private static PlugIn _selectedPlugIn = null;
 
 		// currently selected vehicle.  Generally the one the camera follows and
 		// for which additional information may be displayed.  Clicking the mouse
@@ -84,7 +84,7 @@ namespace SharpSteer2.WinDemo
 
 		public Demo()
 		{
-			Drawing.game = this;
+			Drawing.Game = this;
 
 			Graphics = new GraphicsDeviceManager(this);
 			_content = new ContentManager(Services);
@@ -95,7 +95,7 @@ namespace SharpSteer2.WinDemo
 			_texts = new List<TextEntry>();
 
 			//FIXME: eijeijei.
-			Annotation.drawer = new Drawing();
+			Annotation.Drawer = new Drawing();
 
             _boids = new BoidsPlugIn(_annotations);
             _lowSpeedTurn = new LowSpeedTurnPlugIn(_annotations);
@@ -148,10 +148,10 @@ namespace SharpSteer2.WinDemo
 		}
 
 		// camera updating utility used by several (all?) plug-ins
-		public static void UpdateCamera(float currentTime, float elapsedTime, IVehicle selected)
+		public static void UpdateCamera(float elapsedTime, IVehicle selected)
 		{
 			Camera.VehicleToTrack = selected;
-			Camera.Update(currentTime, elapsedTime, Clock.PausedState);
+			Camera.Update(elapsedTime, Clock.PausedState);
 		}
 
 		// ground plane grid-drawing utility used by several plug-ins
@@ -293,7 +293,7 @@ namespace SharpSteer2.WinDemo
 		static void SelectDefaultPlugIn()
 		{
 			PlugIn.SortBySelectionOrder();
-			SelectedPlugIn = PlugIn.FindDefault();
+			_selectedPlugIn = PlugIn.FindDefault();
 		}
 
 		// open the currently selected plug-in
@@ -301,17 +301,17 @@ namespace SharpSteer2.WinDemo
 		{
 			Camera.Reset();
 			SelectedVehicle = null;
-			SelectedPlugIn.Open();
+			_selectedPlugIn.Open();
 		}
 
 		static void ResetSelectedPlugIn()
 		{
-			SelectedPlugIn.Reset();
+			_selectedPlugIn.Reset();
 		}
 
 		static void CloseSelectedPlugIn()
 		{
-			SelectedPlugIn.Close();
+			_selectedPlugIn.Close();
 			SelectedVehicle = null;
 		}
 
@@ -319,7 +319,7 @@ namespace SharpSteer2.WinDemo
 		// vehicles(/agents/characters) defined by the currently selected PlugIn
 		static List<IVehicle> AllVehiclesOfSelectedPlugIn()
 		{
-			return SelectedPlugIn.Vehicles;
+			return _selectedPlugIn.Vehicles;
 		}
 
 		// select the "next" vehicle: the one listed after the currently selected one
@@ -354,7 +354,7 @@ namespace SharpSteer2.WinDemo
 			}
 		}
 
-		void UpdateSelectedPlugIn(float currentTime, float elapsedTime)
+	    static void UpdateSelectedPlugIn(float currentTime, float elapsedTime)
 		{
 			// switch to Update phase
 			PushPhase(Phase.Update);
@@ -371,7 +371,7 @@ namespace SharpSteer2.WinDemo
 			}
 
 			// invoke selected PlugIn's Update method
-			SelectedPlugIn.Update(currentTime, elapsedTime);
+			_selectedPlugIn.Update(currentTime, elapsedTime);
 
 			// return to previous phase
 			PopPhase();
@@ -392,7 +392,7 @@ namespace SharpSteer2.WinDemo
 			}
 		}
 
-		void PushPhase(Phase newPhase)
+	    static void PushPhase(Phase newPhase)
 		{
 			// update timer for current (old) phase: add in time since last switch
 			UpdatePhaseTimers();
@@ -410,7 +410,7 @@ namespace SharpSteer2.WinDemo
 			}
 		}
 
-		void PopPhase()
+	    static void PopPhase()
 		{
 			// update timer for current (old) phase: add in time since last switch
 			UpdatePhaseTimers();
@@ -420,13 +420,13 @@ namespace SharpSteer2.WinDemo
 		}
 
 		// redraw graphics for the currently selected plug-in
-		void RedrawSelectedPlugIn(float currentTime, float elapsedTime)
+	    static void RedrawSelectedPlugIn(float currentTime, float elapsedTime)
 		{
 			// switch to Draw phase
 			PushPhase(Phase.Draw);
 
 			// invoke selected PlugIn's Draw method
-			SelectedPlugIn.Redraw(currentTime, elapsedTime);
+			_selectedPlugIn.Redraw(currentTime, elapsedTime);
 
 			// draw any annotation queued up during selected PlugIn's Update method
 			Drawing.AllDeferredLines();
@@ -473,10 +473,10 @@ namespace SharpSteer2.WinDemo
 			}
 		}
 
-		private void SelectNextPlugin()
+		private static void SelectNextPlugin()
 		{
 			CloseSelectedPlugIn();
-			SelectedPlugIn = SelectedPlugIn.Next();
+			_selectedPlugIn = _selectedPlugIn.Next();
 			OpenSelectedPlugIn();
 		}
 
@@ -505,8 +505,8 @@ namespace SharpSteer2.WinDemo
 
 			_spriteBatch = new SpriteBatch(Graphics.GraphicsDevice);
 
-			Effect = _content.Load<Effect>("Content/Shaders/Simple");
-			_effectParamWorldViewProjection = Effect.Parameters["WorldViewProjection"];
+			_effect = _content.Load<Effect>("Content/Shaders/Simple");
+			_effectParamWorldViewProjection = _effect.Parameters["WorldViewProjection"];
 		}
 
 		/// <summary>
@@ -553,7 +553,7 @@ namespace SharpSteer2.WinDemo
 			{
 				if (IsKeyDown(keyState, key))
 				{
-					SelectedPlugIn.HandleFunctionKeys(key);
+					_selectedPlugIn.HandleFunctionKeys(key);
 				}
 			}
 
@@ -601,7 +601,7 @@ namespace SharpSteer2.WinDemo
 			_effectParamWorldViewProjection.SetValue(worldViewProjection);
 
 
-			Effect.CurrentTechnique.Passes[0].Apply();
+			_effect.CurrentTechnique.Passes[0].Apply();
 
 			// redraw selected PlugIn (based on real time)
 			RedrawSelectedPlugIn(Clock.TotalRealTime, Clock.ElapsedRealTime);
@@ -630,7 +630,7 @@ namespace SharpSteer2.WinDemo
 
             _spriteBatch.DrawString(_font, String.Format("Camera: {0}", Camera.ModeName), screenLocation, Color.White);
 			screenLocation.Y += lh;
-		    _spriteBatch.DrawString(_font, String.Format("PlugIn: {0}", SelectedPlugIn.Name), screenLocation, Color.White);
+		    _spriteBatch.DrawString(_font, String.Format("PlugIn: {0}", _selectedPlugIn.Name), screenLocation, Color.White);
 
 			screenLocation = new Vector2(cw, PREFERRED_WINDOW_HEIGHT - 5.5f * lh);
 
@@ -702,7 +702,7 @@ namespace SharpSteer2.WinDemo
 			}
 		}
 
-		public enum Phase
+	    private enum Phase
 		{
 			Overhead,
 			Update,
@@ -727,11 +727,12 @@ namespace SharpSteer2.WinDemo
 			get { return _phase == Phase.Draw; }
 		}
 
-		float PhaseTimerDraw
+	    static float PhaseTimerDraw
 		{
 			get { return _phaseTimers[(int)Phase.Draw]; }
 		}
-		float PhaseTimerUpdate
+
+	    static float PhaseTimerUpdate
 		{
 			get { return _phaseTimers[(int)Phase.Update]; }
 		}
@@ -743,13 +744,13 @@ namespace SharpSteer2.WinDemo
 			get { return phaseTimers[(int)Phase.overheadPhase]; }
 		}
 #else
-		float PhaseTimerOverhead
+	    static float PhaseTimerOverhead
 		{
 			get { return Clock.ElapsedRealTime - (PhaseTimerDraw + PhaseTimerUpdate); }
 		}
 #endif
 
-		void InitPhaseTimers()
+	    static void InitPhaseTimers()
 		{
 			_phaseTimers[(int)Phase.Draw] = 0;
 			_phaseTimers[(int)Phase.Update] = 0;
@@ -757,7 +758,7 @@ namespace SharpSteer2.WinDemo
 			_phaseTimerBase = Clock.TotalRealTime;
 		}
 
-		void UpdatePhaseTimers()
+	    static void UpdatePhaseTimers()
 		{
 			float currentRealTime = Clock.RealTimeSinceFirstClockUpdate();
 			_phaseTimers[(int)_phase] += currentRealTime - _phaseTimerBase;

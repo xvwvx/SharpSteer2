@@ -7,7 +7,6 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
-using System;
 using System.Diagnostics;
 using SharpSteer2.Helpers;
 
@@ -15,7 +14,7 @@ namespace SharpSteer2.WinDemo
 {
 	public class Clock
 	{
-		Stopwatch stopwatch;
+	    readonly Stopwatch _stopwatch;
 
 		// constructor
 		public Clock()
@@ -27,39 +26,39 @@ namespace SharpSteer2.WinDemo
 			VariableFrameRateMode = true;
 
 			// real "wall clock" time since launch
-			totalRealTime = 0;
+			TotalRealTime = 0;
 
 			// time simulation has run
-			totalSimulationTime = 0;
+			TotalSimulationTime = 0;
 
 			// time spent paused
-			totalPausedTime = 0;
+			TotalPausedTime = 0;
 
 			// sum of (non-realtime driven) advances to simulation time
-			totalAdvanceTime = 0;
+			TotalAdvanceTime = 0;
 
 			// interval since last simulation time 
-			elapsedSimulationTime = 0;
+			ElapsedSimulationTime = 0;
 
 			// interval since last clock update time 
-			elapsedRealTime = 0;
+			ElapsedRealTime = 0;
 
 			// interval since last clock update,
 			// exclusive of time spent waiting for frame boundary when targetFPS>0
-			elapsedNonWaitRealTime = 0;
+			ElapsedNonWaitRealTime = 0;
 
 			// "manually" advance clock by this amount on next update
-			newAdvanceTime = 0;
+			_newAdvanceTime = 0;
 
 			// "Calendar time" when this clock was first updated
-			stopwatch = new Stopwatch();
+			_stopwatch = new Stopwatch();
 
 			// clock keeps track of "smoothed" running average of recent frame rates.
 			// When a fixed frame rate is used, a running average of "CPU load" is
 			// kept (aka "non-wait time", the percentage of each frame time (time
 			// step) that the CPU is busy).
-			smoothedFPS = 0;
-			smoothedUsage = 0;
+			_smoothedFPS = 0;
+			_smoothedUsage = 0;
 		}
 
 		// update this clock, called exactly once per simulation step ("frame")
@@ -73,90 +72,67 @@ namespace SharpSteer2.WinDemo
 			FrameRateSync();
 
 			// save previous real time to measure elapsed time
-			float previousRealTime = totalRealTime;
+			float previousRealTime = TotalRealTime;
 
 			// real "wall clock" time since this application was launched
-			totalRealTime = RealTimeSinceFirstClockUpdate();
+			TotalRealTime = RealTimeSinceFirstClockUpdate();
 
 			// time since last clock update
-			elapsedRealTime = totalRealTime - previousRealTime;
+			ElapsedRealTime = TotalRealTime - previousRealTime;
 
 			// accumulate paused time
-			if (paused) totalPausedTime += elapsedRealTime;
+			if (_paused) TotalPausedTime += ElapsedRealTime;
 
 			// save previous simulation time to measure elapsed time
-			float previousSimulationTime = totalSimulationTime;
+			float previousSimulationTime = TotalSimulationTime;
 
 			// update total simulation time
 			if (AnimationMode)
 			{
 				// for "animation mode" use fixed frame time, ignore real time
 				float frameDuration = 1.0f / FixedFrameRate;
-				totalSimulationTime += paused ? newAdvanceTime : frameDuration;
-				if (!paused)
+				TotalSimulationTime += _paused ? _newAdvanceTime : frameDuration;
+				if (!_paused)
 				{
-					newAdvanceTime += frameDuration - elapsedRealTime;
+					_newAdvanceTime += frameDuration - ElapsedRealTime;
 				}
 			}
 			else
 			{
 				// new simulation time is total run time minus time spent paused
-				totalSimulationTime = (totalRealTime + totalAdvanceTime - totalPausedTime);
+				TotalSimulationTime = (TotalRealTime + TotalAdvanceTime - TotalPausedTime);
 			}
 
 
 			// update total "manual advance" time
-			totalAdvanceTime += newAdvanceTime;
+			TotalAdvanceTime += _newAdvanceTime;
 
 			// how much time has elapsed since the last simulation step?
-			if (paused)
+			if (_paused)
 			{
-				elapsedSimulationTime = newAdvanceTime;
+				ElapsedSimulationTime = _newAdvanceTime;
 			}
 			else
 			{
-				elapsedSimulationTime = (totalSimulationTime - previousSimulationTime);
+				ElapsedSimulationTime = (TotalSimulationTime - previousSimulationTime);
 			}
 
 			// reset advance amount
-			newAdvanceTime = 0;
+			_newAdvanceTime = 0;
 		}
 
 		// returns the number of seconds of real time (represented as a float)
 		// since the clock was first updated.
 		public float RealTimeSinceFirstClockUpdate()
 		{
-			if (stopwatch.IsRunning == false)
+			if (_stopwatch.IsRunning == false)
 			{
-				stopwatch.Start();
+				_stopwatch.Start();
 			}
-			return (float)stopwatch.Elapsed.TotalSeconds;
+			return (float)_stopwatch.Elapsed.TotalSeconds;
 		}
 
-		// force simulation time ahead, ignoring passage of real time.
-		// Used for OpenSteerDemo's "single step forward" and animation mode
-		float AdvanceSimulationTimeOneFrame()
-		{
-			// decide on what frame time is (use fixed rate, average for variable rate)
-			float fps = (VariableFrameRateMode ? SmoothedFPS : FixedFrameRate);
-			float frameTime = 1.0f / fps;
-
-			// bump advance time
-			AdvanceSimulationTime(frameTime);
-
-			// return the time value used (for OpenSteerDemo)
-			return frameTime;
-		}
-
-		void AdvanceSimulationTime(float seconds)
-		{
-			if (seconds < 0)
-				throw new ArgumentException("Negative argument to advanceSimulationTime.", "seconds");
-			else
-				newAdvanceTime += seconds;
-		}
-
-		// "wait" until next frame time
+	    // "wait" until next frame time
 		void FrameRateSync()
 		{
 			// when in real time fixed frame rate mode
@@ -170,7 +146,7 @@ namespace SharpSteer2.WinDemo
 				float nextFrameTime = (lastFrameCount + 1) * targetStepSize;
 
 				// record usage ("busy time", "non-wait time") for OpenSteerDemo app
-				elapsedNonWaitRealTime = now - totalRealTime;
+				ElapsedNonWaitRealTime = now - TotalRealTime;
 
 				//FIXME: eek.
 				// wait until next frame time
@@ -183,137 +159,86 @@ namespace SharpSteer2.WinDemo
 		// mode, running or paused.
 
 		// run as fast as possible, simulation time is based on real time
-		bool variableFrameRateMode;
 
-		// fixed frame rate (ignored when in variable frame rate mode) in
+	    // fixed frame rate (ignored when in variable frame rate mode) in
 		// real-time mode this is a "target", in animation mode it is absolute
-		int fixedFrameRate;
+		int _fixedFrameRate;
 
 		// used for offline, non-real-time applications
-		bool animationMode;
 
-		// is simulation running or paused?
-		bool paused;
+	    // is simulation running or paused?
+		bool _paused;
 
 		public int FixedFrameRate
 		{
-			get { return fixedFrameRate; }
-			set { fixedFrameRate = value; }
+			get { return _fixedFrameRate; }
+			set { _fixedFrameRate = value; }
 		}
 
-		public bool AnimationMode
-		{
-			get { return animationMode; }
-			set { animationMode = value; }
-		}
+	    public bool AnimationMode { get; set; }
 
-		public bool VariableFrameRateMode
-		{
-			get { return variableFrameRateMode; }
-			set { variableFrameRateMode = value; }
-		}
+	    public bool VariableFrameRateMode { get; set; }
 
-		public bool TogglePausedState()
-		{
-			return (paused = !paused);
-		}
+	    public void TogglePausedState()
+	    {
+	        _paused = !_paused;
+	    }
 
 		public bool PausedState
 		{
-			get { return paused; }
-			set { paused = value; }
+			get { return _paused; }
+		    private set { _paused = value; }
 		}
 
 		// clock keeps track of "smoothed" running average of recent frame rates.
 		// When a fixed frame rate is used, a running average of "CPU load" is
 		// kept (aka "non-wait time", the percentage of each frame time (time
 		// step) that the CPU is busy).
-		float smoothedFPS;
-		float smoothedUsage;
+		float _smoothedFPS;
+		float _smoothedUsage;
 
 		void UpdateSmoothedRegisters()
 		{
 			float rate = SmoothingRate;
-			if (elapsedRealTime > 0)
-				Utilities.BlendIntoAccumulator(rate, 1 / elapsedRealTime, ref smoothedFPS);
+			if (ElapsedRealTime > 0)
+				Utilities.BlendIntoAccumulator(rate, 1 / ElapsedRealTime, ref _smoothedFPS);
 			if (!VariableFrameRateMode)
-				Utilities.BlendIntoAccumulator(rate, Usage, ref smoothedUsage);
+				Utilities.BlendIntoAccumulator(rate, Usage, ref _smoothedUsage);
 		}
 
 		public float SmoothedFPS
 		{
-			get { return smoothedFPS; }
+			get { return _smoothedFPS; }
 		}
 		public float SmoothedUsage
 		{
-			get { return smoothedUsage; }
+			get { return _smoothedUsage; }
 		}
 		public float SmoothingRate
 		{
-			get { return smoothedFPS == 0 ? 1 : elapsedRealTime * 1.5f; }
+			get { return _smoothedFPS == 0 ? 1 : ElapsedRealTime * 1.5f; }
 		}
 		public float Usage
 		{
 			// run time per frame over target frame time (as a percentage)
-			get { return ((100 * elapsedNonWaitRealTime) / (1.0f / fixedFrameRate)); }
+			get { return ((100 * ElapsedNonWaitRealTime) / (1.0f / _fixedFrameRate)); }
 		}
 
-		// clock state member variables and public accessors for them
+	    public float TotalRealTime { get; private set; }
 
-		// real "wall clock" time since launch
-		float totalRealTime;
+	    public float TotalSimulationTime { get; private set; }
 
-		// total time simulation has run
-		float totalSimulationTime;
+	    private float TotalPausedTime { get; set; }
 
-		// total time spent paused
-		float totalPausedTime;
+	    private float TotalAdvanceTime { get; set; }
 
-		// sum of (non-realtime driven) advances to simulation time
-		float totalAdvanceTime;
+	    public float ElapsedSimulationTime { get; private set; }
 
-		// interval since last simulation time
-		// (xxx does this need to be stored in the instance? xxx)
-		float elapsedSimulationTime;
+	    public float ElapsedRealTime { get; private set; }
 
-		// interval since last clock update time 
-		// (xxx does this need to be stored in the instance? xxx)
-		float elapsedRealTime;
+	    private float ElapsedNonWaitRealTime { get; set; }
 
-		// interval since last clock update,
-		// exclusive of time spent waiting for frame boundary when targetFPS>0
-		float elapsedNonWaitRealTime;
-
-		public float TotalRealTime
-		{
-			get { return totalRealTime; }
-		}
-		public float TotalSimulationTime
-		{
-			get { return totalSimulationTime; }
-		}
-		public float TotalPausedTime
-		{
-			get { return totalPausedTime; }
-		}
-		public float TotalAdvanceTime
-		{
-			get { return totalAdvanceTime; }
-		}
-		public float ElapsedSimulationTime
-		{
-			get { return elapsedSimulationTime; }
-		}
-		public float ElapsedRealTime
-		{
-			get { return elapsedRealTime; }
-		}
-		public float ElapsedNonWaitRealTime
-		{
-			get { return elapsedNonWaitRealTime; }
-		}
-
-		// "manually" advance clock by this amount on next update
-		float newAdvanceTime;
+	    // "manually" advance clock by this amount on next update
+		float _newAdvanceTime;
 	}
 }

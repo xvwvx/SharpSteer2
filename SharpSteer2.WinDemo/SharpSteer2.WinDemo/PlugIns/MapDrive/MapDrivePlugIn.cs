@@ -82,7 +82,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		public override void Redraw(float currentTime, float elapsedTime)
 		{
 			// update camera, tracking test vehicle
-			Demo.UpdateCamera(currentTime, elapsedTime, _vehicle);
+			Demo.UpdateCamera(elapsedTime, _vehicle);
 
 			// draw "ground plane"  (make it 4x map size)
 			float s = MapDriver.WORLD_SIZE * 2;

@@ -72,7 +72,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			IVehicle nearMouse = Demo.VehicleNearestToMouse();
 
 			// update camera
-			Demo.UpdateCamera(currentTime, elapsedTime, selected);
+			Demo.UpdateCamera(elapsedTime, selected);
 
 			// draw "ground plane"
 			if (Demo.SelectedVehicle != null) gridCenter = selected.Position;
