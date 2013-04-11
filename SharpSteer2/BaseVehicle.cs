@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework;
 
 namespace SharpSteer2
 {
-	public abstract class AbstractVehicle : LocalSpace, IVehicle
+	public abstract class BaseVehicle : LocalSpace, IVehicle
 	{
 		public abstract float Mass { get; set; }
 		public abstract float Radius { get; set; }
