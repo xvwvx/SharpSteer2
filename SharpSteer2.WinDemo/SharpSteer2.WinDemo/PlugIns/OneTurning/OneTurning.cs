@@ -16,6 +16,9 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 	{
 		Trail _trail;
 
+        public override float MaxForce { get { return 0.3f; } }
+        public override float MaxSpeed { get { return 5; } }
+
 		// constructor
 		public OneTurning(IAnnotationService annotations = null)
             :base(annotations)
@@ -28,8 +31,6 @@ namespace SharpSteer2.WinDemo.PlugIns.OneTurning
 		{
 			base.Reset(); // reset the vehicle 
 			Speed = 1.5f;         // speed along Forward direction.
-			MaxForce = 0.3f;      // steering force is clipped to this magnitude
-			MaxSpeed = 5;         // velocity is clipped to this magnitude
 			_trail = new Trail();
 			_trail.Clear();    // prevent long streaks due to teleportation 
 		}

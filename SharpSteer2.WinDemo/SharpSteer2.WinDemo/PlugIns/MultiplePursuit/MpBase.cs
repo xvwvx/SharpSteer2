@@ -15,6 +15,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 	{
 		protected Trail Trail;
 
+        public override float MaxForce { get { return 5; } }
+        public override float MaxSpeed { get { return 3; } }
+
 		// constructor
 	    protected MpBase(IAnnotationService annotations = null)
             :base(annotations)
@@ -28,8 +31,6 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 			base.Reset();			// reset the vehicle 
 
 			Speed = 0;            // speed along Forward direction.
-			MaxForce = 5.0f;       // steering force is clipped to this magnitude
-			MaxSpeed = 3.0f;       // velocity is clipped to this magnitude
 			Trail = new Trail();
 			Trail.Clear();    // prevent long streaks due to teleportation 
 		}

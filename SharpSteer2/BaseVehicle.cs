@@ -22,7 +22,7 @@ namespace SharpSteer2
 
         public abstract Vector3 PredictFuturePosition(float predictionTime);
 
-		public abstract float MaxForce { get; set; }
-		public abstract float MaxSpeed { get; set; }
+		public abstract float MaxForce { get; }
+		public abstract float MaxSpeed { get; }
 	}
 }

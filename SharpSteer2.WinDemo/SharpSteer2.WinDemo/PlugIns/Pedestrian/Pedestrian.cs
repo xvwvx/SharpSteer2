@@ -20,6 +20,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 	{
 		Trail _trail;
 
+        public override float MaxForce { get { return 8; } }
+        public override float MaxSpeed { get { return 2; } }
+
 		// called when steerToFollowPath decides steering is required
 		public void AnnotatePathFollowing(Vector3 future, Vector3 onPath, Vector3 target, float outside)
 		{
@@ -105,10 +108,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		{
 			// reset the vehicle 
 			base.Reset();
-
-			// max speed and max steering force (maneuverability) 
-			MaxSpeed = 2.0f;
-			MaxForce = 8.0f;
 
 			// initially stopped
 			Speed = 0;

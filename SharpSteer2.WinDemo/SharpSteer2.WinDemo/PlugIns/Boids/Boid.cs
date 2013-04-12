@@ -35,6 +35,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		public static int BoundaryCondition = 0;
 		public const float WORLD_RADIUS = 50;
 
+        public override float MaxForce { get { return 27; } }
+        public override float MaxSpeed { get { return 9; } }
+
 		// constructor
 		public Boid(IProximityDatabase<IVehicle> pd, IAnnotationService annotations = null)
             :base(annotations)
@@ -54,12 +57,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		{
 			// reset the vehicle
 			base.Reset();
-
-			// steering force is clipped to this magnitude
-			MaxForce = 27;
-
-			// velocity is clipped to this magnitude
-			MaxSpeed = 9;
 
 			// initial slow speed
 			Speed = (MaxSpeed * 0.3f);

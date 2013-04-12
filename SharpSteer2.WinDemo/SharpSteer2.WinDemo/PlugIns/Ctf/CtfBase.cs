@@ -21,6 +21,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 	{
 		protected Trail Trail;
 
+        public override float MaxForce { get { return 3; } }
+        public override float MaxSpeed { get { return 3; } }
+
 		// constructor
 	    protected CtfBase(IAnnotationService annotations = null)
             :base(annotations)
@@ -34,8 +37,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			base.Reset();  // reset the vehicle 
 
 			Speed = 3;             // speed along Forward direction.
-			MaxForce = 3.0f;        // steering force is clipped to this magnitude
-			MaxSpeed = 3.0f;        // velocity is clipped to this magnitude
 
 			Avoiding = false;         // not actively avoiding
 

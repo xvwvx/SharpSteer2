@@ -16,6 +16,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 	{
 		Trail _trail;
 
+        public override float MaxForce { get { return 9; } }
+        public override float MaxSpeed { get { return 9; } }
+
         public Ball(AABBox bbox, IAnnotationService annotations = null)
             :base(annotations)
 		{
@@ -28,8 +31,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 		{
 			base.Reset(); // reset the vehicle 
 			Speed = 0.0f;         // speed along Forward direction.
-			MaxForce = 9.0f;      // steering force is clipped to this magnitude
-			MaxSpeed = 9.0f;         // velocity is clipped to this magnitude
 
 			SetPosition(0, 0, 0);
 			if (_trail == null) _trail = new Trail(100, 6000);

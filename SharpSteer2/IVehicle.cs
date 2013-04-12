@@ -49,11 +49,11 @@ namespace SharpSteer2
         /// <summary>
         /// the maximum steering force this vehicle can apply
         /// </summary>
-		float MaxForce { get; set; }
+		float MaxForce { get; }
 
         /// <summary>
         /// the maximum speed this vehicle is allowed to move
         /// </summary>
-		float MaxSpeed { get; set; }
+		float MaxSpeed { get; }
 	}
 }

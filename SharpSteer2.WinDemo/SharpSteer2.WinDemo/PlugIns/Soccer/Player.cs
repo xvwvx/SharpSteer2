@@ -18,6 +18,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 	{
 		Trail _trail;
 
+        public override float MaxForce { get { return 3000.7f; } }
+        public override float MaxSpeed { get { return 10; } }
+
 		// constructor
         public Player(List<Player> others, List<Player> allplayers, Ball ball, bool isTeamA, int id, IAnnotationService annotations = null)
             :base(annotations)
@@ -35,8 +38,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 		{
 			base.Reset(); // reset the vehicle 
 			Speed = 0.0f;         // speed along Forward direction.
-			MaxForce = 3000.7f;      // steering force is clipped to this magnitude
-			MaxSpeed = 10;         // velocity is clipped to this magnitude
 
 			// Place me on my part of the field, looking at oponnents goal
 			SetPosition(_imTeamA ? RandomHelpers.Random() * 20 : -RandomHelpers.Random() * 20, 0, (RandomHelpers.Random() - 0.5f) * 20);

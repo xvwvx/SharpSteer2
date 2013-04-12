@@ -16,6 +16,9 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 	{
 		Trail _trail;
 
+        public override float MaxForce { get { return 0.3f; } }
+        public override float MaxSpeed { get { return 1.5f; } }
+
 		// constructor
         public LowSpeedTurn(IAnnotationService annotations = null)
             :base(annotations)
@@ -34,12 +37,6 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 
 			// initial position along X axis
 			SetPosition(_startX, 0, 0);
-
-			// steering force clip magnitude
-			MaxForce = 0.3f;
-
-			// velocity  clip magnitude
-			MaxSpeed = 1.5f;
 
 			// for next instance: step starting location
 			_startX += 2;

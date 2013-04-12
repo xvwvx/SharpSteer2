@@ -18,6 +18,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 	{
 		Trail _trail;
 
+        public override float MaxForce { get { return 20 * 0.4f; } }
+        public override float MaxSpeed { get { return 20; } }
+
 		// constructor
         public MapDriver(IAnnotationService annotations = null)
             :base(annotations)
@@ -64,13 +67,6 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			// initially stopped
 			Speed = 0;
-
-			// Assume top speed is 20 meters per second (44.7 miles per hour).
-			// This value will eventually be supplied by a higher level module.
-			MaxSpeed = 20;
-
-			// steering force is clipped to this magnitude
-			MaxForce = MaxSpeed * 0.4f;
 
 			// vehicle is 2 meters wide and 3 meters long
 			_halfWidth = 1.0f;

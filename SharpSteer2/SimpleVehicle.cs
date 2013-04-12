@@ -44,9 +44,6 @@ namespace SharpSteer2
 
 			Radius = 0.5f;     // size of bounding sphere
 
-			MaxForce = 0.1f;   // steering force is clipped to this magnitude
-			MaxSpeed = 1.0f;   // velocity is clipped to this magnitude
-
 			// reset bookkeeping to do running averages of these quanities
 			ResetSmoothedPosition();
 			ResetSmoothedCurvature();
@@ -74,12 +71,18 @@ namespace SharpSteer2
 	    // get/set maxForce
         // the maximum steering force this vehicle can apply
         // (steering force is clipped to this magnitude)
-	    public override float MaxForce { get; set; }
+        public override float MaxForce
+        {
+            get { return 0.1f; }
+        }
 
 	    // get/set maxSpeed
         // the maximum speed this vehicle is allowed to move
         // (velocity is clipped to this magnitude)
-	    public override float MaxSpeed { get; set; }
+	    public override float MaxSpeed
+	    {
+	        get { return 1; }
+	    }
 
 	    // apply a given steering force to our momentum,
 		// adjusting our orientation to maintain velocity-alignment.
