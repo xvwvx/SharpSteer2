@@ -22,23 +22,6 @@ namespace SharpSteer2
 		/// </summary>
 		bool IsEnabled { get; set; }
 
-		/// <summary>
-		/// Adds a Trail.
-		/// </summary>
-		/// <param name="trail"></param>
-		void AddTrail(Trail trail);
-
-		/// <summary>
-		/// Removes the specified Trail.
-		/// </summary>
-		/// <param name="trail"></param>
-		void RemoveTrail(Trail trail);
-
-		/// <summary>
-		/// Draws all registered Trails.
-		/// </summary>
-		void DrawTrails();
-
 		// ------------------------------------------------------------------------
 		// drawing of lines, circles and (filled) disks to annotate steering
 		// behaviors.  When called during OpenSteerDemo's simulation update phase,

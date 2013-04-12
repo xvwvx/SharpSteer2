@@ -14,11 +14,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 {
 	public class MpPlugIn : PlugIn
 	{
-        private readonly IAnnotationService _annotations;
-
 		public MpPlugIn(IAnnotationService annotations)
+            :base(annotations)
 		{
-            _annotations = annotations;
 			_allMp = new List<MpBase>();
 		}
 
@@ -29,13 +27,13 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 		public override void Open()
 		{
 			// create the wanderer, saving a pointer to it
-            _wanderer = new MpWanderer(_annotations);
+            _wanderer = new MpWanderer(Annotations);
 			_allMp.Add(_wanderer);
 
 			// create the specified number of pursuers, save pointers to them
 			const int pursuerCount = 30;
 			for (int i = 0; i < pursuerCount; i++)
-				_allMp.Add(new MpPursuer(_wanderer, _annotations));
+                _allMp.Add(new MpPursuer(_wanderer, Annotations));
 			//pBegin = allMP.begin() + 1;  // iterator pointing to first pursuer
 			//pEnd = allMP.end();          // iterator pointing to last pursuer
 

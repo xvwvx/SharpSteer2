@@ -20,7 +20,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 
 	public class Boid : SimpleVehicle
 	{
-	    private Trail _trail;
+	    private readonly Trail _trail;
 
 	    private const float AVOIDANCE_PREDICT_TIME_MIN = 0.9f;
 		public const float AVOIDANCE_PREDICT_TIME_MAX = 2;

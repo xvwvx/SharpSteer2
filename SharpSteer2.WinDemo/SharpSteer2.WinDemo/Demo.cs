@@ -17,6 +17,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SharpSteer2.Helpers;
+using SharpSteer2.WinDemo.PlugIns.AirCombat;
 using SharpSteer2.WinDemo.PlugIns.Boids;
 using SharpSteer2.WinDemo.PlugIns.Ctf;
 using SharpSteer2.WinDemo.PlugIns.LowSpeedTurn;
@@ -91,6 +92,7 @@ namespace SharpSteer2.WinDemo
 
 // ReSharper disable ObjectCreationAsStatement
 //Constructing these silently updates a static list of all constructed plugins (euch)
+		    new AirCombatPlugin(_annotations);
             new BoidsPlugIn(_annotations);
             new LowSpeedTurnPlugIn(_annotations);
             new PedestrianPlugIn(_annotations);
@@ -500,8 +502,12 @@ namespace SharpSteer2.WinDemo
 
 			_spriteBatch = new SpriteBatch(Graphics.GraphicsDevice);
 
-			_effect = _content.Load<Effect>("Content/Shaders/Simple");
-			_effectParamWorldViewProjection = _effect.Parameters["WorldViewProjection"];
+		    _effect = new BasicEffect(GraphicsDevice)
+		    {
+                VertexColorEnabled = true,
+		    };
+
+			_effectParamWorldViewProjection = _effect.Parameters["WorldViewProj"];
 		}
 
 		/// <summary>
@@ -589,7 +595,7 @@ namespace SharpSteer2.WinDemo
 			Graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
 
             Graphics.GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            Graphics.GraphicsDevice.BlendState = BlendState.AlphaBlend;
+            Graphics.GraphicsDevice.BlendState = BlendState.NonPremultiplied;
             Graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
 			Matrix worldViewProjection = WorldMatrix * ViewMatrix * ProjectionMatrix;

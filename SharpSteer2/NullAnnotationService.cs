@@ -17,21 +17,6 @@ namespace SharpSteer2
             }
         }
 
-        public void AddTrail(Trail trail)
-        {
-
-        }
-
-        public void RemoveTrail(Trail trail)
-        {
-
-        }
-
-        public void DrawTrails()
-        {
-
-        }
-
         public void Line(Vector3 startPoint, Vector3 endPoint, Color color, float opacity = 1)
         {
 

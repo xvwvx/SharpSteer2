@@ -27,9 +27,13 @@ namespace SharpSteer2.WinDemo
 		public delegate void VoidCallBackFunction();
 		public delegate void TimestepCallBackFunction(float currentTime, float elapsedTime);
 
+	    protected readonly IAnnotationService Annotations;
+
 		// constructor
-	    protected PlugIn()
-		{
+	    protected PlugIn(IAnnotationService annotations)
+	    {
+	        Annotations = annotations;
+
 			// save this new instance in the registry
 			AddToRegistry();
 		}

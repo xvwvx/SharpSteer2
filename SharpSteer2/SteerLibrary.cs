@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Helpers;
 using SharpSteer2.Obstacles;
@@ -405,16 +406,15 @@ namespace SharpSteer2
 
 		// ------------------------------------------------------------------------
 		// Separation behavior -- determines the direction away from nearby boids
-	    protected Vector3 SteerForSeparation(float maxDistance, float cosMaxAngle, List<IVehicle> flock)
+	    protected Vector3 SteerForSeparation(float maxDistance, float cosMaxAngle, IEnumerable<IVehicle> flock)
 		{
 			// steering accumulator and count of neighbors, both initially zero
             Vector3 steering = Vector3.Zero;
 			int neighbors = 0;
 
 			// for each of the other vehicles...
-			for (int i = 0; i < flock.Count; i++)
-			{
-				IVehicle other = flock[i];
+	        foreach (var other in flock)
+            {
 			    if (!IsInBoidNeighborhood(other, Radius * 3, maxDistance, cosMaxAngle))
 			        continue;
 
@@ -530,7 +530,7 @@ namespace SharpSteer2
 			// (1 means dead ahead, 0 is directly to the side, -1 is straight back)
             float forwardness = Vector3.Dot(Forward, unitOffset);
 
-			float directTravelTime = distance / Speed;
+			float directTravelTime = distance / Math.Max(0.001f, Speed);
 			int f = Utilities.IntervalComparison(forwardness, -0.707f, 0.707f);
 			int p = Utilities.IntervalComparison(parallelness, -0.707f, 0.707f);
 

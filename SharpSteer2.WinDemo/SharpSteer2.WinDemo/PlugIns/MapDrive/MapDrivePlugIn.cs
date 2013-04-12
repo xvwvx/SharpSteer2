@@ -19,11 +19,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 {
 	public class MapDrivePlugIn : PlugIn
 	{
-        private readonly IAnnotationService _annotations;
-
-		public MapDrivePlugIn(IAnnotationService annotations = null)
+		public MapDrivePlugIn(IAnnotationService annotations)
+            :base(annotations)
 		{
-            _annotations = annotations;
 			_vehicles = new List<MapDriver>();
 		}
 
@@ -34,7 +32,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		public override void Open()
 		{
 			// make new MapDriver
-            _vehicle = new MapDriver(_annotations);
+            _vehicle = new MapDriver(Annotations);
 			_vehicles.Add(_vehicle);
 			Demo.SelectedVehicle = _vehicle;
 

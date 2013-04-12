@@ -39,11 +39,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 	
 	public class CtfPlugIn : PlugIn
 	{
-        private readonly IAnnotationService _annotations;
-
 		public CtfPlugIn(IAnnotationService annotations)
+            :base(annotations)
 		{
-            _annotations = annotations;
 			_all = new List<CtfBase>();
 		}
 
@@ -54,14 +52,14 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		public override void Open()
 		{
 			// create the seeker ("hero"/"attacker")
-            Globals.CtfSeeker = new CtfSeeker(_annotations);
+            Globals.CtfSeeker = new CtfSeeker(Annotations);
 			_all.Add(Globals.CtfSeeker);
 
 			// create the specified number of enemies, 
 			// storing pointers to them in an array.
 			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
 			{
-				Globals.CtfEnemies[i] = new CtfEnemy(_annotations);
+                Globals.CtfEnemies[i] = new CtfEnemy(Annotations);
 				_all.Add(Globals.CtfEnemies[i]);
 			}
 

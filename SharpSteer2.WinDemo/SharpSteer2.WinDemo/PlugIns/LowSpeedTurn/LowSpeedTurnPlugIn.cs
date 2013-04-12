@@ -21,11 +21,9 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 		static readonly Vector3 _lstViewCenter = new Vector3(7, 0, -2);
 		static readonly Vector3 _lstPlusZ = new Vector3(0, 0, 1);
 
-        private readonly IAnnotationService _annotations;
-
 		public LowSpeedTurnPlugIn(IAnnotationService annotations)
+            :base(annotations)
 		{
-            _annotations = annotations;
 			_all = new List<LowSpeedTurn>();
 		}
 
@@ -38,7 +36,8 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 			// create a given number of agents with stepped inital parameters,
 			// store pointers to them in an array.
 			LowSpeedTurn.ResetStarts();
-			for (int i = 0; i < LST_COUNT; i++) _all.Add(new LowSpeedTurn(_annotations));
+            for (int i = 0; i < LST_COUNT; i++)
+                _all.Add(new LowSpeedTurn(Annotations));
 
 			// initial selected vehicle
 			Demo.SelectedVehicle = _all[0];

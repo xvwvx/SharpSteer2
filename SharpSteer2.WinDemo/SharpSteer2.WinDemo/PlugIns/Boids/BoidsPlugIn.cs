@@ -21,11 +21,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 
 	public class BoidsPlugIn : PlugIn
 	{
-	    readonly IAnnotationService _annotations;
-
 		public BoidsPlugIn(IAnnotationService annotations)
+            :base(annotations)
 		{
-            _annotations = annotations;
 			_flock = new List<Boid>();
 		}
 
@@ -44,7 +42,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 
 			// make default-sized flock
 			_population = 0;
-			for (int i = 0; i < 200; i++) AddBoidToFlock();
+			for (int i = 0; i < 200; i++)
+                AddBoidToFlock();
 
 			// initialize camera
 			Demo.Init3dCamera(Demo.SelectedVehicle);
@@ -53,7 +52,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 			Demo.Camera.FixedDistanceVerticalOffset = 0;
 			Demo.Camera.LookDownDistance = 20;
 			Demo.Camera.AimLeadTime = 0.5f;
-			Demo.Camera.PovOffset.X =0;
+			Demo.Camera.PovOffset.X = 0;
             Demo.Camera.PovOffset.Y = 0.5f;
             Demo.Camera.PovOffset.Z = -2;
 
@@ -83,7 +82,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 			DrawObstacles();
 
 			// draw each boid in flock
-			for (int i = 0; i < _flock.Count; i++) _flock[i].Draw();
+			for (int i = 0; i < _flock.Count; i++)
+                _flock[i].Draw();
 
 			// highlight vehicle nearest mouse
 			Demo.DrawCircleHighlightOnVehicle(nearMouse, 1, Color.LightGray);
@@ -113,7 +113,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		public override void Close()
 		{
 			// delete each member of the flock
-			while (_population > 0) RemoveBoidFromFlock();
+			while (_population > 0)
+                RemoveBoidFromFlock();
 
 			// delete the proximity database
 			_pd = null;
@@ -188,7 +189,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 	    private void AddBoidToFlock()
 		{
 			_population++;
-			Boid boid = new Boid(_pd, _annotations);
+			Boid boid = new Boid(_pd, Annotations);
 			_flock.Add(boid);
 			if (_population == 1) Demo.SelectedVehicle = boid;
 		}

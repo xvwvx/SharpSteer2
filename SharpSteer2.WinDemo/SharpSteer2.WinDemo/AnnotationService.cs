@@ -37,35 +37,6 @@ namespace SharpSteer2.WinDemo
 			set { _isEnabled = value; }
 		}
 
-		/// <summary>
-		/// Adds a Trail.
-		/// </summary>
-		/// <param name="trail">The trail to add.</param>
-		public void AddTrail(Trail trail)
-		{
-			_trails.Add(trail);
-		}
-
-		/// <summary>
-		/// Removes the specified Trail.
-		/// </summary>
-		/// <param name="trail">The trail to remove.</param>
-		public void RemoveTrail(Trail trail)
-		{
-			_trails.Remove(trail);
-		}
-
-		/// <summary>
-		/// Draws all registered Trails.
-		/// </summary>
-		public void DrawTrails()
-		{
-			for (int i = 0; i < _trails.Count; i++)
-			{
-				_trails[i].Draw(this);
-			}
-		}
-
 		// ------------------------------------------------------------------------
 		// drawing of lines, circles and (filled) disks to annotate steering
 		// behaviors.  When called during OpenSteerDemo's simulation update phase,

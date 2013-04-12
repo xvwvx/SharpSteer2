@@ -19,11 +19,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 {
     public class PedestrianPlugIn : PlugIn
 	{
-        private readonly IAnnotationService _annotations;
-
 		public PedestrianPlugIn(IAnnotationService annotations)
+            :base(annotations)
 		{
-            _annotations = annotations;
 			_crowd = new List<Pedestrian>();
 		}
 
@@ -215,7 +213,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		void AddPedestrianToCrowd()
 		{
 			_population++;
-			Pedestrian pedestrian = new Pedestrian(_pd, _annotations);
+			Pedestrian pedestrian = new Pedestrian(_pd, Annotations);
 			_crowd.Add(pedestrian);
 			if (_population == 1) Demo.SelectedVehicle = pedestrian;
 		}
