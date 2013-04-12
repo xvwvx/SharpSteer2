@@ -12,7 +12,7 @@ namespace SharpSteer2.Tests
     public class LocalityQueryProximityDatabaseTest
     {
         [TestMethod]
-        private void Construct()
+        public void Construct()
         {
             var db = new LocalityQueryProximityDatabase<object>(Vector3.Zero, new Vector3(10, 10, 10), new Vector3(2, 2, 2));
 
@@ -20,7 +20,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void AllocateToken()
+        public void AllocateToken()
         {
             var db = new LocalityQueryProximityDatabase<object>(Vector3.Zero, new Vector3(10, 10, 10), new Vector3(2, 2, 2));
 
@@ -47,7 +47,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void LocateNeighbours()
+        public void LocateNeighbours()
         {
             var db = new LocalityQueryProximityDatabase<object>(Vector3.Zero, new Vector3(10, 10, 10), new Vector3(2, 2, 2));
 
@@ -76,7 +76,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void LocateNeighboursOutsideSuperbrick()
+        public void LocateNeighboursOutsideSuperbrick()
         {
             var db = new LocalityQueryProximityDatabase<object>(Vector3.Zero, new Vector3(1, 1, 1), new Vector3(1, 1, 1));
 
@@ -100,7 +100,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void RemoveItem()
+        public void RemoveItem()
         {
             var db = new LocalityQueryProximityDatabase<object>(Vector3.Zero, new Vector3(100, 100, 100), new Vector3(1, 1, 1));
 

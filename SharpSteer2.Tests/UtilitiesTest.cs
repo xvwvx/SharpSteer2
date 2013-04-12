@@ -15,12 +15,12 @@ namespace SharpSteer2.Tests
     public class UtilitiesTest
     {
         [TestMethod]
-        private void Random()
+        public void Random()
         {
         }
 
         [TestMethod]
-        private void ScalarRandomWalk()
+        public void ScalarRandomWalk()
         {
             var rands = Enumerable.Range(1, 1000).Select(a => Utilities.ScalarRandomWalk(0, 10, -5, 5));
 
@@ -32,7 +32,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void BoundedRandom()
+        public void BoundedRandom()
         {
             const int lower = -17;
             const int upper = 24;
@@ -43,7 +43,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void RemapIntervalChangeUpperBound()
+        public void RemapIntervalChangeUpperBound()
         {
             var a = 0;
             var b = 10;
@@ -57,7 +57,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void RemapIntervalChangeLowerBound()
+        public void RemapIntervalChangeLowerBound()
         {
             var a = 0;
             var b = 10;
@@ -71,7 +71,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void RemapIntervalChangeBothBounds()
+        public void RemapIntervalChangeBothBounds()
         {
             var a = 0;
             var b = 10;
@@ -85,7 +85,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void RemapIntervalBeyondBound()
+        public void RemapIntervalBeyondBound()
         {
             var a = 0;
             var b = 10;
@@ -99,7 +99,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void RemapIntervalClip()
+        public void RemapIntervalClip()
         {
             var a = 0;
             var b = 10;
@@ -113,7 +113,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void IntervalComparison()
+        public void IntervalComparison()
         {
             Assert.AreEqual(-1, Utilities.IntervalComparison(0, 1, 2));
             Assert.AreEqual(0, Utilities.IntervalComparison(1.5f, 1, 2));
@@ -121,7 +121,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void FloatBlendIntoAccumulator()
+        public void FloatBlendIntoAccumulator()
         {
             float smoothedValue = 1;
             Utilities.BlendIntoAccumulator(0.5f, 2, ref smoothedValue);
@@ -130,7 +130,7 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
-        private void Vector3BlendIntoAccumulator()
+        public void Vector3BlendIntoAccumulator()
         {
             Vector3 smoothedValue = Vector3.One;
             Utilities.BlendIntoAccumulator(0.5f, new Vector3(2, 2, 2), ref smoothedValue);

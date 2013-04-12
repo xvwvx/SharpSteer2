@@ -143,7 +143,7 @@ namespace SharpSteer2
 		// this, and (3) is within minTimeToCollision seconds of travel at the
 		// this's current velocity.  Returns a zero vector value (Vector3::zero)
 		// when no avoidance is required.
-        public Vector3 SteerToAvoidObstacle(float minTimeToCollision, IObstacle obstacle)
+        protected Vector3 SteerToAvoidObstacle(float minTimeToCollision, IObstacle obstacle)
 		{
             Vector3 avoidance = obstacle.SteerToAvoid(this, minTimeToCollision);
 
@@ -297,7 +297,7 @@ namespace SharpSteer2
 
 		// Given two vehicles, based on their current positions and velocities,
 		// determine the time until nearest approach
-		public float PredictNearestApproachTime(IVehicle other)
+	    private float PredictNearestApproachTime(IVehicle other)
 		{
 			// imagine we are at the origin with no velocity,
 			// compute the relative velocity of the other this
@@ -381,7 +381,7 @@ namespace SharpSteer2
 
 		// ------------------------------------------------------------------------
 		// used by boid behaviors
-		public bool IsInBoidNeighborhood(IVehicle other, float minDistance, float maxDistance, float cosMaxAngle)
+	    private bool IsInBoidNeighborhood(IVehicle other, float minDistance, float maxDistance, float cosMaxAngle)
 		{
 			if (other == this)
 				return false;
@@ -556,7 +556,7 @@ namespace SharpSteer2
 
 		// ------------------------------------------------------------------------
 		// evasion of another this
-        public Vector3 SteerForEvasion(IVehicle menace, float maxPredictionTime)
+        protected Vector3 SteerForEvasion(IVehicle menace, float maxPredictionTime)
 		{
 			// offset from this to menace, that distance, unit vector toward menace
 			Vector3 offset = menace.Position - Position;
