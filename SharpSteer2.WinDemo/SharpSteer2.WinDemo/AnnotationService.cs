@@ -8,7 +8,6 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace SharpSteer2.WinDemo
@@ -16,16 +15,14 @@ namespace SharpSteer2.WinDemo
 	public sealed class Annotation : IAnnotationService
 	{
 		bool _isEnabled;
-	    readonly List<Trail> _trails;
 
-		//HACK: change the IDraw to a IDrawService
+	    //HACK: change the IDraw to a IDrawService
 		public static Drawing Drawer;
 
 		// constructor
 		public Annotation()
 		{
 			_isEnabled = true;
-			_trails = new List<Trail>();
 		}
 
 		/// <summary>

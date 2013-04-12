@@ -83,7 +83,7 @@ namespace SharpSteer2
 
 	    // apply a given steering force to our momentum,
 		// adjusting our orientation to maintain velocity-alignment.
-	    public void ApplySteeringForce(Vector3 force, float elapsedTime)
+	    protected void ApplySteeringForce(Vector3 force, float elapsedTime)
 		{
 			Vector3 adjustedForce = AdjustRawSteeringForce(force, elapsedTime);
 

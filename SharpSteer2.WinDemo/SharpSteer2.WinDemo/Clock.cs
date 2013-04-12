@@ -216,7 +216,9 @@ namespace SharpSteer2.WinDemo
 		}
 		public float SmoothingRate
 		{
+// ReSharper disable CompareOfFloatsByEqualityOperator
 			get { return _smoothedFPS == 0 ? 1 : ElapsedRealTime * 1.5f; }
+// ReSharper restore CompareOfFloatsByEqualityOperator
 		}
 		public float Usage
 		{

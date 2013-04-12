@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Database;
-using SharpSteer2.Helpers;
-using SharpSteer2.WinDemo.PlugIns.Boids;
 
 namespace SharpSteer2.WinDemo.PlugIns.AirCombat
 {
@@ -33,12 +30,7 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
 
         public override void Open()
         {
-            Vector3 center = Vector3.Zero;
-			const float div = 10.0f;
-			Vector3 divisions = new Vector3(div, div, div);
-			const float diameter = Fighter.WORLD_RADIUS * 2;
-			Vector3 dimensions = new Vector3(diameter, diameter, diameter);
-			_pd = new LocalityQueryProximityDatabase<IVehicle>(center, dimensions, divisions);
+            CreateDatabase();
             _missiles.Clear();
 
             _fighter1 = new Fighter(_pd, Annotations, FireMissile)
@@ -57,14 +49,24 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
             _fighter2.Enemy = _fighter1;
         }
 
+        private void CreateDatabase()
+        {
+            Vector3 center = Vector3.Zero;
+            const float div = 10.0f;
+            Vector3 divisions = new Vector3(div, div, div);
+            const float diameter = Fighter.WORLD_RADIUS * 2;
+            Vector3 dimensions = new Vector3(diameter, diameter, diameter);
+            _pd = new LocalityQueryProximityDatabase<IVehicle>(center, dimensions, divisions);
+        }
+
         private void FireMissile(Fighter launcher, Fighter target)
         {
-            if (_missiles.Count(m => m.Target == target) < 3)
+            if (_missiles.Count(m => m.Target == target) < 6)
             {
                 _missiles.Add(new Missile(_pd, target, Annotations)
                 {
                     Position = launcher.Position,
-                    Forward = Vector3.Normalize(launcher.Forward * 0.8f + Vector3Helpers.RandomUnitVector() * 0.2f),
+                    Forward = Vector3.Normalize(launcher.Forward * 0.9f + Vector3Helpers.RandomUnitVector() * 0.1f),
                     Speed = launcher.Speed,
                     Color = new Color(launcher.Color.ToVector3() * 0.5f)
                 });
@@ -93,7 +95,10 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
 
         public override void Close()
         {
-            throw new NotImplementedException();
+            _fighter1 = null;
+            _fighter2 = null;
+            _missiles.Clear();
+            _pd = null;
         }
 
         public override string Name

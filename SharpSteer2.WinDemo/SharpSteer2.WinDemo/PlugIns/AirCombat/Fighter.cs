@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Database;
 
@@ -18,7 +17,7 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
 
         public override float MaxForce
         {
-            get { return 10; }
+            get { return 7; }
         }
         public override float MaxSpeed
         {
@@ -80,6 +79,11 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
             ApplySteeringForce(enemyPlaneForce + boundary + evasion, elapsedTime);
 
             _proximityToken.UpdateForNewPosition(Position);
+        }
+
+        protected override void RegenerateLocalSpace(Vector3 newVelocity, float elapsedTime)
+        {
+            RegenerateLocalSpaceForBanking(newVelocity, elapsedTime);
         }
 
         private Vector3 HandleBoundary()

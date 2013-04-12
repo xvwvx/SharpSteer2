@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SharpSteer2.Database;
 
 namespace SharpSteer2.WinDemo.PlugIns.AirCombat
@@ -19,15 +15,15 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
         {
             get { return _timer <= 0; }
         }
-        private float _timer = 10;
+        private float _timer = 15;
 
         public override float MaxForce
         {
-            get { return 10; }
+            get { return 30; }
         }
         public override float MaxSpeed
         {
-            get { return 50; }
+            get { return 40; }
         }
 
         public Color Color = Color.Red;
@@ -35,7 +31,7 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
         public Missile(IProximityDatabase<IVehicle> proximity, IVehicle target, IAnnotationService annotation)
             :base(annotation)
         {
-            _trail = new Trail
+            _trail = new Trail(1, 10)
             {
                 TrailColor = Color.Red,
                 TickColor = Color.DarkRed
@@ -50,7 +46,7 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
             if (!IsDead)
             {
                 _trail.Record(currentTime, Position);
-                ApplySteeringForce(SteerForPursuit(Target), elapsedTime);
+                ApplySteeringForce(SteerForPursuit(Target) * 0.95f + SteerForWander(elapsedTime) * 0.05f, elapsedTime);
                 _proximityToken.UpdateForNewPosition(Position);
             }
             else if (_proximityToken != null)
