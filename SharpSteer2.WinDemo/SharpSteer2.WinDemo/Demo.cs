@@ -103,7 +103,7 @@ namespace SharpSteer2.WinDemo
             new OneTurningPlugIn(_annotations);
 // ReSharper restore ObjectCreationAsStatement
 
-			IsFixedTimeStep = false;
+			IsFixedTimeStep = true;
 		}
 
 	    public static void Init2dCamera(IVehicle selected, float distance = CAMERA_TARGET_DISTANCE, float elevation = CAMERA2_D_ELEVATION)
