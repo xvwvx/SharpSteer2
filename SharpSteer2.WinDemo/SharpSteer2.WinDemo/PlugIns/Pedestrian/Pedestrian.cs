@@ -20,7 +20,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 	{
 		Trail _trail;
 
-        public override float MaxForce { get { return 8; } }
+        public override float MaxForce { get { return 16; } }
         public override float MaxSpeed { get { return 2; } }
 
 		// called when steerToFollowPath decides steering is required

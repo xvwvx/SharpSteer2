@@ -131,6 +131,8 @@
     <Compile Include="PlugIns\MapDrive\MapDrivePlugIn.cs" />
     <Compile Include="PlugIns\MapDrive\MapDriver.cs" />
     <Compile Include="PlugIns\MapDrive\TerrainMap.cs" />
+    <Compile Include="PlugIns\MeshPathFollowing\MeshPathFollowingPlugin.cs" />
+    <Compile Include="PlugIns\MeshPathFollowing\PathWalker.cs" />
     <Compile Include="PlugIns\MultiplePursuit\MpBase.cs" />
     <Compile Include="PlugIns\MultiplePursuit\MpPlugIn.cs" />
     <Compile Include="PlugIns\MultiplePursuit\MpPursuer.cs" />

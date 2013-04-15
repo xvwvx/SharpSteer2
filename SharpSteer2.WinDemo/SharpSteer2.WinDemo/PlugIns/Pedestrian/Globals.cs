@@ -68,8 +68,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 				Endpoint0 = pathPoints[0];
 				Endpoint1 = pathPoints[pathPointCount - 1];
 
-				_testPath = new PolylinePathway(pathPointCount,
-												 pathPoints,
+				_testPath = new PolylinePathway(pathPoints,
 												 pathRadius,
 												 false);
 			}

@@ -12,7 +12,7 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
         private readonly Trail _trail;
         private readonly ITokenForProximityDatabase<IVehicle> _proximityToken;
 
-        public Fighter Enemy { get; set; }
+        public List<Fighter> Enemy { get; set; }
         private readonly List<IVehicle> _neighbours = new List<IVehicle>();
 
         public override float MaxForce
@@ -21,7 +21,7 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
         }
         public override float MaxSpeed
         {
-            get { return 20; }
+            get { return 15; }
         }
 
         public const float WORLD_RADIUS = 30;
@@ -35,7 +35,7 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
         public Fighter(IProximityDatabase<IVehicle> proximity, IAnnotationService annotation, Action<Fighter, Fighter> fireMissile)
             :base(annotation)
         {
-            _trail = new Trail(20, 200)
+            _trail = new Trail(5, 50)
             {
                 TrailColor = Color.WhiteSmoke,
                 TickColor = Color.LightGray
@@ -50,25 +50,25 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
             _trail.Record(currentTime, Position);
 
             _neighbours.Clear();
+            _proximityToken.FindNeighbors(Position, 50, _neighbours);
 
-            if (Vector3.Dot(Vector3.Normalize(Enemy.Position - Position), Forward) > 0.7f)
+            var target = ClosestEnemy(_neighbours);
+
+            //if (Vector3.Dot(Vector3.Normalize(Enemy.Position - Position), Forward) > 0.7f)
             {
-                if (currentTime - _lastFired > REFIRE_TIME)
+                if (currentTime - _lastFired > REFIRE_TIME && target != null)
                 {
-                    _fireMissile(this, Enemy);
+                    _fireMissile(this, ClosestEnemy(_neighbours));
                     _lastFired = currentTime;
                 }
             }
 
-            Vector3 enemyPlaneForce;
-            if ((Enemy.Position - Position).Length() < 3)
-                enemyPlaneForce = SteerForEvasion(Enemy, 1);
-            else
-                enemyPlaneForce = SteerForPursuit(Enemy, 1);
+            Vector3 otherPlaneForce = SteerToAvoidCloseNeighbors(3, _neighbours);
+            if (target != null)
+                otherPlaneForce += SteerForPursuit(target);
+
             var boundary = HandleBoundary();
 
-            _neighbours.Clear();
-            _proximityToken.FindNeighbors(Position, 10, _neighbours);
             var evasion = _neighbours
                 .Where(v => v is Missile)
                 .Cast<Missile>()
@@ -76,9 +76,28 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
                 .Select(m => SteerForEvasion(m, 1))
                 .Aggregate(Vector3.Zero, (a, b) => a + b);
 
-            ApplySteeringForce(enemyPlaneForce + boundary + evasion, elapsedTime);
+            ApplySteeringForce(otherPlaneForce + boundary + evasion * 0.5f + SteerForWander(elapsedTime) * 0.1f, elapsedTime);
 
             _proximityToken.UpdateForNewPosition(Position);
+        }
+
+        private Fighter ClosestEnemy(List<IVehicle> neighbours)
+        {
+            if (_neighbours.Count == 0)
+                return null;
+
+            var enemyFighterNeighbours = _neighbours
+                .Where(v => v is Fighter)
+                .Cast<Fighter>()
+                .Where(f => f.Enemy != Enemy);
+
+            if (!enemyFighterNeighbours.Any())
+                return null;
+
+            return enemyFighterNeighbours
+                .Select(f => new { Distance = (Position - f.Position).LengthSquared(), Fighter = f })
+                .Aggregate((a, b) => a.Distance < b.Distance ? a : b)
+                .Fighter;
         }
 
         protected override void RegenerateLocalSpace(Vector3 newVelocity, float elapsedTime)

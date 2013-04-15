@@ -14,6 +14,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Helpers;
 using SharpSteer2.Obstacles;
+using SharpSteer2.Pathway;
 
 namespace SharpSteer2
 {
@@ -74,7 +75,7 @@ namespace SharpSteer2
 		}
 
 		// Path Following behaviors
-	    protected Vector3 SteerToFollowPath(int direction, float predictionTime, Pathway path)
+	    protected Vector3 SteerToFollowPath(int direction, float predictionTime, BasePathway path)
 		{
 			// our goal will be offset from our path distance by this amount
 			float pathDistanceOffset = direction * predictionTime * Speed;
@@ -114,7 +115,7 @@ namespace SharpSteer2
 			return SteerForSeek(target);
 		}
 
-	    protected Vector3 SteerToStayOnPath(float predictionTime, Pathway path)
+	    protected Vector3 SteerToStayOnPath(float predictionTime, BasePathway path)
 		{
 			// predict our future position
             Vector3 futurePosition = PredictFuturePosition(predictionTime);

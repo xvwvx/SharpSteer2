@@ -14,6 +14,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Helpers;
+using SharpSteer2.Pathway;
 
 namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 {
@@ -256,7 +257,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					const int pathPointCount = 2;
 					float[] pathRadii = new float[] { 10, 10 };
 					Vector3[] pathPoints = new Vector3[] { c, d };
-					GCRoute r = new GCRoute(pathPointCount, pathPoints, pathRadii, false);
+					GCRoute r = new GCRoute(pathPoints, pathRadii, false);
 					DrawPathFencesOnMap(_vehicle.Map, r);
 					break;
 				}
@@ -407,7 +408,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					map.SetMapBit(i, j, false);
 		}
 
-	    static void DrawPathFencesOnMap(TerrainMap map, Pathway path)
+	    static void DrawPathFencesOnMap(TerrainMap map, BasePathway path)
 		{
 			float xs = map.XSize / map.Resolution;
 			float zs = map.ZSize / map.Resolution;

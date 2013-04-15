@@ -1254,7 +1254,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			Vector3[] pathPoints = new Vector3[] { a, b, c, d, e, f, g, h, i };
 			const float k = 10.0f;
 			float[] pathRadii = new float[] { k, k, k, k, k, k, k, k, k };
-			return new GCRoute(pathPointCount, pathPoints, pathRadii, false);
+			return new GCRoute(pathPoints, pathRadii, false);
 		}
 
 	    private static TerrainMap MakeMap()

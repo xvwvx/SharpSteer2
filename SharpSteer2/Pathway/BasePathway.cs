@@ -10,13 +10,13 @@
 
 using Microsoft.Xna.Framework;
 
-namespace SharpSteer2
+namespace SharpSteer2.Pathway
 {
 	/// <summary>
 	/// Pathway: a pure virtual base class for an abstract pathway in space, as for
 	/// example would be used in path following.
 	/// </summary>
-	public abstract class Pathway
+	public abstract class BasePathway
 	{
         /// <summary>
         /// Given an arbitrary point ("A"), returns the nearest point ("P") on

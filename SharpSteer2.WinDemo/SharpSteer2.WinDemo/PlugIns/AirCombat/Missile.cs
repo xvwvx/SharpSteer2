@@ -19,11 +19,11 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
 
         public override float MaxForce
         {
-            get { return 30; }
+            get { return 400; }
         }
         public override float MaxSpeed
         {
-            get { return 40; }
+            get { return 50; }
         }
 
         public Color Color = Color.Red;
@@ -46,7 +46,7 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
             if (!IsDead)
             {
                 _trail.Record(currentTime, Position);
-                ApplySteeringForce(SteerForPursuit(Target) * 0.95f + SteerForWander(elapsedTime) * 0.05f, elapsedTime);
+                ApplySteeringForce(SteerForPursuit(Target, 1) * 0.95f + SteerForWander(elapsedTime) * 0.05f, elapsedTime);
                 _proximityToken.UpdateForNewPosition(Position);
             }
             else if (_proximityToken != null)

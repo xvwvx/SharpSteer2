@@ -9,9 +9,8 @@
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
 using Microsoft.Xna.Framework;
-using SharpSteer2.Pathway;
 
-namespace SharpSteer2.WinDemo
+namespace SharpSteer2.Pathway
 {
 	/// <summary>
 	/// PolylinePathway: a simple implementation of the Pathway protocol.  The path
@@ -26,63 +25,55 @@ namespace SharpSteer2.WinDemo
 	    public float Radius { get; private set; }
 	    protected bool Cyclic { get; private set; }
 
-	    protected float[] Lengths;
-        protected Vector3[] Tangents;
+	    private readonly float[] _lengths;
+	    private readonly Vector3[] _tangents;
 
 	    public float TotalPathLength { get; private set; }
 
-	    protected PolylinePathway()
-		{ }
-
-		// construct a PolylinePathway given the number of points (vertices),
-		// an array of points, and a path radius.
+		/// <summary>
+        /// construct a PolylinePathway given the number of points (vertices),
+        /// an array of points, and a path radius.
+		/// </summary>
+		/// <param name="points"></param>
+		/// <param name="radius"></param>
+		/// <param name="cyclic"></param>
         public PolylinePathway(Vector3[] points, float radius, bool cyclic)
 		{
-			Initialize(points, radius, cyclic);
-		}
-
-		// utility for constructors in derived classes
-	    protected void Initialize(Vector3[] points, float radius, bool cyclic)
-		{
-			// set data members, allocate arrays
-			Radius = radius;
-			Cyclic = cyclic;
-			PointCount = points.Length;
-			TotalPathLength = 0;
-			if (Cyclic)
+            // set data members, allocate arrays
+            Radius = radius;
+            Cyclic = cyclic;
+            PointCount = points.Length;
+            TotalPathLength = 0;
+            if (Cyclic)
                 PointCount++;
-			Lengths = new float[PointCount];
-			Points = new Vector3[PointCount];
-			Tangents = new Vector3[PointCount];
+            _lengths = new float[PointCount];
+            Points = new Vector3[PointCount];
+            _tangents = new Vector3[PointCount];
 
-			// loop over all points
-			for (int i = 0; i < PointCount; i++)
-			{
-				// copy in point locations, closing cycle when appropriate
-				bool closeCycle = Cyclic && (i == PointCount - 1);
-				int j = closeCycle ? 0 : i;
-				Points[i] = points[j];
+            // loop over all points
+            for (int i = 0; i < PointCount; i++)
+            {
+                // copy in point locations, closing cycle when appropriate
+                bool closeCycle = Cyclic && (i == PointCount - 1);
+                int j = closeCycle ? 0 : i;
+                Points[i] = points[j];
 
-				// for the end of each segment
-				if (i > 0)
-				{
-					// compute the segment length
-					Tangents[i] = Points[i] - Points[i - 1];
-					Lengths[i] = Tangents[i].Length();
+                // for the end of each segment
+                if (i > 0)
+                {
+                    // compute the segment length
+                    _tangents[i] = Points[i] - Points[i - 1];
+                    _lengths[i] = _tangents[i].Length();
 
-					// find the normalized vector parallel to the segment
-					Tangents[i] *= 1 / Lengths[i];
+                    // find the normalized vector parallel to the segment
+                    _tangents[i] *= 1 / _lengths[i];
 
-					// keep running total of segment lengths
-					TotalPathLength += Lengths[i];
-				}
-			}
+                    // keep running total of segment lengths
+                    TotalPathLength += _lengths[i];
+                }
+            }
 		}
 
-		// Given an arbitrary point ("A"), returns the nearest point ("P") on
-		// this path.  Also returns, via output arguments, the path tangent at
-		// P and a measure of how far A is outside the Pathway's "tube".  Note
-		// that a negative distance indicates A is inside the Pathway.
         public override Vector3 MapPointToPath(Vector3 point, out Vector3 tangent, out float outside)
 		{
             float minDistance = float.MaxValue;
@@ -93,12 +84,13 @@ namespace SharpSteer2.WinDemo
 			for (int i = 1; i < PointCount; i++)
 			{
 			    Vector3 chosen;
-                float d = PointToSegmentDistance(point, Points[i - 1], Points[i], Tangents[i], Lengths[i], out chosen);
+			    float segmentProjection;
+                float d = PointToSegmentDistance(point, Points[i - 1], Points[i], _tangents[i], _lengths[i], out chosen, out segmentProjection);
 				if (d < minDistance)
 				{
 					minDistance = d;
                     onPath = chosen;
-                    tangent = Tangents[i];
+                    tangent = _tangents[i];
 				}
 			}
 
@@ -109,7 +101,6 @@ namespace SharpSteer2.WinDemo
 			return onPath;
 		}
 
-		// given an arbitrary point, convert it to a distance along the path
         public override float MapPointToPathDistance(Vector3 point)
 		{
             float minDistance = float.MaxValue;
@@ -119,27 +110,27 @@ namespace SharpSteer2.WinDemo
 			for (int i = 1; i < PointCount; i++)
 			{
 			    Vector3 chosen;
-                float d = PointToSegmentDistance(point, Points[i - 1], Points[i], Tangents[i], Lengths[i], out chosen);
+			    float segmentProjection;
+                float d = PointToSegmentDistance(point, Points[i - 1], Points[i], _tangents[i], _lengths[i], out chosen, out segmentProjection);
 				if (d < minDistance)
 				{
 					minDistance = d;
-					pathDistance = segmentLengthTotal + _segmentProjection;
+                    pathDistance = segmentLengthTotal + segmentProjection;
 				}
-                segmentLengthTotal += Lengths[i];
+                segmentLengthTotal += _lengths[i];
 			}
 
 			// return distance along path of onPath point
 			return pathDistance;
 		}
 
-		// given a distance along the path, convert it to a point on the path
         public override Vector3 MapPathDistanceToPoint(float pathDistance)
 		{
 			// clip or wrap given path distance according to cyclic flag
 			float remaining = pathDistance;
 			if (Cyclic)
 			{
-				remaining = pathDistance % TotalPathLength;//FIXME: (float)fmod(pathDistance, totalPathLength);
+				remaining = pathDistance % TotalPathLength;
 			}
 			else
 			{
@@ -153,13 +144,13 @@ namespace SharpSteer2.WinDemo
 			Vector3 result = Vector3.Zero;
 			for (int i = 1; i < PointCount; i++)
 			{
-                if (Lengths[i] < remaining)
+                if (_lengths[i] < remaining)
 				{
-                    remaining -= Lengths[i];
+                    remaining -= _lengths[i];
 				}
 				else
 				{
-                    float ratio = remaining / Lengths[i];
+                    float ratio = remaining / _lengths[i];
                     result = Vector3.Lerp(Points[i - 1], Points[i], ratio);
 					break;
 				}
@@ -167,45 +158,33 @@ namespace SharpSteer2.WinDemo
 			return result;
 		}
 
-		// utility methods
-
-		// compute minimum distance from a point to a line segment
-	    protected float PointToSegmentDistance(Vector3 point, Vector3 ep0, Vector3 ep1, Vector3 segmentTangent, float segmentLength, out Vector3 chosen)
+	    private float PointToSegmentDistance(Vector3 point, Vector3 ep0, Vector3 ep1, Vector3 segmentTangent, float segmentLength, out Vector3 chosen, out float segmentProjection)
 		{
 			// convert the test point to be "local" to ep0
 			Vector3 local = point - ep0;
 
 			// find the projection of "local" onto "tangent"
-            _segmentProjection = Vector3.Dot(segmentTangent, local);
+            segmentProjection = Vector3.Dot(segmentTangent, local);
 
 			// handle boundary cases: when projection is not on segment, the
 			// nearest point is one of the endpoints of the segment
-			if (_segmentProjection < 0)
+			if (segmentProjection < 0)
 			{
 				chosen = ep0;
-				_segmentProjection = 0;
+				segmentProjection = 0;
 				return Vector3.Distance(point, ep0);
 			}
-            if (_segmentProjection > segmentLength)
+            if (segmentProjection > segmentLength)
 			{
 				chosen = ep1;
-                _segmentProjection = segmentLength;
+                segmentProjection = segmentLength;
 				return Vector3.Distance(point, ep1);
 			}
 
 			// otherwise nearest point is projection point on segment
-            chosen = segmentTangent * _segmentProjection;
+            chosen = segmentTangent * segmentProjection;
 			chosen += ep0;
 			return Vector3.Distance(point, chosen);
 		}
-
-		// XXX removed the "private" because it interfered with derived
-		// XXX classes later this should all be rewritten and cleaned up
-		// private:
-
-		// xxx shouldn't these 5 just be local variables?
-		// xxx or are they used to pass secret messages between calls?
-		// xxx seems like a bad design
-	    private float _segmentProjection;
 	}
 }

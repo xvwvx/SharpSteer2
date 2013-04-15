@@ -25,9 +25,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// construct a GCRoute given the number of points (vertices), an
 		// array of points, an array of per-segment path radii, and a flag
 		// indiating if the path is connected at the end.
-		public GCRoute(int pointCount, Vector3[] points, IList<float> radii, bool cyclic)
+		public GCRoute(Vector3[] points, IList<float> radii, bool cyclic)
 		{
-			Initialize(pointCount, points, radii[0], cyclic);
+			Initialize(points, radii[0], cyclic);
 
 			Radii = new float[PointCount];
 
@@ -58,10 +58,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			// loop over all segments, find the one nearest to the given point
 			for (int i = 1; i < PointCount; i++)
 			{
-				// QQQ note bizarre calling sequence of pointToSegmentDistance
-				SegmentLength = Lengths[i];
-				SegmentNormal = Normals[i];
-				float d = PointToSegmentDistance(point, Points[i - 1], Points[i]);
+			    Vector3 chosen;
+                float d = PointToSegmentDistance(point, Points[i - 1], Points[i], Tangents[i], Lengths[i], out chosen);
 
 				// measure how far original point is outside the Pathway's "tube"
 				// (negative values (from 0 to -radius) measure "insideness")
@@ -72,8 +70,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				if (o < outside)
 				{
 					outside = o;
-					onPath = Chosen;
-					tangent = SegmentNormal;
+                    onPath = chosen;
+                    tangent = Tangents[i];
 				}
 			}
 
@@ -99,9 +97,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			// loop over all segments, find the one nearest the given point
 			for (int i = 1; i < PointCount; i++)
 			{
-				SegmentLength = Lengths[i];
-				SegmentNormal = Normals[i];
-				float d = PointToSegmentDistance(point, Points[i - 1], Points[i]);
+			    Vector3 chosen;
+				float d = PointToSegmentDistance(point, Points[i - 1], Points[i], Tangents[i], Lengths[i], out chosen);
 				if (d < minDistance)
 				{
 					minDistance = d;
@@ -115,13 +112,13 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		// used to measure the "angle" at a path vertex: how sharp is the turn?
 		public float DotSegmentUnitTangents(int segmentIndex0, int segmentIndex1)
 		{
-			return Vector3.Dot(Normals[segmentIndex0], Normals[segmentIndex1]);
+			return Vector3.Dot(Tangents[segmentIndex0], Tangents[segmentIndex1]);
 		}
 
 		// return path tangent at given point (its projection on path)
 		public Vector3 TangentAt(Vector3 point)
 		{
-			return Normals[IndexOfNearestSegment(point)];
+			return Tangents[IndexOfNearestSegment(point)];
 		}
 
 		// return path tangent at given point (its projection on path),
@@ -134,7 +131,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			int nextIndex = segmentIndex + pathFollowDirection;
 			bool insideNextSegment = IsInsidePathSegment(point, nextIndex);
 			int i = (segmentIndex + (insideNextSegment ? pathFollowDirection : 0));
-			return Normals[i] * pathFollowDirection;
+			return Tangents[i] * pathFollowDirection;
 		}
 
 		// is the given point "near" a waypoint of this path?  ("near" == closer
@@ -161,10 +158,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			int i = segmentIndex;
 
-			// QQQ note bizarre calling sequence of pointToSegmentDistance
-			SegmentLength = Lengths[i];
-			SegmentNormal = Normals[i];
-			float d = PointToSegmentDistance(point, Points[i - 1], Points[i]);
+	        Vector3 chosen;
+            float d = PointToSegmentDistance(point, Points[i - 1], Points[i], Tangents[i], Lengths[i], out chosen);
 
 			// measure how far original point is outside the Pathway's "tube"
 			// (negative values (from 0 to -radius) measure "insideness")
