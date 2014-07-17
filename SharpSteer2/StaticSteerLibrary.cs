@@ -369,14 +369,12 @@ namespace SharpSteer2
         /// to avoid the site of that potential collision.  Returns a steering
         /// force vector, which is zero length if there is no impending collision.
         /// </summary>
-        /// <typeparam name="TVehicle"></typeparam>
         /// <param name="vehicle"></param>
         /// <param name="minTimeToCollision"></param>
         /// <param name="others"></param>
         /// <param name="annotation"></param>
         /// <returns></returns>
-        public static Vector3 SteerToAvoidNeighbors<TVehicle>(IVehicle vehicle, float minTimeToCollision, IEnumerable<TVehicle> others, IAnnotationService annotation = null)
-            where TVehicle : IVehicle
+        public static Vector3 SteerToAvoidNeighbors(IVehicle vehicle, float minTimeToCollision, IEnumerable<IVehicle> others, IAnnotationService annotation = null)
         {
             // first priority is to prevent immediate interpenetration
             Vector3 separation = SteerToAvoidCloseNeighbors(vehicle, 0, others, annotation);

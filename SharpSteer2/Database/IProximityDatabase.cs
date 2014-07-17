@@ -12,10 +12,16 @@ namespace SharpSteer2.Database
 {
 	public interface IProximityDatabase<ContentType>
 	{
-		// allocate a token to represent a given client object in this database
+		/// <summary>
+        /// allocate a token to represent a given client object in this database
+		/// </summary>
+		/// <param name="parentObject"></param>
+		/// <returns></returns>
 		ITokenForProximityDatabase<ContentType> AllocateToken(ContentType parentObject);
 
-		// returns the number of tokens in the proximity database
+		/// <summary>
+        /// returns the number of tokens in the proximity database
+		/// </summary>
 		int Count { get; }
 	}
 }

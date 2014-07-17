@@ -4,7 +4,8 @@ namespace SharpSteer2.Helpers
 {
     public class RandomHelpers
     {
-        [ThreadStatic] private static Random _rng;
+        [ThreadStatic]
+        private static Random _rng;
 
         private static Random rng
         {
@@ -16,18 +17,21 @@ namespace SharpSteer2.Helpers
             }
         }
 
-        // ----------------------------------------------------------------------------
-        // Random number utilities
-
-        // Returns a float randomly distributed between 0 and 1
-
+        /// <summary>
+        /// Returns a float randomly distributed between 0 and 1
+        /// </summary>
+        /// <returns></returns>
         public static float Random()
         {
             return (float)rng.NextDouble();
         }
 
-        // Returns a float randomly distributed between lowerBound and upperBound
-
+        /// <summary>
+        /// Returns a float randomly distributed between lowerBound and upperBound
+        /// </summary>
+        /// <param name="lowerBound"></param>
+        /// <param name="upperBound"></param>
+        /// <returns></returns>
         public static float Random(float lowerBound, float upperBound)
         {
             return lowerBound + (Random() * (upperBound - lowerBound));
