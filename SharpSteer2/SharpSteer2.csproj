@@ -112,7 +112,6 @@
     <Compile Include="SimpleVehicle.cs" />
     <Compile Include="Obstacles\SphericalObstacle.cs" />
     <Compile Include="SteerLibrary.cs" />
-    <Compile Include="Trail.cs" />
     <Compile Include="Helpers\Utilities.cs" />
     <Compile Include="Helpers\Vector3Helpers.cs" />
   </ItemGroup>

@@ -10,7 +10,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Helpers;
 using SharpSteer2.Obstacles;
@@ -61,7 +60,7 @@ namespace SharpSteer2
 		{
 			//  const Vector3 offset = position - target;
             Vector3 offset = Position - target;
-            Vector3 desiredVelocity = Vector3Helpers.TruncateLength(offset, MaxSpeed); //xxxnew
+            Vector3 desiredVelocity = offset.TruncateLength(MaxSpeed); //xxxnew
 			return desiredVelocity - Velocity;
 		}
 
@@ -70,7 +69,7 @@ namespace SharpSteer2
 		{
 			//  const Vector3 offset = target - position;
             Vector3 offset = target - Position;
-            Vector3 desiredVelocity = Vector3Helpers.TruncateLength(offset, MaxSpeed); //xxxnew
+            Vector3 desiredVelocity = offset.TruncateLength(MaxSpeed); //xxxnew
 			return desiredVelocity - Velocity;
 		}
 

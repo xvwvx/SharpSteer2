@@ -10,9 +10,8 @@
 
 using System;
 using Microsoft.Xna.Framework;
-using SharpSteer2.Helpers;
 
-namespace SharpSteer2
+namespace SharpSteer2.Helpers
 {
     public static class Vector3Helpers
     {
@@ -42,13 +41,13 @@ namespace SharpSteer2
         /// <summary>
         /// clamps the length of a given vector to maxLength.  If the vector is
         /// shorter its value is returned unaltered, if the vector is longer
-        /// the value returned has length of maxLength and is paralle to the
+        /// the value returned has length of maxLength and is parallel to the
         /// original input.
         /// </summary>
         /// <param name="vector"></param>
         /// <param name="maxLength"></param>
         /// <returns></returns>
-        public static Vector3 TruncateLength(Vector3 vector, float maxLength)
+        public static Vector3 TruncateLength(this Vector3 vector, float maxLength)
         {
             float maxLengthSquared = maxLength * maxLength;
             float vecLengthSquared = vector.LengthSquared();
@@ -58,41 +57,60 @@ namespace SharpSteer2
             return (vector * (maxLength / (float)Math.Sqrt(vecLengthSquared)));
         }
 
-        // forces a 3d position onto the XZ (aka y=0) plane
-        public static Vector3 SetYtoZero(Vector3 vector)
+        /// <summary>
+        /// rotate this vector about the global Y (up) axis by the given angle
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="radians"></param>
+        /// <returns></returns>
+        public static Vector3 RotateAboutGlobalY(this Vector3 vector, float radians)
         {
-            return new Vector3(vector.X, 0, vector.Z);
+            float s = 0;
+            float c = 0;
+            return RotateAboutGlobalY(vector, radians, ref s, ref c);
         }
 
-        // rotate this vector about the global Y (up) axis by the given angle
-        public static Vector3 RotateAboutGlobalY(Vector3 vector, float angle)
+        /// <summary>
+        /// Rotate this vector about the global Y (up) axis by the given angle
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="radians"></param>
+        /// <param name="sin">Either Sin(radians) or default(float), if default(float) this value will be initialized with Sin(radians)</param>
+        /// <param name="cos">Either Cos(radians) or default(float), if default(float) this value will be initialized with Cos(radians)</param>
+        /// <returns></returns>
+        public static Vector3 RotateAboutGlobalY(this Vector3 vector, float radians, ref float sin, ref float cos)
         {
-            float s = (float)Math.Sin(angle);
-            float c = (float)Math.Cos(angle);
-            return new Vector3((vector.X * c) + (vector.Z * s), (vector.Y), (vector.Z * c) - (vector.X * s));
-        }
-
-        // version for caching sin/cos computation
-        public static Vector3 RotateAboutGlobalY(Vector3 vector, float angle, ref float sin, ref float cos)
-        {
-            // is both are zero, they have not be initialized yet
+            // if both are default, they have not been initialized yet
 // ReSharper disable CompareOfFloatsByEqualityOperator
-            if (sin == 0 && cos == 0)
+            if (sin == default(float) && cos == default(float))
 // ReSharper restore CompareOfFloatsByEqualityOperator
             {
-                sin = (float)Math.Sin(angle);
-                cos = (float)Math.Cos(angle);
+                sin = (float)Math.Sin(radians);
+                cos = (float)Math.Cos(radians);
             }
             return new Vector3((vector.X * cos) + (vector.Z * sin), vector.Y, (vector.Z * cos) - (vector.X * sin));
         }
 
-        // if this position is outside sphere, push it back in by one diameter
-        public static Vector3 SphericalWrapAround(Vector3 vector, Vector3 center, float radius)
+        /// <summary>
+        /// Wrap a position around so it is always within 1 radius of the sphere (keeps repeating wrapping until position is within sphere)
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="center"></param>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public static Vector3 SphericalWrapAround(this Vector3 vector, Vector3 center, float radius)
         {
-            Vector3 offset = vector - center;
-            float r = offset.Length();
-            if (r > radius)
-                return vector + ((offset / r) * radius * -2);
+            float r;
+            do
+            {
+                Vector3 offset = vector - center;
+                r = offset.Length();
+
+                if (r > radius)
+                    vector = vector + ((offset / r) * radius * -2);
+
+            } while (r > radius);
+
             return vector;
         }
 
@@ -166,14 +184,45 @@ namespace SharpSteer2
             return temp;
         }
 
-        // ----------------------------------------------------------------------------
-        // used by limitMaxDeviationAngle / limitMinDeviationAngle below
+        /// <summary>
+        /// Clip a vector to be within the given cone
+        /// </summary>
+        /// <param name="source">A vector to clip</param>
+        /// <param name="cosineOfConeAngle">The cosine of the cone angle</param>
+        /// <param name="basis">The vector along the middle of the cone</param>
+        /// <returns></returns>
+        public static Vector3 LimitMaxDeviationAngle(this Vector3 source, float cosineOfConeAngle, Vector3 basis)
+        {
+            return LimitDeviationAngleUtility(true, // force source INSIDE cone
+                source, cosineOfConeAngle, basis);
+        }
+
+        /// <summary>
+        /// Clip a vector to be outside the given cone
+        /// </summary>
+        /// <param name="source">A vector to clip</param>
+        /// <param name="cosineOfConeAngle">The cosine of the cone angle</param>
+        /// <param name="basis">The vector along the middle of the cone</param>
+        /// <returns></returns>
+        public static Vector3 LimitMinDeviationAngle(this Vector3 source, float cosineOfConeAngle, Vector3 basis)
+        {
+            return LimitDeviationAngleUtility(false, // force source OUTSIDE cone
+                source, cosineOfConeAngle, basis);
+        }
+
+        /// <summary>
+        /// used by limitMaxDeviationAngle / limitMinDeviationAngle
+        /// </summary>
+        /// <param name="insideOrOutside"></param>
+        /// <param name="source"></param>
+        /// <param name="cosineOfConeAngle"></param>
+        /// <param name="basis"></param>
+        /// <returns></returns>
         private static Vector3 LimitDeviationAngleUtility(bool insideOrOutside, Vector3 source, float cosineOfConeAngle, Vector3 basis)
         {
             // immediately return zero length input vectors
             float sourceLength = source.Length();
-
-            if (Math.Abs(sourceLength - 0) < float.Epsilon)
+            if (sourceLength < float.Epsilon)
                 return source;
 
             // measure the angular diviation of "source" from "basis"
@@ -191,7 +240,7 @@ namespace SharpSteer2
                     return source;
             }
             else if (cosineOfSourceAngle <= cosineOfConeAngle)
-                    return source;
+                return source;
 
             // find the portion of "source" that is perpendicular to "basis"
             Vector3 perp = PerpendicularComponent(source, basis);
@@ -210,43 +259,26 @@ namespace SharpSteer2
             return (c0 + c1) * sourceLength;
         }
 
-        // ----------------------------------------------------------------------------
-        // Enforce an upper bound on the angle by which a given arbitrary vector
-        // diviates from a given reference direction (specified by a unit basis
-        // vector).  The effect is to clip the "source" vector to be inside a cone
-        // defined by the basis and an angle.
-        public static Vector3 LimitMaxDeviationAngle(Vector3 source, float cosineOfConeAngle, Vector3 basis)
-        {
-            return LimitDeviationAngleUtility(true, // force source INSIDE cone
-                source, cosineOfConeAngle, basis);
-        }
-
-        // ----------------------------------------------------------------------------
-        // Enforce a lower bound on the angle by which a given arbitrary vector
-        // diviates from a given reference direction (specified by a unit basis
-        // vector).  The effect is to clip the "source" vector to be outside a cone
-        // defined by the basis and an angle.
-        public static Vector3 LimitMinDeviationAngle(Vector3 source, float cosineOfConeAngle, Vector3 basis)
-        {
-            return LimitDeviationAngleUtility(false, // force source OUTSIDE cone
-                source, cosineOfConeAngle, basis);
-        }
-
-        // ----------------------------------------------------------------------------
-        // Returns the distance between a point and a line.  The line is defined in
-        // terms of a point on the line ("lineOrigin") and a UNIT vector parallel to
-        // the line ("lineUnitTangent")
-        public static float DistanceFromLine(Vector3 point, Vector3 lineOrigin, Vector3 lineUnitTangent)
+        /// <summary>
+        /// Returns the distance between a point and a line.
+        /// </summary>
+        /// <param name="point">The point to measure distance to</param>
+        /// <param name="lineOrigin">A point on the line</param>
+        /// <param name="lineUnitTangent">A UNIT vector parallel to the line</param>
+        /// <returns></returns>
+        public static float DistanceFromLine(this Vector3 point, Vector3 lineOrigin, Vector3 lineUnitTangent)
         {
             Vector3 offset = point - lineOrigin;
             Vector3 perp = PerpendicularComponent(offset, lineUnitTangent);
             return perp.Length();
         }
 
-        // ----------------------------------------------------------------------------
-        // given a vector, return a vector perpendicular to it (note that this
-        // arbitrarily selects one of the infinitude of perpendicular vectors)
-        public static Vector3 FindPerpendicularIn3d(Vector3 direction)
+        /// <summary>
+        /// Find any arbitrary vector which is perpendicular to the given vector
+        /// </summary>
+        /// <param name="direction"></param>
+        /// <returns></returns>
+        public static Vector3 FindPerpendicularIn3d(this Vector3 direction)
         {
             // to be filled in:
             Vector3 quasiPerp;  // a direction which is "almost perpendicular"
@@ -264,16 +296,11 @@ namespace SharpSteer2
 
             // set quasiPerp to the basis which is least parallel to "direction"
             if ((id <= jd) && (id <= kd))
-            {
-                quasiPerp = i;               // projection onto i was the smallest
-            }
+                quasiPerp = i;           // projection onto i was the smallest
+            else if ((jd <= id) && (jd <= kd))
+                quasiPerp = j;           // projection onto j was the smallest
             else
-            {
-                if ((jd <= id) && (jd <= kd))
-                    quasiPerp = j;           // projection onto j was the smallest
-                else
-                    quasiPerp = k;           // projection onto k was the smallest
-            }
+                quasiPerp = k;           // projection onto k was the smallest
 
             // return the cross product (direction x quasiPerp)
             // which is guaranteed to be perpendicular to both of them

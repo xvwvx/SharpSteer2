@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.WinDemo
 {

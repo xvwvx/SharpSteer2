@@ -14,10 +14,16 @@ namespace SharpSteer2.Helpers
 {
 	public class Utilities
 	{
-	    // ----------------------------------------------------------------------------
-		// remap a value specified relative to a pair of bounding values
-		// to the corresponding value relative to another pair of bounds.
-		// Inspired by (dyna:remap-interval y y0 y1 z0 z1)
+        /// <summary>
+        /// remap a value specified relative to a pair of bounding values to the corresponding value relative to another pair of bounds.
+        /// </summary>
+        /// <remarks>Inspired by (dyna:remap-interval y y0 y1 z0 z1)</remarks>
+        /// <param name="x">A value</param>
+        /// <param name="in0">Starting lower bound</param>
+        /// <param name="in1">Starting upper bound</param>
+        /// <param name="out0">Ending lower bound</param>
+        /// <param name="out1">Ending upper bound</param>
+        /// <returns></returns>
 		public static float RemapInterval(float x, float in0, float in1, float out0, float out1)
 		{
 			// uninterpolate: what is x relative to the interval in0:in1?
@@ -27,8 +33,15 @@ namespace SharpSteer2.Helpers
 			return MathHelper.Lerp(out0, out1, relative);
 		}
 
-		// Like remapInterval but the result is clipped to remain between
-		// out0 and out1
+        /// <summary>
+        /// Like remapInterval but the result is clipped to remain between out0 and out1
+        /// </summary>
+        /// <param name="x">A value</param>
+        /// <param name="in0">Starting lower bound</param>
+        /// <param name="in1">Starting upper bound</param>
+        /// <param name="out0">Ending lower bound</param>
+        /// <param name="out1">Ending upper bound</param>
+        /// <returns></returns>
 		public static float RemapIntervalClip(float x, float in0, float in1, float out0, float out1)
 		{
 			// uninterpolate: what is x relative to the interval in0:in1?
@@ -43,6 +56,15 @@ namespace SharpSteer2.Helpers
 		//     returns -1 when below the lower bound
 		//     returns  0 when between the bounds (inside the interval)
 		//     returns +1 when above the upper bound
+
+        /// <summary>
+        /// classify a value relative to the interval between two bounds:
+        /// returns -1 when below the lower bound, returns  0 when between the bounds (inside the interval), returns +1 when above the upper bound
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="lowerBound"></param>
+        /// <param name="upperBound"></param>
+        /// <returns></returns>
 		public static int IntervalComparison(float x, float lowerBound, float upperBound)
 		{
 			if (x < lowerBound) return -1;

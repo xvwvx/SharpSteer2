@@ -71,6 +71,7 @@
     <Compile Include="SimpleVehicleTest.cs" />
     <Compile Include="MeshPathTest.cs" />
     <Compile Include="UtilitiesTest.cs" />
+    <Compile Include="Vector3HelpersTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SharpSteer2\SharpSteer2.csproj">

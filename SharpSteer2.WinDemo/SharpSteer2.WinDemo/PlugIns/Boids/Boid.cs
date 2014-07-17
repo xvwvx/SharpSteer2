@@ -170,7 +170,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 			case 1:
 				{
 					// wrap around (teleport)
-                    Position = (Vector3Helpers.SphericalWrapAround(Position, Vector3.Zero, WORLD_RADIUS));
+                    Position = (Position.SphericalWrapAround(Vector3.Zero, WORLD_RADIUS));
 					return Vector3.Zero;
 				}
 			}

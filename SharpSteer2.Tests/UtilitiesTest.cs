@@ -1,7 +1,5 @@
 ﻿using System.Linq;
-using SharpSteer2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Helpers;
 
@@ -43,71 +41,86 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
+        public void BoundedRandomInt()
+        {
+            const int lower = -17;
+            const int upper = 24;
+
+            var rand = RandomHelpers.RandomInt(lower, upper);
+            Assert.IsTrue(lower <= rand);
+            Assert.IsTrue(upper >= rand);
+        }
+
+        [TestMethod]
         public void RemapIntervalChangeUpperBound()
         {
-            var a = 0;
-            var b = 10;
+            const int a = 0;
+            const int b = 10;
 
-            var c = 0;
-            var d = 20;
+            const int c = 0;
+            const int d = 20;
 
-            var x = 5;
+            const int x = 5;
 
+            // 5 is halfway between 0->10, so result is halfway between 0->20 (i.e. 10)
             Assert.AreEqual(10, Utilities.RemapInterval(x, a, b, c, d));
         }
 
         [TestMethod]
         public void RemapIntervalChangeLowerBound()
         {
-            var a = 0;
-            var b = 10;
+            const int a = 0;
+            const int b = 10;
 
-            var c = -10;
-            var d = 10;
+            const int c = -10;
+            const int d = 10;
 
-            var x = 5;
+            const int x = 5;
 
+            // 5 is halfway between 0->10, so result is halfway between -10->10 (i.e. 0)
             Assert.AreEqual(0, Utilities.RemapInterval(x, a, b, c, d));
         }
 
         [TestMethod]
         public void RemapIntervalChangeBothBounds()
         {
-            var a = 0;
-            var b = 10;
+            const int a = 0;
+            const int b = 10;
 
-            var c = -20;
-            var d = 40;
+            const int c = -20;
+            const int d = 40;
 
-            var x = 5;
+            const int x = 5;
 
+            // 5 is halfway between 0->10, so result is halfway between -20->40 (i.e. 10)
             Assert.AreEqual(10, Utilities.RemapInterval(x, a, b, c, d));
         }
 
         [TestMethod]
         public void RemapIntervalBeyondBound()
         {
-            var a = 0;
-            var b = 10;
+            const int a = 0;
+            const int b = 10;
 
-            var c = 0;
-            var d = 20;
+            const int c = 0;
+            const int d = 20;
 
-            var x = 20;
+            const int x = 20;
 
+            // 20 is the entire range width (10) above max (10), so result is entire range width (20) above max (20) (i.e. 40)
             Assert.AreEqual(40, Utilities.RemapInterval(x, a, b, c, d));
         }
 
         [TestMethod]
         public void RemapIntervalClip()
         {
-            var a = 0;
-            var b = 10;
+            const int a = 0;
+            const int b = 10;
 
-            var c = 0;
-            var d = 20;
+            const int c = 0;
+            const int d = 20;
 
-            var x = 20;
+            const int x = 20;
 
             Assert.AreEqual(20, Utilities.RemapIntervalClip(x, a, b, c, d));
         }

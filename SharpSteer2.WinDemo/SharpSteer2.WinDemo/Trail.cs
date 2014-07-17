@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace SharpSteer2
+namespace SharpSteer2.WinDemo
 {
 	/// <summary>
 	/// Provides support to visualize the recent path of a vehicle.
