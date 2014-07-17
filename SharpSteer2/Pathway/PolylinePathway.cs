@@ -8,6 +8,7 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace SharpSteer2.Pathway
@@ -23,7 +24,7 @@ namespace SharpSteer2.Pathway
 	    public int PointCount { get; private set; }
 	    public Vector3[] Points { get; private set; }
 	    public float Radius { get; private set; }
-	    protected bool Cyclic { get; private set; }
+	    public bool Cyclic { get; private set; }
 
 	    private readonly float[] _lengths;
 	    private readonly Vector3[] _tangents;
@@ -37,12 +38,12 @@ namespace SharpSteer2.Pathway
 		/// <param name="points"></param>
 		/// <param name="radius"></param>
 		/// <param name="cyclic"></param>
-        public PolylinePathway(Vector3[] points, float radius, bool cyclic)
+        public PolylinePathway(IList<Vector3> points, float radius, bool cyclic)
 		{
             // set data members, allocate arrays
             Radius = radius;
             Cyclic = cyclic;
-            PointCount = points.Length;
+            PointCount = points.Count;
             TotalPathLength = 0;
             if (Cyclic)
                 PointCount++;
@@ -158,7 +159,7 @@ namespace SharpSteer2.Pathway
 			return result;
 		}
 
-	    private float PointToSegmentDistance(Vector3 point, Vector3 ep0, Vector3 ep1, Vector3 segmentTangent, float segmentLength, out Vector3 chosen, out float segmentProjection)
+	    private static float PointToSegmentDistance(Vector3 point, Vector3 ep0, Vector3 ep1, Vector3 segmentTangent, float segmentLength, out Vector3 chosen, out float segmentProjection)
 		{
 			// convert the test point to be "local" to ep0
 			Vector3 local = point - ep0;

@@ -8,6 +8,7 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
+using System;
 using Microsoft.Xna.Framework;
 
 namespace SharpSteer2.Obstacles
@@ -75,5 +76,45 @@ namespace SharpSteer2.Obstacles
 
             return Vector3.Zero;
 		}
+
+        // xxx experiment cwr 9-6-02
+        public float? NextIntersection(IVehicle vehicle)
+        {
+            // This routine is based on the Paul Bourke's derivation in:
+            //   Intersection of a Line and a Sphere (or circle)
+            //   http://www.swin.edu.au/astronomy/pbourke/geometry/sphereline/
+
+            // find "local center" (lc) of sphere in boid's coordinate space
+            Vector3 lc = vehicle.LocalizePosition(Center);
+
+            // computer line-sphere intersection parameters
+            float b = -2 * lc.Z;
+            var totalRadius = Radius + vehicle.Radius;
+            float c = (lc.X * lc.X) + (lc.Y * lc.Y) + (lc.Z * lc.Z) - (totalRadius * totalRadius);
+            float d = (b * b) - (4 * c);
+
+            // when the path does not intersect the sphere
+            if (d < 0)
+                return null;
+
+            // otherwise, the path intersects the sphere in two points with
+            // parametric coordinates of "p" and "q".
+            // (If "d" is zero the two points are coincident, the path is tangent)
+            float s = (float)Math.Sqrt(d);
+            float p = (-b + s) / 2;
+            float q = (-b - s) / 2;
+
+            // both intersections are behind us, so no potential collisions
+            if ((p < 0) && (q < 0))
+                return null;
+
+            // at least one intersection is in front of us
+            return
+                ((p > 0) && (q > 0)) ?
+                // both intersections are in front of us, find nearest one
+                ((p < q) ? p : q) :
+                // otherwise only one intersections is in front, select it
+                ((p > 0) ? p : q);
+        }
 	}
 }

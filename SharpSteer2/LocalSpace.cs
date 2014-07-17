@@ -160,16 +160,13 @@ namespace SharpSteer2
 		// set "side" basis vector to normalized cross product of forward and up
 		public void SetUnitSideFromForwardAndUp()
 		{
-			// derive new unit side basis vector from forward and up
-			if (IsRightHanded)
-				_side = Vector3.Cross(_forward, _up);
-			else
-                _side = Vector3.Cross(_up, _forward);
-			
-            _side.Normalize();
+		    // derive new unit side basis vector from forward and up
+		    _side = IsRightHanded ? Vector3.Cross(_forward, _up) : Vector3.Cross(_up, _forward);
+
+		    _side.Normalize();
 		}
 
-		// ------------------------------------------------------------------------
+	    // ------------------------------------------------------------------------
 		// regenerate the orthonormal basis vectors given a new forward
 		//(which is expected to have unit length)
         public void RegenerateOrthonormalBasisUF(Vector3 newUnitForward)
@@ -182,10 +179,7 @@ namespace SharpSteer2
 			// derive new Up basis vector from new Side and new Forward
 			//(should have unit length since Side and Forward are
 			// perpendicular and unit length)
-			if (IsRightHanded)
-                _up = Vector3.Cross(_side, _forward);
-			else
-                _up = Vector3.Cross(_forward, _side);
+			_up = IsRightHanded ? Vector3.Cross(_side, _forward) : Vector3.Cross(_forward, _side);
 		}
 
 		// for when the new forward is NOT know to have unit length

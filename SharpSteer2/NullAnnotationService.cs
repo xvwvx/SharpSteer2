@@ -22,37 +22,37 @@ namespace SharpSteer2
 
         }
 
-        public void CircleXZ(float radius, Microsoft.Xna.Framework.Vector3 center, Microsoft.Xna.Framework.Color color, int segments)
+        public void CircleXZ(float radius, Vector3 center, Color color, int segments)
         {
 
         }
 
-        public void DiskXZ(float radius, Microsoft.Xna.Framework.Vector3 center, Microsoft.Xna.Framework.Color color, int segments)
+        public void DiskXZ(float radius, Vector3 center, Color color, int segments)
         {
 
         }
 
-        public void Circle3D(float radius, Microsoft.Xna.Framework.Vector3 center, Microsoft.Xna.Framework.Vector3 axis, Microsoft.Xna.Framework.Color color, int segments)
+        public void Circle3D(float radius, Vector3 center, Vector3 axis, Color color, int segments)
         {
 
         }
 
-        public void Disk3D(float radius, Microsoft.Xna.Framework.Vector3 center, Microsoft.Xna.Framework.Vector3 axis, Microsoft.Xna.Framework.Color color, int segments)
+        public void Disk3D(float radius, Vector3 center, Vector3 axis, Color color, int segments)
         {
 
         }
 
-        public void CircleOrDiskXZ(float radius, Microsoft.Xna.Framework.Vector3 center, Microsoft.Xna.Framework.Color color, int segments, bool filled)
+        public void CircleOrDiskXZ(float radius, Vector3 center, Color color, int segments, bool filled)
         {
 
         }
 
-        public void CircleOrDisk3D(float radius, Microsoft.Xna.Framework.Vector3 center, Microsoft.Xna.Framework.Vector3 axis, Microsoft.Xna.Framework.Color color, int segments, bool filled)
+        public void CircleOrDisk3D(float radius, Vector3 center, Vector3 axis, Color color, int segments, bool filled)
         {
 
         }
 
-        public void CircleOrDisk(float radius, Microsoft.Xna.Framework.Vector3 axis, Microsoft.Xna.Framework.Vector3 center, Microsoft.Xna.Framework.Color color, int segments, bool filled, bool in3D)
+        public void CircleOrDisk(float radius, Vector3 axis, Vector3 center, Color color, int segments, bool filled, bool in3D)
         {
 
         }
@@ -62,7 +62,7 @@ namespace SharpSteer2
 
         }
 
-        public void PathFollowing(Microsoft.Xna.Framework.Vector3 future, Microsoft.Xna.Framework.Vector3 onPath, Microsoft.Xna.Framework.Vector3 target, float outside)
+        public void PathFollowing(Vector3 future, Vector3 onPath, Vector3 target, float outside)
         {
 
         }
@@ -72,7 +72,7 @@ namespace SharpSteer2
 
         }
 
-        public void AvoidNeighbor(IVehicle threat, float steer, Microsoft.Xna.Framework.Vector3 ourFuture, Microsoft.Xna.Framework.Vector3 threatFuture)
+        public void AvoidNeighbor(IVehicle threat, float steer, Vector3 ourFuture, Vector3 threatFuture)
         {
 
         }

@@ -69,7 +69,7 @@ namespace SharpSteer2
             return this.SteerToAvoidObstacle(minTimeToCollision, obstacle, annotation);
         }
 
-	    protected Vector3 SteerToAvoidObstacles<Obstacle>(float minTimeToCollision, List<Obstacle> obstacles)
+	    protected Vector3 SteerToAvoidObstacles<Obstacle>(float minTimeToCollision, IEnumerable<Obstacle> obstacles)
 			where Obstacle : IObstacle
 	    {
 	        return this.SteerToAvoidObstacles<Obstacle>(minTimeToCollision, obstacles, annotation);
@@ -81,7 +81,7 @@ namespace SharpSteer2
 	        return StaticSteerLibrary.SteerToAvoidNeighbors<TVehicle>(this, minTimeToCollision, others, annotation);
 	    }
 
-	    protected Vector3 SteerToAvoidCloseNeighbors<TVehicle>(float minSeparationDistance, List<TVehicle> others) where TVehicle : IVehicle
+	    protected Vector3 SteerToAvoidCloseNeighbors<TVehicle>(float minSeparationDistance, IEnumerable<TVehicle> others) where TVehicle : IVehicle
         {
             return this.SteerToAvoidCloseNeighbors<TVehicle>(minSeparationDistance, others, annotation);
         }
@@ -91,12 +91,12 @@ namespace SharpSteer2
 	        return this.SteerForSeparation(maxDistance, cosMaxAngle, flock, annotation);
 	    }
 
-	    protected Vector3 SteerForAlignment(float maxDistance, float cosMaxAngle, List<IVehicle> flock)
+	    protected Vector3 SteerForAlignment(float maxDistance, float cosMaxAngle, IEnumerable<IVehicle> flock)
 	    {
 	        return this.SteerForAlignment(maxDistance, cosMaxAngle, flock, annotation);
 	    }
 
-	    protected Vector3 SteerForCohesion(float maxDistance, float cosMaxAngle, List<IVehicle> flock)
+	    protected Vector3 SteerForCohesion(float maxDistance, float cosMaxAngle, IEnumerable<IVehicle> flock)
 	    {
 	        return this.SteerForCohesion(maxDistance, cosMaxAngle, flock, annotation);
 	    }

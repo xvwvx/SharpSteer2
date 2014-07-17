@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Helpers;
 using SharpSteer2.Obstacles;
@@ -123,26 +124,23 @@ namespace SharpSteer2
             return avoidance;
         }
 
-        public static Vector3 SteerToAvoidObstacles<Obstacle>(this IVehicle vehicle, float minTimeToCollision, List<Obstacle> obstacles, IAnnotationService annotation = null)
+        public static Vector3 SteerToAvoidObstacles<Obstacle>(this IVehicle vehicle, float minTimeToCollision, IEnumerable<Obstacle> obstacles, IAnnotationService annotation = null)
             where Obstacle : IObstacle
         {
             Vector3 avoidance = Vector3.Zero;
             PathIntersection nearest = new PathIntersection();
-            PathIntersection next = new PathIntersection();
             float minDistanceToCollision = minTimeToCollision * vehicle.Speed;
 
-            next.Intersect = false;
             nearest.Intersect = false;
 
             // test all obstacles for intersection with my forward axis,
             // select the one whose point of intersection is nearest
             foreach (Obstacle o in obstacles)
             {
-                //FIXME: this should be a generic call on Obstacle, rather than this code which presumes the obstacle is spherical
-                FindNextIntersectionWithSphere(vehicle, o as SphericalObstacle, ref next);
+                var next = o.NextIntersection(vehicle);
 
-                if (nearest.Intersect == false || (next.Intersect && next.Distance < nearest.Distance))
-                    nearest = next;
+                if (!nearest.Intersect || (next.HasValue && next.Value < nearest.Distance))
+                    nearest = new PathIntersection { Distance = next ?? 0, Intersect = next.HasValue, Obstacle = o };
             }
 
             // when a nearest intersection was found
@@ -152,11 +150,14 @@ namespace SharpSteer2
                 if (annotation != null)
                     annotation.AvoidObstacle(minDistanceToCollision);
 
+                //This is the correct wya to do this, but unfortunately this causes the seeker in the seek and avoid test to penetrate the obstacles.
+                //return nearest.Obstacle.SteerToAvoid(vehicle, minTimeToCollision);
+
                 // compute avoidance steering force: take offset from obstacle to me,
                 // take the component of that which is lateral (perpendicular to my
                 // forward direction), set length to maxForce, add a bit of forward
                 // component (in capture the flag, we never want to slow down)
-                Vector3 offset = vehicle.Position - nearest.Obstacle.Center;
+                Vector3 offset = vehicle.Position - ((SphericalObstacle)nearest.Obstacle).Center;
                 avoidance = Vector3Helpers.PerpendicularComponent(offset, vehicle.Forward);
                 avoidance.Normalize();
                 avoidance *= vehicle.MaxForce;
@@ -166,49 +167,11 @@ namespace SharpSteer2
             return avoidance;
         }
 
-        // xxx experiment cwr 9-6-02
-        private static void FindNextIntersectionWithSphere(this IVehicle vehicle, SphericalObstacle obs, ref PathIntersection intersection)
+        private struct PathIntersection
         {
-            // This routine is based on the Paul Bourke's derivation in:
-            //   Intersection of a Line and a Sphere (or circle)
-            //   http://www.swin.edu.au/astronomy/pbourke/geometry/sphereline/
-
-            // initialize pathIntersection object
-            intersection.Intersect = false;
-            intersection.Obstacle = obs;
-
-            // find "local center" (lc) of sphere in boid's coordinate space
-            Vector3 lc = vehicle.LocalizePosition(obs.Center);
-
-            // computer line-sphere intersection parameters
-            float b = -2 * lc.Z;
-            var totalRadius = obs.Radius + vehicle.Radius;
-            float c = (lc.X * lc.X) + (lc.Y * lc.Y) + (lc.Z * lc.Z) - (totalRadius * totalRadius);
-            float d = (b * b) - (4 * c);
-
-            // when the path does not intersect the sphere
-            if (d < 0)
-                return;
-
-            // otherwise, the path intersects the sphere in two points with
-            // parametric coordinates of "p" and "q".
-            // (If "d" is zero the two points are coincident, the path is tangent)
-            float s = (float)Math.Sqrt(d);
-            float p = (-b + s) / 2;
-            float q = (-b - s) / 2;
-
-            // both intersections are behind us, so no potential collisions
-            if ((p < 0) && (q < 0))
-                return;
-
-            // at least one intersection is in front of us
-            intersection.Intersect = true;
-            intersection.Distance =
-                ((p > 0) && (q > 0)) ?
-                // both intersections are in front of us, find nearest one
-                ((p < q) ? p : q) :
-                // otherwise only one intersections is in front, select it
-                ((p > 0) ? p : q);
+            public bool Intersect;
+            public float Distance;
+            public IObstacle Obstacle;
         }
 
         public static Vector3 SteerForSeparation(this IVehicle vehicle, float maxDistance, float cosMaxAngle, IEnumerable<IVehicle> others, IAnnotationService annotation = null)
@@ -285,24 +248,20 @@ namespace SharpSteer2
             return Vector3.Zero;
         }
 
-        public static Vector3 SteerForAlignment(this IVehicle vehicle, float maxDistance, float cosMaxAngle, List<IVehicle> flock, IAnnotationService annotation = null)
+        public static Vector3 SteerForAlignment(this IVehicle vehicle, float maxDistance, float cosMaxAngle, IEnumerable<IVehicle> flock, IAnnotationService annotation = null)
         {
             // steering accumulator and count of neighbors, both initially zero
             Vector3 steering = Vector3.Zero;
             int neighbors = 0;
 
             // for each of the other vehicles...
-            for (int i = 0; i < flock.Count; i++)
+            foreach (IVehicle other in flock.Where(other => vehicle.IsInBoidNeighborhood(other, vehicle.Radius * 3, maxDistance, cosMaxAngle)))
             {
-                IVehicle other = flock[i];
-                if (vehicle.IsInBoidNeighborhood(other, vehicle.Radius * 3, maxDistance, cosMaxAngle))
-                {
-                    // accumulate sum of neighbor's heading
-                    steering += other.Forward;
+                // accumulate sum of neighbor's heading
+                steering += other.Forward;
 
-                    // count neighbors
-                    neighbors++;
-                }
+                // count neighbors
+                neighbors++;
             }
 
             // divide by neighbors, subtract off current heading to get error-
@@ -316,23 +275,20 @@ namespace SharpSteer2
             return steering;
         }
 
-        public static Vector3 SteerForCohesion(this IVehicle vehicle, float maxDistance, float cosMaxAngle, List<IVehicle> flock, IAnnotationService annotation = null)
+        public static Vector3 SteerForCohesion(this IVehicle vehicle, float maxDistance, float cosMaxAngle, IEnumerable<IVehicle> flock, IAnnotationService annotation = null)
         {
             // steering accumulator and count of neighbors, both initially zero
             Vector3 steering = Vector3.Zero;
             int neighbors = 0;
 
             // for each of the other vehicles...
-            foreach (IVehicle other in flock)
+            foreach (IVehicle other in flock.Where(other => vehicle.IsInBoidNeighborhood(other, vehicle.Radius * 3, maxDistance, cosMaxAngle)))
             {
-                if (vehicle.IsInBoidNeighborhood(other, vehicle.Radius * 3, maxDistance, cosMaxAngle))
-                {
-                    // accumulate sum of neighbor's positions
-                    steering += other.Position;
+                // accumulate sum of neighbor's positions
+                steering += other.Position;
 
-                    // count neighbors
-                    neighbors++;
-                }
+                // count neighbors
+                neighbors++;
             }
 
             // divide by neighbors, subtract off current position to get error-
@@ -436,7 +392,7 @@ namespace SharpSteer2
         /// <param name="others"></param>
         /// <param name="annotation"></param>
         /// <returns></returns>
-        public static Vector3 SteerToAvoidNeighbors<TVehicle>(IVehicle vehicle, float minTimeToCollision, List<TVehicle> others, IAnnotationService annotation = null)
+        public static Vector3 SteerToAvoidNeighbors<TVehicle>(IVehicle vehicle, float minTimeToCollision, IEnumerable<TVehicle> others, IAnnotationService annotation = null)
             where TVehicle : IVehicle
         {
             // first priority is to prevent immediate interpenetration
@@ -606,7 +562,7 @@ namespace SharpSteer2
             return Vector3.Dot(vehicle.Forward, targetDirection) < cosThreshold;
         }
 
-        internal static bool IsInBoidNeighborhood(this IVehicle vehicle, IVehicle other, float minDistance, float maxDistance, float cosMaxAngle)
+        private static bool IsInBoidNeighborhood(this ILocalSpace vehicle, ILocalSpace other, float minDistance, float maxDistance, float cosMaxAngle)
         {
             if (other == vehicle)
                 return false;
@@ -626,14 +582,6 @@ namespace SharpSteer2
             Vector3 unitOffset = offset / (float)Math.Sqrt(distanceSquared);
             float forwardness = Vector3.Dot(vehicle.Forward, unitOffset);
             return forwardness > cosMaxAngle;
-        }
-
-        // xxx cwr 9-6-02 temporary to support old code
-        private struct PathIntersection
-        {
-            public bool Intersect;
-            public float Distance;
-            public SphericalObstacle Obstacle;
         }
     }
 }

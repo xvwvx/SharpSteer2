@@ -19,5 +19,7 @@ namespace SharpSteer2.Obstacles
 	public interface IObstacle
 	{
         Vector3 SteerToAvoid(IVehicle v, float minTimeToCollision);
+
+        float? NextIntersection(IVehicle vehicle);
 	}
 }

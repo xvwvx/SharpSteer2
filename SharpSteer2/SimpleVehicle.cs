@@ -87,7 +87,7 @@ namespace SharpSteer2
 			Vector3 adjustedForce = AdjustRawSteeringForce(force, elapsedTime);
 
 			// enforce limit on magnitude of steering force
-            Vector3 clippedForce = Vector3Helpers.TruncateLength(adjustedForce, MaxForce);
+            Vector3 clippedForce = adjustedForce.TruncateLength(MaxForce);
 
 			// compute acceleration and velocity
 			Vector3 newAcceleration = (clippedForce / Mass);
@@ -105,7 +105,7 @@ namespace SharpSteer2
 			newVelocity += _acceleration * elapsedTime;
 
 			// enforce speed limit
-            newVelocity = Vector3Helpers.TruncateLength(newVelocity, MaxSpeed);
+            newVelocity = newVelocity.TruncateLength(MaxSpeed);
 
 			// update Speed
 			Speed = (newVelocity.Length());
@@ -186,7 +186,7 @@ namespace SharpSteer2
 
             float range = Speed / maxAdjustedSpeed;
             float cosine = MathHelper.Lerp(1.0f, -1.0f, (float)Math.Pow(range, 20));
-            return Vector3Helpers.LimitMaxDeviationAngle(force, cosine, Forward);
+            return force.LimitMaxDeviationAngle(cosine, Forward);
 		}
 
 		/// <summary>

@@ -360,13 +360,13 @@ namespace SharpSteer2.Database
 		   regardless of locality (cf lqMapOverAllObjectsInLocality) */
 		public void MapOverAllObjects(LQCallBackFunction func, Object clientQueryState)
 		{
-			for (int i = 0; i < _bins.Length; i++)
-			{
-				MapOverAllObjectsInBin(_bins[i], func, clientQueryState);
-			}
+		    foreach (ClientProxy bin in _bins)
+		    {
+		        MapOverAllObjectsInBin(bin, func, clientQueryState);
+		    }
 		}
 
-		/* Removes a given client obj from its current bin, unlinking it
+	    /* Removes a given client obj from its current bin, unlinking it
 		   from the bin contents list. */
 		public void RemoveFromBin(ClientProxy obj)
 		{
