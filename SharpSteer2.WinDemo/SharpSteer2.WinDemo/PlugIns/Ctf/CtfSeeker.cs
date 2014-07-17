@@ -67,7 +67,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			float goalDistance = goalOffset.Length();
 			Vector3 goalDirection = goalOffset / goalDistance;
 
-			bool goalIsAside = IsAside(Globals.HomeBaseCenter, 0.5f);
+			bool goalIsAside = this.IsAside(Globals.HomeBaseCenter, 0.5f);
 
 			// for annotation: loop over all and save result, instead of early return 
 			bool xxxReturn = true;
@@ -312,7 +312,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			{
 				_evading = false;
 				float goalDistance = Vector3.Distance(Globals.HomeBaseCenter, Position);
-				bool headingTowardGoal = IsAhead(Globals.HomeBaseCenter, 0.98f);
+				bool headingTowardGoal = this.IsAhead(Globals.HomeBaseCenter, 0.98f);
 				bool isNear = (goalDistance / Speed) < Globals.AVOIDANCE_PREDICT_TIME_MAX;
 				bool useMax = headingTowardGoal && !isNear;
 				Globals.AvoidancePredictTime = (useMax ? Globals.AVOIDANCE_PREDICT_TIME_MAX : Globals.AVOIDANCE_PREDICT_TIME_MIN);

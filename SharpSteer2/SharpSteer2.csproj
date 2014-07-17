@@ -111,6 +111,7 @@
     <Compile Include="Helpers\RandomHelpers.cs" />
     <Compile Include="SimpleVehicle.cs" />
     <Compile Include="Obstacles\SphericalObstacle.cs" />
+    <Compile Include="StaticSteerLibrary.cs" />
     <Compile Include="SteerLibrary.cs" />
     <Compile Include="Helpers\Utilities.cs" />
     <Compile Include="Helpers\Vector3Helpers.cs" />
