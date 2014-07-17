@@ -124,52 +124,35 @@ namespace SharpSteer2
             return avoidance;
         }
 
-        public static Vector3 SteerToAvoidObstacles<Obstacle>(this IVehicle vehicle, float minTimeToCollision, IEnumerable<Obstacle> obstacles, IAnnotationService annotation = null)
-            where Obstacle : IObstacle
+        public static Vector3 SteerToAvoidObstacles(this IVehicle vehicle, float minTimeToCollision, IEnumerable<IObstacle> obstacles, IAnnotationService annotation = null)
         {
-            Vector3 avoidance = Vector3.Zero;
-            PathIntersection nearest = new PathIntersection();
+            PathIntersection? nearest = null;
             float minDistanceToCollision = minTimeToCollision * vehicle.Speed;
-
-            nearest.Intersect = false;
 
             // test all obstacles for intersection with my forward axis,
             // select the one whose point of intersection is nearest
-            foreach (Obstacle o in obstacles)
+            foreach (var o in obstacles)
             {
                 var next = o.NextIntersection(vehicle);
+                if (!next.HasValue)
+                    continue;
 
-                if (!nearest.Intersect || (next.HasValue && next.Value < nearest.Distance))
-                    nearest = new PathIntersection { Distance = next ?? 0, Intersect = next.HasValue, Obstacle = o };
+                if (!nearest.HasValue || (next.Value < nearest.Value.Distance))
+                    nearest = new PathIntersection { Distance = next.Value, Obstacle = o };
             }
 
-            // when a nearest intersection was found
-            if (nearest.Intersect && (nearest.Distance < minDistanceToCollision))
+            if (nearest.HasValue)
             {
-                // show the corridor that was checked for collisions
                 if (annotation != null)
                     annotation.AvoidObstacle(minDistanceToCollision);
 
-                //This is the correct wya to do this, but unfortunately this causes the seeker in the seek and avoid test to penetrate the obstacles.
-                //return nearest.Obstacle.SteerToAvoid(vehicle, minTimeToCollision);
-
-                // compute avoidance steering force: take offset from obstacle to me,
-                // take the component of that which is lateral (perpendicular to my
-                // forward direction), set length to maxForce, add a bit of forward
-                // component (in capture the flag, we never want to slow down)
-                Vector3 offset = vehicle.Position - ((SphericalObstacle)nearest.Obstacle).Center;
-                avoidance = Vector3Helpers.PerpendicularComponent(offset, vehicle.Forward);
-                avoidance.Normalize();
-                avoidance *= vehicle.MaxForce;
-                avoidance += vehicle.Forward * vehicle.MaxForce * 0.75f;
+                return nearest.Value.Obstacle.SteerToAvoid(vehicle, minTimeToCollision);
             }
-
-            return avoidance;
+            return Vector3.Zero;
         }
 
         private struct PathIntersection
         {
-            public bool Intersect;
             public float Distance;
             public IObstacle Obstacle;
         }

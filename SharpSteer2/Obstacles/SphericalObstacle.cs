@@ -10,6 +10,7 @@
 
 using System;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2.Obstacles
 {
@@ -71,8 +72,16 @@ namespace SharpSteer2.Obstacles
 			bool inFront = forwardComponent > 0;
 
 			// if all three conditions are met, steer away from sphere center
-			if (inCylinder && nearby && inFront)
-				return offForwardOffset * -1;
+            if (inCylinder && nearby && inFront)
+            {
+                var avoidance = Vector3Helpers.PerpendicularComponent(-localOffset, v.Forward);
+                avoidance.Normalize();
+                avoidance *= v.MaxForce;
+                avoidance += v.Forward * v.MaxForce * 0.75f;
+                return avoidance;
+
+                //return offForwardOffset * -1;
+            }
 
             return Vector3.Zero;
 		}
