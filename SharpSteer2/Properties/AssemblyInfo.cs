@@ -4,9 +4,9 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SharpSteer")]
-[assembly: AssemblyProduct("SharpSteer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("SharpSteer2")]
+[assembly: AssemblyProduct("SharpSteer2")]
+[assembly: AssemblyDescription("A .Net Port of OpenSteer")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyCopyright("Copyright © 2007")]
 [assembly: AssemblyTrademark("")]
