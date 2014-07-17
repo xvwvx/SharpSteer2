@@ -4,6 +4,10 @@
 *.xnb
 *.sln.docstates
 *.cache
+*.ncrunchproject
+*.ncrunchsolution
+*.vsmdi
+*.testsettings
 SharpSteer2/bin
 SharpSteer2/obj
 SharpSteer2.WinDemo/SharpSteer2.WinDemo/bin
