@@ -25,19 +25,15 @@ namespace SharpSteer2
 		public SimpleVehicle(IAnnotationService annotations = null)
             :base(annotations)
 		{
-			// set inital state
-			Reset();
 		}
 
 		// reset vehicle state
 		public override void Reset()
 		{
+            base.Reset();
+
 			// reset LocalSpace state
 			ResetLocalSpace();
-
-			// reset SteerLibraryMixin state
-			//FIXME: this is really fragile, needs to be redesigned
-			base.Reset();
 
 			Mass = 1;          // Mass (defaults to 1 so acceleration=force)
 			Speed = 0;         // speed along Forward direction.

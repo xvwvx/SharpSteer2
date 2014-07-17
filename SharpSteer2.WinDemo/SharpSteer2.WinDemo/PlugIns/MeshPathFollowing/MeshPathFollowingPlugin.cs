@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
-using SharpSteer2.Pathway;
 
 namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
 {

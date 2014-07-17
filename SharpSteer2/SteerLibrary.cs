@@ -81,7 +81,7 @@ namespace SharpSteer2
 	        return StaticSteerLibrary.SteerToAvoidNeighbors<TVehicle>(this, minTimeToCollision, others, annotation);
 	    }
 
-	    public Vector3 SteerToAvoidCloseNeighbors<TVehicle>(float minSeparationDistance, List<TVehicle> others) where TVehicle : IVehicle
+	    protected Vector3 SteerToAvoidCloseNeighbors<TVehicle>(float minSeparationDistance, List<TVehicle> others) where TVehicle : IVehicle
         {
             return this.SteerToAvoidCloseNeighbors<TVehicle>(minSeparationDistance, others, annotation);
         }

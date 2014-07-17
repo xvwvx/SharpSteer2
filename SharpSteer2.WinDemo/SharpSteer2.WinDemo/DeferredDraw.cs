@@ -8,6 +8,7 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace SharpSteer2.WinDemo
@@ -16,26 +17,19 @@ namespace SharpSteer2.WinDemo
 	{
 		static DeferredLine()
 		{
-			_deferredLineArray = new DeferredLine[SIZE];
-			for (int i = 0; i < SIZE; i++)
-			{
-				_deferredLineArray[i] = new DeferredLine();
-			}
+			_deferredLines = new List<DeferredLine>(SIZE);
 		}
 
 		public static void AddToBuffer(Vector3 s, Vector3 e, Color c)
 		{
-			if (_index < SIZE)
-			{
-				_deferredLineArray[_index]._startPoint = s;
-				_deferredLineArray[_index]._endPoint = e;
-				_deferredLineArray[_index]._color = c;
-				_index++;
-			}
-			else
-			{
-				System.Diagnostics.Debug.WriteLine("overflow in deferredDrawLine buffer");
-			}
+		    if (_index >= _deferredLines.Count)
+		        _deferredLines.Add(new DeferredLine());
+
+            _deferredLines[_index]._startPoint = s;
+            _deferredLines[_index]._endPoint = e;
+            _deferredLines[_index]._color = c;
+
+            _index++;
 		}
 
 		public static void DrawAll()
@@ -43,7 +37,7 @@ namespace SharpSteer2.WinDemo
 			// draw all lines in the buffer
 			for (int i = 0; i < _index; i++)
 			{
-				DeferredLine dl = _deferredLineArray[i];
+				DeferredLine dl = _deferredLines[i];
 				Drawing.iDrawLine(dl._startPoint, dl._endPoint, dl._color);
 			}
 
@@ -56,8 +50,8 @@ namespace SharpSteer2.WinDemo
 		Color _color;
 
 		static int _index = 0;
-		const int SIZE = 3000;
-		static readonly DeferredLine[] _deferredLineArray;
+		const int SIZE = 1000;
+		static readonly List<DeferredLine> _deferredLines;
 	}
 
 	public class DeferredCircle
