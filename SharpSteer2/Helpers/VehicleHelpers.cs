@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using SharpSteer2.Helpers;
 using SharpSteer2.Obstacles;
 using SharpSteer2.Pathway;
 
-namespace SharpSteer2
+namespace SharpSteer2.Helpers
 {
-    public static class StaticSteerLibrary
+    public static class VehicleHelpers
     {
-        public static Vector3 SteerForWander(this IVehicle vehicle, float dt, ref float wanderSide, ref float wanderUp)
+        public static Vector3 SteerForWander(this IVehicle vehicle, float dt, ref float wanderSide, ref float wanderUp, IAnnotationService annotation = null)
         {
             // random walk WanderSide and WanderUp between -1 and +1
             float speed = 12 * dt; // maybe this (12) should be an argument?
@@ -374,7 +373,7 @@ namespace SharpSteer2
         /// <param name="others"></param>
         /// <param name="annotation"></param>
         /// <returns></returns>
-        public static Vector3 SteerToAvoidNeighbors(IVehicle vehicle, float minTimeToCollision, IEnumerable<IVehicle> others, IAnnotationService annotation = null)
+        public static Vector3 SteerToAvoidNeighbors(this IVehicle vehicle, float minTimeToCollision, IEnumerable<IVehicle> others, IAnnotationService annotation = null)
         {
             // first priority is to prevent immediate interpenetration
             Vector3 separation = SteerToAvoidCloseNeighbors(vehicle, 0, others, annotation);

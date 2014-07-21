@@ -77,8 +77,8 @@
     <Compile Include="Helpers\RandomHelpers.cs" />
     <Compile Include="SimpleVehicle.cs" />
     <Compile Include="Obstacles\SphericalObstacle.cs" />
-    <Compile Include="StaticLocalSpace.cs" />
-    <Compile Include="StaticSteerLibrary.cs" />
+    <Compile Include="Helpers\LocalSpaceBasisHelpers.cs" />
+    <Compile Include="Helpers\VehicleHelpers.cs" />
     <Compile Include="SteerLibrary.cs" />
     <Compile Include="Helpers\Utilities.cs" />
     <Compile Include="Helpers\Vector3Helpers.cs" />

@@ -140,7 +140,7 @@ namespace SharpSteer2
 		// alternate version: keep FORWARD parallel to velocity, adjust UP
 		// according to a no-basis-in-reality "banking" behavior, something
 		// like what birds and airplanes do.  (XXX experimental cwr 6-5-03)
-        public void RegenerateLocalSpaceForBanking(Vector3 newVelocity, float elapsedTime)
+	    protected void RegenerateLocalSpaceForBanking(Vector3 newVelocity, float elapsedTime)
 		{
 			// the length of this global-upward-pointing vector controls the vehicle's
 			// tendency to right itself as it is rolled over from turning acceleration

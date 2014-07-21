@@ -17,12 +17,12 @@ namespace SharpSteer2
         /// <summary>
         /// mass (defaults to unity so acceleration=force)
         /// </summary>
-		float Mass { get; set; }
+		float Mass { get; }
 
         /// <summary>
         /// size of bounding sphere, for obstacle avoidance, etc.
         /// </summary>
-		float Radius { get; set; }
+		float Radius { get; }
 
         /// <summary>
         /// velocity of vehicle
@@ -37,7 +37,7 @@ namespace SharpSteer2
 		/// <summary>
         /// speed of vehicle (may be faster than taking magnitude of velocity)
 		/// </summary>
-		float Speed { get; set; }
+		float Speed { get; }
 
         /// <summary>
         /// predict position of this vehicle at some time in the future (assumes velocity remains constant)

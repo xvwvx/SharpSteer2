@@ -10,6 +10,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 using SharpSteer2.Obstacles;
 using SharpSteer2.Pathway;
 
@@ -76,7 +77,7 @@ namespace SharpSteer2
 
 	    protected Vector3 SteerToAvoidNeighbors(float minTimeToCollision, IEnumerable<IVehicle> others)
 		{
-	        return StaticSteerLibrary.SteerToAvoidNeighbors(this, minTimeToCollision, others, annotation);
+	        return this.SteerToAvoidNeighbors(minTimeToCollision, others, annotation);
 	    }
 
 	    protected Vector3 SteerToAvoidCloseNeighbors<TVehicle>(float minSeparationDistance, IEnumerable<TVehicle> others) where TVehicle : IVehicle

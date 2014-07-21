@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace SharpSteer2
+namespace SharpSteer2.Helpers
 {
-    public static class StaticLocalSpace
+    public static class LocalSpaceBasisHelpers
     {
         /// <summary>
         /// Transforms a direction in global space to its equivalent in local space.
