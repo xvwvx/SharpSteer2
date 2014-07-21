@@ -32,7 +32,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			base.Reset(); // reset the vehicle 
 			Speed = 0.0f;         // speed along Forward direction.
 
-			SetPosition(0, 0, 0);
+			Position = new Vector3(0, 0, 0);
 			if (_trail == null) _trail = new Trail(100, 6000);
 			_trail.Clear();    // prevent long streaks due to teleportation 
 		}

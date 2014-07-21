@@ -260,7 +260,7 @@ namespace SharpSteer2.WinDemo
 		// draw the three axes of a LocalSpace: three lines parallel to the
 		// basis vectors of the space, centered at its origin, of lengths
 		// given by the coordinates of "size".
-		public static void DrawAxes(ILocalSpace ls, Vector3 size, Color color)
+		public static void DrawAxes(ILocalSpaceBasis ls, Vector3 size, Color color)
 		{
 			Vector3 x = new Vector3(size.X / 2, 0, 0);
 			Vector3 y = new Vector3(0, size.Y / 2, 0);
@@ -282,7 +282,7 @@ namespace SharpSteer2.WinDemo
 		// "size" is the main diagonal of the box.
 		//
 		// use gGlobalSpace to draw a box aligned with global space
-		public static void DrawBoxOutline(ILocalSpace localSpace, Vector3 size, Color color)
+		public static void DrawBoxOutline(ILocalSpaceBasis localSpace, Vector3 size, Color color)
 		{
 			Vector3 s = size / 2.0f;  // half of main diagonal
 
@@ -461,7 +461,7 @@ namespace SharpSteer2.WinDemo
 					// (XXX should this be a method on  LocalSpace?)
 					Vector3 unitAxis = axis;
                     unitAxis.Normalize();
-					Vector3 unitPerp = Vector3Helpers.FindPerpendicularIn3d(axis);
+					Vector3 unitPerp = axis.FindPerpendicularIn3d();
                     unitPerp.Normalize();
 					ls.Up = unitAxis;
 					ls.Forward = unitPerp;
@@ -495,7 +495,7 @@ namespace SharpSteer2.WinDemo
                     AddVertex(in3D ? ls.GlobalizePosition(pointOnCircle) : pointOnCircle + center);
 
 					// rotate point one more step around circle
-                    pointOnCircle = Vector3Helpers.RotateAboutGlobalY(pointOnCircle, step, ref sin, ref cos);
+                    pointOnCircle = pointOnCircle.RotateAboutGlobalY(step, ref sin, ref cos);
 				}
 
 				// close drawing operation

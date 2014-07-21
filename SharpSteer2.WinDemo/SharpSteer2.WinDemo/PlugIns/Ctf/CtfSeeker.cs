@@ -328,7 +328,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		{
 		    Vector3 behindBack = Forward * -behindThreshold;
 			Vector3 pbb = Position + behindBack;
-			Vector3 gun = LocalRotateForwardToSide(goalDirection);
+			Vector3 gun = this.LocalRotateForwardToSide(goalDirection);
 			Vector3 gn = gun * sideThreshold;
 			Vector3 hbc = Globals.HomeBaseCenter;
 			annotation.Line(pbb + gn, hbc + gn, Globals.ClearPathColor);

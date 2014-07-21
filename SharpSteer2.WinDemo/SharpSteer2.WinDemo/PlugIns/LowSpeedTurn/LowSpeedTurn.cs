@@ -36,7 +36,7 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 			Speed = _startSpeed;
 
 			// initial position along X axis
-			SetPosition(_startX, 0, 0);
+			Position = new Vector3(_startX, 0, 0);
 
 			// for next instance: step starting location
 			_startX += 2;

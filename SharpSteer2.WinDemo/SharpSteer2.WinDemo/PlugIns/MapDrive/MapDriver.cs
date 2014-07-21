@@ -1040,7 +1040,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				{
 					// otherwise steer away from the side of the path we
 					// are heading for
-					Vector3 pathSide = LocalRotateForwardToSide(pathHeading);
+                    Vector3 pathSide = this.LocalRotateForwardToSide(pathHeading);
 					Vector3 towardFP = futurePosition - onPath;
 					float whichSide = (Vector3.Dot(pathSide, towardFP) < 0) ? 1.0f : -1.0f;
 					return (Side * MaxForce * whichSide) + braking;
@@ -1279,11 +1279,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					Vector3 camOffsetBefore = Demo.Camera.Position - Position;
 
 					// set position on other side of the map (set new X coordinate)
-					SetPosition((((px < 0) ? 1 : -1) *
-								  ((WORLD_SIZE * 0.5f) +
-								   (Speed * LookAheadTimePF()))),
-								 Position.Y,
-								 Position.Z);
+					Position = new Vector3((((px < 0) ? 1 : -1) * ((WORLD_SIZE * 0.5f) + (Speed * LookAheadTimePF()))), Position.Y, Position.Z);
 
 					// reset bookeeping to detect stuck cycles
 					ResetStuckCycleDetection();

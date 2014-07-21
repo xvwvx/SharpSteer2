@@ -126,7 +126,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		}
 
 		// used to detect if vehicle body is on any obstacles
-		public bool ScanLocalXZRectangle(ILocalSpace localSpace, float xMin, float xMax, float zMin, float zMax)
+		public bool ScanLocalXZRectangle(ILocalSpaceBasis localSpace, float xMin, float xMax, float zMin, float zMax)
 		{
 			float spacing = MinSpacing() / 2;
 

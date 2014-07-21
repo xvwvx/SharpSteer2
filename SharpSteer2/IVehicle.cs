@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework;
 
 namespace SharpSteer2
 {
-	public interface IVehicle : ILocalSpace
+	public interface IVehicle : ILocalSpaceBasis
 	{
         /// <summary>
         /// mass (defaults to unity so acceleration=force)

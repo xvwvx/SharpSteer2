@@ -40,7 +40,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			Speed = 0.0f;         // speed along Forward direction.
 
 			// Place me on my part of the field, looking at oponnents goal
-			SetPosition(_imTeamA ? RandomHelpers.Random() * 20 : -RandomHelpers.Random() * 20, 0, (RandomHelpers.Random() - 0.5f) * 20);
+			Position = new Vector3(_imTeamA ? RandomHelpers.Random() * 20 : -RandomHelpers.Random() * 20, 0, (RandomHelpers.Random() - 0.5f) * 20);
 			if (_myID < 9)
 			{
 				if (_imTeamA)

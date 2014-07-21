@@ -265,7 +265,7 @@ namespace SharpSteer2
 		{
 			Up = Vector3.Up;
             Forward = Vector3Helpers.RandomUnitVectorOnXZPlane();
-			Side = LocalRotateForwardToSide(Forward);
+			Side = this.LocalRotateForwardToSide(Forward);
 		}
 
 		// measure path curvature (1/turning-radius), maintain smoothed version

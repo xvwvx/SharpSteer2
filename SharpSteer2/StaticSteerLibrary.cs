@@ -543,7 +543,7 @@ namespace SharpSteer2
             return Vector3.Dot(vehicle.Forward, targetDirection) < cosThreshold;
         }
 
-        private static bool IsInBoidNeighborhood(this ILocalSpace vehicle, ILocalSpace other, float minDistance, float maxDistance, float cosMaxAngle)
+        private static bool IsInBoidNeighborhood(this ILocalSpaceBasis vehicle, ILocalSpaceBasis other, float minDistance, float maxDistance, float cosMaxAngle)
         {
             if (other == vehicle)
                 return false;

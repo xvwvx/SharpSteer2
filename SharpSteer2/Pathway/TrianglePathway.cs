@@ -21,7 +21,6 @@
 //        {
 //            _path = path.ToArray();
 //            _cyclic = cyclic;
-
 //            for (int i = 0; i < _path.Length; i++)
 //            {
 //                var aIndex = i;

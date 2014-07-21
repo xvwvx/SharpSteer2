@@ -126,7 +126,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			Drawing.Draw2dTextAt2dLocation(status.ToString(), screenLocation, Color.LightGray);
 		}
 
-        private void SerialNumberAnnotationUtility(ILocalSpace selected)
+        private void SerialNumberAnnotationUtility(ILocalSpaceBasis selected)
 		{
 			// display a Pedestrian's serial number as a text label near its
 			// screen position when it is near the selected vehicle or mouse.
