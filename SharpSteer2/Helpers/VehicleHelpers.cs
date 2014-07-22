@@ -251,7 +251,10 @@ namespace SharpSteer2.Helpers
             if (neighbors > 0)
             {
                 steering = ((steering / neighbors) - vehicle.Forward);
-                steering.Normalize();
+
+                var length = steering.Length();
+                if (length > 0.025f)
+                    steering /= length;
             }
 
             return steering;
