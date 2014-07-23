@@ -225,7 +225,7 @@ namespace SharpSteer2.Tests
         [TestMethod]
         public void ClipWithinConeIsAlwaysWithinCone()
         {
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 5000; i++)
             {
                 var vector = Vector3Helpers.RandomUnitVector();
 
@@ -235,14 +235,14 @@ namespace SharpSteer2.Tests
 
                 var result = vector.LimitMaxDeviationAngle(cosAngle, basis);
                 var measuredAngle = (float)Math.Acos(Vector3.Dot(result, basis));
-                Assert.IsTrue(measuredAngle <= angle + 0.00001f);
+                Assert.IsTrue(measuredAngle <= angle + 0.0001f);
             }
         }
 
         [TestMethod]
         public void ClipWithoutConeIsAlwaysWithoutCone()
         {
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 5000; i++)
             {
                 var vector = Vector3Helpers.RandomUnitVector();
 
@@ -252,7 +252,7 @@ namespace SharpSteer2.Tests
 
                 var result = vector.LimitMinDeviationAngle(cosAngle, basis);
                 var measuredAngle = (float)Math.Acos(Vector3.Dot(result, basis));
-                Assert.IsTrue(measuredAngle >= angle - 0.00001f);
+                Assert.IsTrue(measuredAngle >= angle - 0.0001f);
             }
         }
 
