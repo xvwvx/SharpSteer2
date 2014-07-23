@@ -72,7 +72,7 @@ namespace SharpSteer2
 		// where X is 1 for a left-handed system and -1 for a right-handed system.
 		public void ResetLocalSpace()
 		{
-			Forward = Vector3.Backward;
+			Forward = Vector3.Forward;
 		    Side = Vector3.Left;
 			Up = Vector3.Up;
             Position = Vector3.Zero;
