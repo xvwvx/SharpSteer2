@@ -82,5 +82,72 @@ namespace SharpSteer2.Helpers
             Vector3 localSide = basis.LocalRotateForwardToSide(localForward);
             return basis.GlobalizeDirection(localSide);
         }
+
+        public static void ResetLocalSpace(out Vector3 forward, out Vector3 side, out Vector3 up, out Vector3 position)
+        {
+            forward = Vector3.Forward;
+            side = Vector3.Left;
+            up = Vector3.Up;
+            position = Vector3.Zero;
+        }
+
+        /// <summary>
+        /// set "side" basis vector to normalized cross product of forward and up
+        /// </summary>
+        /// <param name="forward"></param>
+        /// <param name="side"></param>
+        /// <param name="up"></param>
+        public static void SetUnitSideFromForwardAndUp(ref Vector3 forward, out Vector3 side, ref Vector3 up)
+        {
+            // derive new unit side basis vector from forward and up
+            side = Vector3.Normalize(Vector3.Cross(forward, up));
+        }
+
+        /// <summary>
+        /// regenerate the orthonormal basis vectors given a new forward
+        /// (which is expected to have unit length)
+        /// </summary>
+        /// <param name="newUnitForward"></param>
+        /// <param name="forward"></param>
+        /// <param name="side"></param>
+        /// <param name="up"></param>
+        public static void RegenerateOrthonormalBasisUF(Vector3 newUnitForward, out Vector3 forward, out Vector3 side, ref Vector3 up)
+        {
+            forward = newUnitForward;
+
+            // derive new side basis vector from NEW forward and OLD up
+            SetUnitSideFromForwardAndUp(ref forward, out side, ref up);
+
+            // derive new Up basis vector from new Side and new Forward
+            //(should have unit length since Side and Forward are
+            // perpendicular and unit length)
+            up = Vector3.Cross(side, forward);
+        }
+
+        /// <summary>
+        /// for when the new forward is NOT know to have unit length
+        /// </summary>
+        /// <param name="newForward"></param>
+        /// <param name="forward"></param>
+        /// <param name="side"></param>
+        /// <param name="up"></param>
+        public static void RegenerateOrthonormalBasis(Vector3 newForward, out Vector3 forward, out Vector3 side, ref Vector3 up)
+        {
+            RegenerateOrthonormalBasisUF(Vector3.Normalize(newForward), out forward, out side, ref up);
+        }
+
+        /// <summary>
+        /// for supplying both a new forward and and new up
+        /// </summary>
+        /// <param name="newForward"></param>
+        /// <param name="newUp"></param>
+        /// <param name="forward"></param>
+        /// <param name="side"></param>
+        /// <param name="up"></param>
+        public static void RegenerateOrthonormalBasis(Vector3 newForward, Vector3 newUp, out Vector3 forward, out Vector3 side, ref Vector3 up)
+        {
+            up = newUp;
+            RegenerateOrthonormalBasis(Vector3.Normalize(newForward), out forward, out side, ref up);
+        }
     }
 }

@@ -9,6 +9,7 @@
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
 using Microsoft.Xna.Framework;
+using SharpSteer2.Helpers;
 
 namespace SharpSteer2
 {
@@ -20,25 +21,49 @@ namespace SharpSteer2
     public class LocalSpaceBasis
         : ILocalSpaceBasis
     {
+        protected Vector3 SideField;
+
         /// <summary>
         /// side-pointing unit basis vector
         /// </summary>
-        public Vector3 Side { get; set; }
+        public Vector3 Side
+        {
+            get { return SideField; }
+            set { SideField = value; }
+        }
+
+        protected Vector3 UpField;
 
         /// <summary>
         /// upward-pointing unit basis vector
         /// </summary>
-        public Vector3 Up { get; set; }
+        public Vector3 Up
+        {
+            get { return UpField; }
+            set { UpField = value; }
+        }
+
+        protected Vector3 ForwardField;
 
         /// <summary>
         /// forward-pointing unit basis vector
         /// </summary>
-        public Vector3 Forward { get; set; }
+        public Vector3 Forward
+        {
+            get { return ForwardField; }
+            set { ForwardField = value; }
+        }
+
+        protected Vector3 PositionField;
 
         /// <summary>
         /// origin of local space
         /// </summary>
-        public Vector3 Position { get; set; }
+        public Vector3 Position
+        {
+            get { return PositionField; }
+            set { PositionField = value; }
+        }
     }
 
     /// <summary>
@@ -72,52 +97,34 @@ namespace SharpSteer2
 		// where X is 1 for a left-handed system and -1 for a right-handed system.
 		public void ResetLocalSpace()
 		{
-			Forward = Vector3.Forward;
-		    Side = Vector3.Left;
-			Up = Vector3.Up;
-            Position = Vector3.Zero;
+		    LocalSpaceBasisHelpers.ResetLocalSpace(out ForwardField, out SideField, out UpField, out PositionField);
 		}
 
 		// ------------------------------------------------------------------------
 		// set "side" basis vector to normalized cross product of forward and up
 		public void SetUnitSideFromForwardAndUp()
 		{
-		    // derive new unit side basis vector from forward and up
-		    Side = Vector3.Cross(Forward, Up);
-
-		    Side.Normalize();
+		    LocalSpaceBasisHelpers.SetUnitSideFromForwardAndUp(ref ForwardField, out SideField, ref UpField);
 		}
 
 	    // ------------------------------------------------------------------------
 		// regenerate the orthonormal basis vectors given a new forward
 		//(which is expected to have unit length)
         public void RegenerateOrthonormalBasisUF(Vector3 newUnitForward)
-		{
-			Forward = newUnitForward;
-
-			// derive new side basis vector from NEW forward and OLD up
-			SetUnitSideFromForwardAndUp();
-
-			// derive new Up basis vector from new Side and new Forward
-			//(should have unit length since Side and Forward are
-			// perpendicular and unit length)
-			Up = Vector3.Cross(Side, Forward);
-		}
+        {
+            LocalSpaceBasisHelpers.RegenerateOrthonormalBasisUF(newUnitForward, out ForwardField, out SideField, ref UpField);
+        }
 
 		// for when the new forward is NOT know to have unit length
         public void RegenerateOrthonormalBasis(Vector3 newForward)
-		{
-            newForward.Normalize();
-
-			RegenerateOrthonormalBasisUF(newForward);
-		}
+        {
+            LocalSpaceBasisHelpers.RegenerateOrthonormalBasis(newForward, out ForwardField, out SideField, ref UpField);
+        }
 
 		// for supplying both a new forward and and new up
         public void RegenerateOrthonormalBasis(Vector3 newForward, Vector3 newUp)
-		{
-			Up = newUp;
-            newForward.Normalize();
-			RegenerateOrthonormalBasis(newForward);
-		}
+        {
+            LocalSpaceBasisHelpers.RegenerateOrthonormalBasis(newForward, newUp, out ForwardField, out SideField, ref UpField);
+        }
 	}
 }

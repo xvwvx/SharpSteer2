@@ -165,7 +165,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 					// steer back when outside
 					Vector3 seek = SteerForSeek(Vector3.Zero);
                     Vector3 lateral = Vector3Helpers.PerpendicularComponent(seek, Forward);
-					return lateral;
+                    return lateral;
 				}
 			case 1:
 				{
