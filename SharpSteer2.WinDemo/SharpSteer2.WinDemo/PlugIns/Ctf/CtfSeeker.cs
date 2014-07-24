@@ -17,14 +17,17 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 {
 	public class CtfSeeker : CtfBase
 	{
-		// constructor
-		public CtfSeeker(IAnnotationService annotations = null)
-			: base(annotations)
+	    private readonly bool _arrive;
+
+	    // constructor
+		public CtfSeeker(CtfPlugIn plugin, IAnnotationService annotations = null, bool arrive = false)
+            : base(plugin, annotations)
 		{
-			Reset();
+		    _arrive = arrive;
+		    Reset();
 		}
 
-		// reset state
+	    // reset state
 		public override void Reset()
 		{
 			base.Reset();
@@ -73,10 +76,10 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			bool xxxReturn = true;
 
 			// loop over enemies
-			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
+			for (int i = 0; i < Plugin.CtfEnemies.Length; i++)
 			{
 				// short name for this enemy
-				CtfEnemy e = Globals.CtfEnemies[i];
+				CtfEnemy e = Plugin.CtfEnemies[i];
 				float eDistance = Vector3.Distance(Position, e.Position);
 				float timeEstimate = 0.3f * eDistance / e.Speed; //xxx
 				Vector3 eFuture = e.PredictFuturePosition(timeEstimate);
@@ -147,20 +150,23 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			}
 
 	        // otherwise seek home base and perhaps evade defenders
-	        Vector3 seek = SteerForSeek(Globals.HomeBaseCenter);
+	        Vector3 seek;
+	        if (!_arrive)
+	            seek = SteerForSeek(Globals.HomeBaseCenter);
+	        else
+	            seek = this.SteerForArrival(Globals.HomeBaseCenter, MaxSpeed, 10, annotation);
+
+
 	        if (clearPath)
 	        {
 	            // we have a clear path (defender-free corridor), use pure seek
 
-	            // xxx experiment 9-16-02
-	            Vector3 s = Vector3Helpers.LimitMaxDeviationAngle(seek, 0.707f, Forward);
-
-	            annotation.Line(Position, Position + (s * 0.2f), Globals.SeekColor);
-	            return s;
+	            annotation.Line(Position, Position + (seek * 0.2f), Globals.SeekColor);
+                return seek;
 	        }
 
 		    Vector3 evade = XXXSteerToEvadeAllDefenders();
-		    Vector3 steer = Vector3Helpers.LimitMaxDeviationAngle(seek + evade, 0.707f, Forward);
+		    Vector3 steer = (seek + evade).LimitMaxDeviationAngle(0.707f, Forward);
 
 		    annotation.Line(Position, Position + seek, Color.Red);
 		    annotation.Line(Position, Position + evade, Color.Green);
@@ -176,7 +182,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			if (State == SeekerState.Running)
 			{
 				float baseDistance = Vector3.Distance(Position, Globals.HomeBaseCenter);
-				if (baseDistance < (Radius + Globals.HOME_BASE_RADIUS)) State = SeekerState.AtGoal;
+				if (baseDistance < (Radius + Plugin.BaseRadius)) State = SeekerState.AtGoal;
 			}
 
 			// update lastRunningTime (holds off reset time)
@@ -243,9 +249,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			float goalDistance = Vector3.Distance(Globals.HomeBaseCenter, Position);
 
 			// sum up weighted evasion
-			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
+			for (int i = 0; i < Plugin.CtfEnemies.Length; i++)
 			{
-				CtfEnemy e = Globals.CtfEnemies[i];
+				CtfEnemy e = Plugin.CtfEnemies[i];
 				Vector3 eOffset = e.Position - Position;
 				float eDistance = eOffset.Length();
 
@@ -277,9 +283,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		{
 			// sum up weighted evasion
 			Vector3 evade = Vector3.Zero;
-			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
+			for (int i = 0; i < Plugin.CtfEnemies.Length; i++)
 			{
-				CtfEnemy e = Globals.CtfEnemies[i];
+				CtfEnemy e = Plugin.CtfEnemies[i];
 				Vector3 eOffset = e.Position - Position;
 				float eDistance = eOffset.Length();
 

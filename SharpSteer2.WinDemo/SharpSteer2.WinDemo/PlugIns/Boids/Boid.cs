@@ -91,7 +91,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		    _trail.Record(currentTime, Position);
 
 			// steer to flock and perhaps to stay within the spherical boundary
-			ApplySteeringForce(SteerToFlock() + HandleBoundary(), elapsedTime);
+		    ApplySteeringForce(SteerToFlock() + HandleBoundary(), elapsedTime);
 
 			// notify proximity database that our position has changed
 			_proximityToken.UpdateForNewPosition(Position);

@@ -15,7 +15,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 	class Globals
 	{
 		public static readonly Vector3 HomeBaseCenter = new Vector3(0, 0, 0);
-		public const float HOME_BASE_RADIUS = 1.5f;
 
 		public const float MIN_START_RADIUS = 30;
 		public const float MAX_START_RADIUS = 40;
@@ -37,15 +36,5 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 
 		// count the number of times the simulation has reset (e.g. for overnight runs)
 		public static int ResetCount = 0;
-
-		// ----------------------------------------------------------------------------
-		// state for OpenSteerDemo PlugIn
-		//
-		// XXX consider moving this inside CtfPlugIn
-		// XXX consider using STL (any advantage? consistency?)
-
-		public static CtfSeeker CtfSeeker = null;
-	    public const int CTF_ENEMY_COUNT = 4;
-	    public static readonly CtfEnemy[] CtfEnemies = new CtfEnemy[CTF_ENEMY_COUNT];
 	}
 }

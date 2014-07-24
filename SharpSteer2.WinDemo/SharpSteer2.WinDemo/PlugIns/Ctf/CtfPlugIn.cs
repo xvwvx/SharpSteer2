@@ -39,9 +39,19 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 	
 	public class CtfPlugIn : PlugIn
 	{
-		public CtfPlugIn(IAnnotationService annotations)
+	    private readonly bool _arrive;
+	    public readonly float BaseRadius;
+
+	    public CtfSeeker CtfSeeker = null;
+        public readonly CtfEnemy[] CtfEnemies;
+
+		public CtfPlugIn(IAnnotationService annotations, int enemyCount = 6, bool arrive = false, float baseRadius = 1.5f)
             :base(annotations)
 		{
+		    _arrive = arrive;
+		    BaseRadius = baseRadius;
+		    CtfEnemies = new CtfEnemy[enemyCount];
+
 			_all = new List<CtfBase>();
 		}
 
@@ -52,19 +62,19 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		public override void Open()
 		{
 			// create the seeker ("hero"/"attacker")
-            Globals.CtfSeeker = new CtfSeeker(Annotations);
-			_all.Add(Globals.CtfSeeker);
+            CtfSeeker = new CtfSeeker(this, Annotations, _arrive);
+			_all.Add(CtfSeeker);
 
 			// create the specified number of enemies, 
 			// storing pointers to them in an array.
-			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
+			for (int i = 0; i < CtfEnemies.Length; i++)
 			{
-                Globals.CtfEnemies[i] = new CtfEnemy(Annotations);
-				_all.Add(Globals.CtfEnemies[i]);
+                CtfEnemies[i] = new CtfEnemy(this, Annotations);
+				_all.Add(CtfEnemies[i]);
 			}
 
 			// initialize camera
-			Demo.Init2dCamera(Globals.CtfSeeker);
+			Demo.Init2dCamera(CtfSeeker);
 			Demo.Camera.Mode = Camera.CameraMode.FixedDistanceOffset;
 			Demo.Camera.FixedTarget = Vector3.Zero;
             Demo.Camera.FixedTarget.X = 15;
@@ -72,18 +82,18 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
             Demo.Camera.FixedPosition.Y = 60;
             Demo.Camera.FixedPosition.Z = 0;
 
-			CtfBase.InitializeObstacles();
+			CtfBase.InitializeObstacles(BaseRadius);
 		}
 
 		public override void Update(float currentTime, float elapsedTime)
 		{
 			// update the seeker
-			Globals.CtfSeeker.Update(currentTime, elapsedTime);
+			CtfSeeker.Update(currentTime, elapsedTime);
 
 			// update each enemy
-			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
+			for (int i = 0; i < CtfEnemies.Length; i++)
 			{
-				Globals.CtfEnemies[i].Update(currentTime, elapsedTime);
+				CtfEnemies[i].Update(currentTime, elapsedTime);
 			}
 		}
 
@@ -109,12 +119,12 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			Demo.GridUtility(gridCenter);
 
 			// draw the seeker, obstacles and home base
-			Globals.CtfSeeker.Draw();
+			CtfSeeker.Draw();
 			DrawObstacles();
 			DrawHomeBase();
 
 			// draw each enemy
-			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++) Globals.CtfEnemies[i].Draw();
+			for (int i = 0; i < CtfEnemies.Length; i++) CtfEnemies[i].Draw();
 
 			// highlight vehicle nearest mouse
 			Demo.HighlightVehicleUtility(nearMouse);
@@ -123,12 +133,12 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		public override void Close()
 		{
 			// delete seeker
-			Globals.CtfSeeker = null;
+			CtfSeeker = null;
 
 			// delete each enemy
-			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++)
+			for (int i = 0; i < CtfEnemies.Length; i++)
 			{
-				Globals.CtfEnemies[i] = null;
+				CtfEnemies[i] = null;
 			}
 
 			// clear the group of all vehicles
@@ -141,11 +151,11 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			Globals.ResetCount++;
 
 			// reset the seeker ("hero"/"attacker") and enemies
-			Globals.CtfSeeker.Reset();
-			for (int i = 0; i < Globals.CTF_ENEMY_COUNT; i++) Globals.CtfEnemies[i].Reset();
+			CtfSeeker.Reset();
+			for (int i = 0; i < CtfEnemies.Length; i++) CtfEnemies[i].Reset();
 
 			// reset camera position
-			Demo.Position2dCamera(Globals.CtfSeeker);
+			Demo.Position2dCamera(CtfSeeker);
 
 			// make camera jump immediately to new position
 			Demo.Camera.DoNotSmoothNextMove();
@@ -155,7 +165,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		{
 			switch (key)
 			{
-			case Keys.F1: CtfBase.AddOneObstacle(); break;
+			case Keys.F1: CtfBase.AddOneObstacle(BaseRadius); break;
 			case Keys.F2: CtfBase.RemoveOneObstacle(); break;
 			}
 		}
@@ -178,15 +188,15 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			get { return _all.ConvertAll<IVehicle>(v => (IVehicle) v); }
 		}
 
-	    private static void DrawHomeBase()
+	    private void DrawHomeBase()
 		{
 			Vector3 up = new Vector3(0, 0.01f, 0);
 			Color atColor = new Color((byte)(255.0f * 0.3f), (byte)(255.0f * 0.3f), (byte)(255.0f * 0.5f));
 			Color noColor = Color.Gray;
-			bool reached = Globals.CtfSeeker.State == CtfBase.SeekerState.AtGoal;
+			bool reached = CtfSeeker.State == CtfBase.SeekerState.AtGoal;
 			Color baseColor = (reached ? atColor : noColor);
-			Drawing.DrawXZDisk(Globals.HOME_BASE_RADIUS, Globals.HomeBaseCenter, baseColor, 40);
-			Drawing.DrawXZDisk(Globals.HOME_BASE_RADIUS / 15, Globals.HomeBaseCenter + up, Color.Black, 20);
+            Drawing.DrawXZDisk(BaseRadius, Globals.HomeBaseCenter, baseColor, 40);
+            Drawing.DrawXZDisk(BaseRadius / 15, Globals.HomeBaseCenter + up, Color.Black, 20);
 		}
 
 	    private static void DrawObstacles()

@@ -15,8 +15,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 	public class CtfEnemy : CtfBase
 	{
 		// constructor
-		public CtfEnemy(IAnnotationService annotations = null)
-            :base(annotations)
+		public CtfEnemy(CtfPlugIn plugin, IAnnotationService annotations = null)
+            : base(plugin, annotations)
 		{
 			Reset();
 		}
@@ -33,7 +33,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		{
 			// determine upper bound for pursuit prediction time
 			float seekerToGoalDist = Vector3.Distance(Globals.HomeBaseCenter, Globals.Seeker.Position);
-			float adjustedDistance = seekerToGoalDist - Radius - Globals.HOME_BASE_RADIUS;
+			float adjustedDistance = seekerToGoalDist - Radius - Plugin.BaseRadius;
 			float seekerToGoalTime = ((adjustedDistance < 0) ? 0 : (adjustedDistance / Globals.Seeker.Speed));
 			float maxPredictionTime = seekerToGoalTime * 0.9f;
 

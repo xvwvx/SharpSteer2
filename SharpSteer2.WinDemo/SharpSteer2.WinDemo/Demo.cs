@@ -18,6 +18,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SharpSteer2.Helpers;
 using SharpSteer2.WinDemo.PlugIns.AirCombat;
+using SharpSteer2.WinDemo.PlugIns.Arrival;
 using SharpSteer2.WinDemo.PlugIns.Boids;
 using SharpSteer2.WinDemo.PlugIns.Ctf;
 using SharpSteer2.WinDemo.PlugIns.LowSpeedTurn;
@@ -93,6 +94,7 @@ namespace SharpSteer2.WinDemo
 
 // ReSharper disable ObjectCreationAsStatement
 //Constructing these silently updates a static list of all constructed plugins (euch)
+		    new ArrivalPlugIn(_annotations);
 		    new MeshPathFollowingPlugin(_annotations);
 		    new AirCombatPlugin(_annotations);
             new BoidsPlugIn(_annotations);

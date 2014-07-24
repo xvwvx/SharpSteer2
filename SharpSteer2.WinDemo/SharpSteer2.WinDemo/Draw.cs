@@ -342,16 +342,18 @@ namespace SharpSteer2.WinDemo
 
 			// shape of triangular body
 			Vector3 u = new Vector3(0, 1, 0) * r * 0.05f; // slightly up
-			Vector3 f = vehicle.Forward * r;
-			Vector3 s = vehicle.Side * x * r;
-			Vector3 b = vehicle.Forward * -y * r;
+			Vector3 f = Vector3.Backward * r;
+			Vector3 s = Vector3.Right * x * r;
+			Vector3 b = Vector3.Backward * -y * r;
+
+		    var matrix = vehicle.ToMatrix();
 
 			// draw double-sided triangle (that is: no (back) face culling)
 			BeginDoubleSidedDrawing();
-			iDrawTriangle(p + f + u,
-						   p + b - s + u,
-						   p + b + s + u,
-						   color);
+            iDrawTriangle(Vector3.Transform(f + u, matrix),
+						  Vector3.Transform(b - s + u, matrix),
+						  Vector3.Transform(b + s + u, matrix),
+						  color);
 			EndDoubleSidedDrawing();
 
 			// draw the circular collision boundary

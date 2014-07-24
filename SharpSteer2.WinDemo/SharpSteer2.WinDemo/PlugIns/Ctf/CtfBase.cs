@@ -19,19 +19,25 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 
 	public class CtfBase : SimpleVehicle
 	{
-		protected Trail Trail;
+	    protected readonly CtfPlugIn Plugin;
+	    private readonly float _baseRadius;
+
+	    protected Trail Trail;
 
         public override float MaxForce { get { return 3; } }
         public override float MaxSpeed { get { return 3; } }
 
 		// constructor
-	    protected CtfBase(IAnnotationService annotations = null)
+	    protected CtfBase(CtfPlugIn plugin, IAnnotationService annotations = null, float baseRadius = 1.5f)
             :base(annotations)
-		{
-			Reset();
-		}
+	    {
+	        Plugin = plugin;
+	        _baseRadius = baseRadius;
 
-		// reset state
+	        Reset();
+	    }
+
+	    // reset state
 		public override void Reset()
 		{
 			base.Reset();  // reset the vehicle 
@@ -76,10 +82,10 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			Vector3 up = new Vector3(0, 0.01f, 0);
 			Color atColor = new Color((byte)(255.0f * 0.3f), (byte)(255.0f * 0.3f), (byte)(255.0f * 0.5f));
 			Color noColor = Color.Gray;
-			bool reached = Globals.CtfSeeker.State == SeekerState.AtGoal;
+			bool reached = Plugin.CtfSeeker.State == SeekerState.AtGoal;
 			Color baseColor = (reached ? atColor : noColor);
-			Drawing.DrawXZDisk(Globals.HOME_BASE_RADIUS, Globals.HomeBaseCenter, baseColor, 40);
-			Drawing.DrawXZDisk(Globals.HOME_BASE_RADIUS / 15, Globals.HomeBaseCenter + up, Color.Black, 20);
+            Drawing.DrawXZDisk(_baseRadius, Globals.HomeBaseCenter, baseColor, 40);
+            Drawing.DrawXZDisk(_baseRadius / 15, Globals.HomeBaseCenter + up, Color.Black, 20);
 		}
 
 	    private void RandomizeStartingPositionAndHeading()
@@ -118,18 +124,18 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 	    protected bool Avoiding;
 
 		// dynamic obstacle registry
-		public static void InitializeObstacles()
+		public static void InitializeObstacles(float radius)
 		{
 			// start with 40% of possible obstacles
 			if (ObstacleCount == -1)
 			{
 				ObstacleCount = 0;
 				for (int i = 0; i < (MAX_OBSTACLE_COUNT * 0.4); i++)
-					AddOneObstacle();
+                    AddOneObstacle(radius);
 			}
 		}
 
-		public static void AddOneObstacle()
+        public static void AddOneObstacle(float radius)
 		{
 			if (ObstacleCount < MAX_OBSTACLE_COUNT)
 			{
@@ -150,7 +156,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 						minClearance = TestOneObstacleOverlap(minClearance, r, AllObstacles[so].Radius, c, AllObstacles[so].Center);
 					}
 
-					minClearance = TestOneObstacleOverlap(minClearance, r, Globals.HOME_BASE_RADIUS - requiredClearance, c, Globals.HomeBaseCenter);
+                    minClearance = TestOneObstacleOverlap(minClearance, r, radius - requiredClearance, c, Globals.HomeBaseCenter);
 				}
 				while (minClearance < requiredClearance);
 

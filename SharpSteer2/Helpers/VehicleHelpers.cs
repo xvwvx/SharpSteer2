@@ -34,6 +34,16 @@ namespace SharpSteer2.Helpers
             return desiredVelocity - vehicle.Velocity;
         }
 
+        public static Vector3 SteerForArrival(this IVehicle vehicle, Vector3 target, float maxSpeed, float slowingDistance, IAnnotationService annotation = null)
+        {
+            Vector3 offset = target - vehicle.Position;
+            float distance = offset.Length();
+            float rampedSpeed = maxSpeed * (distance / slowingDistance);
+            float clippedSpeed = Math.Min(rampedSpeed, maxSpeed);
+            Vector3 desiredVelocity = (clippedSpeed / distance) * offset;
+            return desiredVelocity - vehicle.Velocity;
+        }
+
         public static Vector3 SteerToStayOnPath(this IVehicle vehicle, float predictionTime, BasePathway path, float maxSpeed, IAnnotationService annotation = null)
         {
             // predict our future position

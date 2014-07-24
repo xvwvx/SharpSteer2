@@ -118,6 +118,7 @@
     <Compile Include="PlugIns\AirCombat\AirCombatPlugin.cs" />
     <Compile Include="PlugIns\AirCombat\Fighter.cs" />
     <Compile Include="PlugIns\AirCombat\Missile.cs" />
+    <Compile Include="PlugIns\Arrival\ArrivalPlugIn.cs" />
     <Compile Include="PlugIns\Boids\Boid.cs" />
     <Compile Include="PlugIns\Boids\BoidsPlugIn.cs" />
     <Compile Include="PlugIns\Ctf\CtfBase.cs" />
