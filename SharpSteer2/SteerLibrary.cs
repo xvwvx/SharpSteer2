@@ -55,6 +55,11 @@ namespace SharpSteer2
 	        return this.SteerForSeek(target, MaxSpeed);
 		}
 
+        protected Vector3 SteerForArrival(Vector3 target, float slowingDistance)
+	    {
+	        return this.SteerForArrival(target, MaxSpeed, slowingDistance, annotation);
+	    }
+
 	    protected Vector3 SteerToFollowPath(int direction, float predictionTime, BasePathway path)
 	    {
 	        return this.SteerToFollowPath(direction, predictionTime, path, MaxSpeed, annotation);
