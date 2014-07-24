@@ -7,3 +7,7 @@ This fork of SharpSteer includes some changes for neatness of the code, better s
 ### Nuget
 
 SharpSteer2 is [available](https://www.nuget.org/packages/SharpSteer2/) as a nuget package. Package releases use [semantic versioning](http://semver.org/).
+
+### Documentation
+
+The original steering behaviours are documented [here](http://www.red3d.com/cwr/papers/1999/gdc99steer.html)
