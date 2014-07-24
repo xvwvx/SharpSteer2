@@ -137,11 +137,16 @@ namespace SharpSteer2.Helpers
 
         public static Matrix ToMatrix(this ILocalSpaceBasis basis)
         {
+            return ToMatrix(basis.Forward, basis.Side, basis.Up, basis.Position);
+        }
+
+        public static Matrix ToMatrix(Vector3 forward, Vector3 side, Vector3 up, Vector3 position)
+        {
             Matrix m = Matrix.Identity;
-            m.Translation = basis.Position;
-            m.Right = basis.Side;
-            m.Up = basis.Up;
-            m.Backward = basis.Forward;
+            m.Translation = position;
+            m.Right = side;
+            m.Up = up;
+            m.Backward = forward;
 
             return m;
         }
