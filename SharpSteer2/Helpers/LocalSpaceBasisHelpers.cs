@@ -68,21 +68,6 @@ namespace SharpSteer2.Helpers
             return new Vector3(-value.Z, value.Y, value.X);
         }
 
-        /// <summary>
-        /// Rotates, in the canonical direction, a vector pointing in the
-        /// "forward" (+Z) direction to the "side" (+/-X) direction as implied
-        /// by IsRightHanded.
-        /// </summary>
-        /// <param name="basis">The basis which this should operate on</param>
-        /// <param name="value">The global space forward.</param>
-        /// <returns>The rotated vector.</returns>
-        public static Vector3 GlobalRotateForwardToSide(this ILocalSpaceBasis basis, Vector3 value)
-        {
-            Vector3 localForward = basis.LocalizeDirection(value);
-            Vector3 localSide = basis.LocalRotateForwardToSide(localForward);
-            return basis.GlobalizeDirection(localSide);
-        }
-
         public static void ResetLocalSpace(out Vector3 forward, out Vector3 side, out Vector3 up, out Vector3 position)
         {
             forward = Vector3.Forward;
@@ -144,10 +129,29 @@ namespace SharpSteer2.Helpers
         /// <param name="forward"></param>
         /// <param name="side"></param>
         /// <param name="up"></param>
-        public static void RegenerateOrthonormalBasis(Vector3 newForward, Vector3 newUp, out Vector3 forward, out Vector3 side, ref Vector3 up)
+        public static void RegenerateOrthonormalBasis(Vector3 newForward, Vector3 newUp, out Vector3 forward, out Vector3 side, out Vector3 up)
         {
             up = newUp;
             RegenerateOrthonormalBasis(Vector3.Normalize(newForward), out forward, out side, ref up);
+        }
+
+        public static Matrix ToMatrix(this ILocalSpaceBasis basis)
+        {
+            Matrix m = Matrix.Identity;
+            m.Translation = basis.Position;
+            m.Right = basis.Side;
+            m.Up = basis.Up;
+            m.Backward = basis.Forward;
+
+            return m;
+        }
+
+        public static void FromMatrix(Matrix transformation, out Vector3 forward, out Vector3 side, out Vector3 up, out Vector3 position)
+        {
+            position = transformation.Translation;
+            side = transformation.Right;
+            up = transformation.Up;
+            forward = transformation.Backward;
         }
     }
 }

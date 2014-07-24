@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LocalityQueryProximityDatabaseTest.cs" />
+    <Compile Include="LocalSpaceBasisHelpersTest.cs" />
     <Compile Include="NullAnnotationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleVehicleTest.cs" />
@@ -78,9 +79,6 @@
       <Project>{8BF6911D-A163-4CFB-813C-B8B4170C3988}</Project>
       <Name>SharpSteer2</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Shadow Include="Test References\SharpSteer2.accessor" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

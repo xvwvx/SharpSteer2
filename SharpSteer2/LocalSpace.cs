@@ -85,6 +85,11 @@ namespace SharpSteer2
 			SetUnitSideFromForwardAndUp();
 		}
 
+        public LocalSpace(Matrix transformation)
+        {
+            LocalSpaceBasisHelpers.FromMatrix(transformation, out ForwardField, out SideField, out UpField, out PositionField);
+        }
+
 		// ------------------------------------------------------------------------
 		// reset transform: set local space to its identity state, equivalent to a
 		// 4x4 homogeneous transform like this:
@@ -124,7 +129,7 @@ namespace SharpSteer2
 		// for supplying both a new forward and and new up
         public void RegenerateOrthonormalBasis(Vector3 newForward, Vector3 newUp)
         {
-            LocalSpaceBasisHelpers.RegenerateOrthonormalBasis(newForward, newUp, out ForwardField, out SideField, ref UpField);
+            LocalSpaceBasisHelpers.RegenerateOrthonormalBasis(newForward, newUp, out ForwardField, out SideField, out UpField);
         }
 	}
 }

@@ -7,9 +7,9 @@ namespace SharpSteer2.Tests
     public class NullAnnotationTest
     {
         [TestMethod]
-        public void NullAnnotations()
+        public void NullAnnotationsDoNotThrow()
         {
-            var a = new NullAnnotationService_Accessor();
+            var a = new NullAnnotationService();
 
             a.AvoidCloseNeighbor(null, 0);
             a.AvoidNeighbor(null, 0, Vector3.Zero, Vector3.Zero);
