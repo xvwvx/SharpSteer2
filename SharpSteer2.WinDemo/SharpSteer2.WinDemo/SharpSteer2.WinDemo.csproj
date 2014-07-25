@@ -126,6 +126,8 @@
     <Compile Include="PlugIns\Ctf\CtfPlugIn.cs" />
     <Compile Include="PlugIns\Ctf\CtfSeeker.cs" />
     <Compile Include="PlugIns\Ctf\Globals.cs" />
+    <Compile Include="PlugIns\FlowField\FlowFieldFollower.cs" />
+    <Compile Include="PlugIns\FlowField\FlowFieldPlugIn.cs" />
     <Compile Include="PlugIns\LowSpeedTurn\LowSpeedTurn.cs" />
     <Compile Include="PlugIns\LowSpeedTurn\LowSpeedTurnPlugIn.cs" />
     <Compile Include="PlugIns\MapDrive\GCRoute.cs" />
@@ -151,6 +153,7 @@
     <Compile Include="PolylinePathway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="SimpleFlowField.cs" />
     <Compile Include="Trail.cs" />
   </ItemGroup>
   <ItemGroup>

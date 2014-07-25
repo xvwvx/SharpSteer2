@@ -21,6 +21,7 @@ using SharpSteer2.WinDemo.PlugIns.AirCombat;
 using SharpSteer2.WinDemo.PlugIns.Arrival;
 using SharpSteer2.WinDemo.PlugIns.Boids;
 using SharpSteer2.WinDemo.PlugIns.Ctf;
+using SharpSteer2.WinDemo.PlugIns.FlowField;
 using SharpSteer2.WinDemo.PlugIns.LowSpeedTurn;
 using SharpSteer2.WinDemo.PlugIns.MapDrive;
 using SharpSteer2.WinDemo.PlugIns.MeshPathFollowing;
@@ -94,6 +95,7 @@ namespace SharpSteer2.WinDemo
 
 // ReSharper disable ObjectCreationAsStatement
 //Constructing these silently updates a static list of all constructed plugins (euch)
+		    new FlowFieldPlugIn(_annotations);
 		    new ArrivalPlugIn(_annotations);
 		    new MeshPathFollowingPlugin(_annotations);
 		    new AirCombatPlugin(_annotations);

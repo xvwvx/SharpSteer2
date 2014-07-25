@@ -60,6 +60,11 @@ namespace SharpSteer2
 	        return this.SteerForArrival(target, MaxSpeed, slowingDistance, annotation);
 	    }
 
+	    protected Vector3 SteerToFollowFlowField(IFlowField field, float predictionTime)
+	    {
+	        return this.SteerToFollowFlowField(field, MaxSpeed, predictionTime, annotation);
+	    }
+
 	    protected Vector3 SteerToFollowPath(int direction, float predictionTime, BasePathway path)
 	    {
 	        return this.SteerToFollowPath(direction, predictionTime, path, MaxSpeed, annotation);

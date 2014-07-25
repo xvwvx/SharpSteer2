@@ -61,6 +61,7 @@
     <Compile Include="AssemblyAttributes.cs" />
     <Compile Include="BaseVehicle.cs" />
     <Compile Include="IAnnotationService.cs" />
+    <Compile Include="IFlowField.cs" />
     <Compile Include="ILocalSpaceBasis.cs" />
     <Compile Include="Database\IProximityDatabase.cs" />
     <Compile Include="Database\ITokenForProximityDatabase.cs" />

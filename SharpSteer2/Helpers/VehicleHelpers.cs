@@ -44,6 +44,13 @@ namespace SharpSteer2.Helpers
             return desiredVelocity - vehicle.Velocity;
         }
 
+        public static Vector3 SteerToFollowFlowField(this IVehicle vehicle, IFlowField flowField, float maxSpeed, float predictionDistance, IAnnotationService annotation = null)
+        {
+            var futurePosition = vehicle.PredictFuturePosition(predictionDistance);
+            var flow = flowField.Sample(futurePosition);
+            return vehicle.Velocity - flow.TruncateLength(maxSpeed);
+        }
+
         public static Vector3 SteerToStayOnPath(this IVehicle vehicle, float predictionTime, BasePathway path, float maxSpeed, IAnnotationService annotation = null)
         {
             // predict our future position
