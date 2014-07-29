@@ -263,9 +263,21 @@ namespace SharpSteer2.Tests
         }
 
         [TestMethod]
+        public void ClipBackwardsVectorIsZero()
+        {
+            Assert.AreEqual(Vector3.Zero, Vector3.Backward.LimitMaxDeviationAngle(0.2f, Vector3.Forward));
+        }
+
+        [TestMethod]
         public void ClipWithoutConeReturnsZeroLengthVectors()
         {
             Assert.AreEqual(Vector3.Zero, Vector3.Zero.LimitMinDeviationAngle(0.2f, Vector3.Up));
+        }
+
+        [TestMethod]
+        public void MyTestMethod()
+        {
+            Assert.AreEqual(Vector3.Zero, Vector3.Forward.LimitMinDeviationAngle(0.2f, Vector3.Forward));
         }
     }
 }

@@ -244,6 +244,8 @@ namespace SharpSteer2.Helpers
 
             // find the portion of "source" that is perpendicular to "basis"
             Vector3 perp = PerpendicularComponent(source, basis);
+            if (perp == Vector3.Zero)
+                return Vector3.Zero;
 
             // normalize that perpendicular
             Vector3 unitPerp = perp;
