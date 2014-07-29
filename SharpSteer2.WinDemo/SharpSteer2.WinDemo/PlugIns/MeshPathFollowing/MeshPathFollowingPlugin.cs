@@ -26,7 +26,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
         public override void Open()
         {
             GeneratePath();
-            _walker = new PathWalker(_path);
+            _walker = new PathWalker(_path, Annotations);
         }
 
         private void GeneratePath()

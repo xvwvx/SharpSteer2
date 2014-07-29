@@ -60,5 +60,19 @@ namespace SharpSteer2.Tests
 
             Assert.AreEqual(s, LocalSpaceBasisHelpers.LocalRotateForwardToSide(null, f));
         }
+
+        [TestMethod]
+        public void RegenerateOrthonormalBasisTest()
+        {
+            var f = Vector3.UnitZ * 2;
+            var u = Vector3.UnitY;
+
+            Vector3 s;
+            LocalSpaceBasisHelpers.RegenerateOrthonormalBasis(f, u, out f, out s, out u);
+
+            Assert.AreEqual(Vector3.UnitZ, f);
+            Assert.AreEqual(u, Vector3.UnitY);
+            Assert.AreEqual(Vector3.Cross(f, u), s);
+        }
     }
 }

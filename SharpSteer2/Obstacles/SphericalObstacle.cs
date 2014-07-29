@@ -20,13 +20,13 @@ namespace SharpSteer2.Obstacles
 	public class SphericalObstacle : IObstacle
 	{
 	    public float Radius;
-        public Vector3 Center;
+	    public Vector3 Center;
 
-		// constructors
-		public SphericalObstacle()
+	    public SphericalObstacle()
 			: this(1, Vector3.Zero)
 		{
 		}
+
         public SphericalObstacle(float r, Vector3 c)
 		{
 			Radius = r;
