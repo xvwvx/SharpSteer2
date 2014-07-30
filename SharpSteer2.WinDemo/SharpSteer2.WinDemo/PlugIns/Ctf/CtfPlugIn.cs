@@ -41,15 +41,17 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 	{
 	    private readonly bool _arrive;
 	    public readonly float BaseRadius;
+	    private readonly int _obstacles;
 
 	    public CtfSeeker CtfSeeker = null;
         public readonly CtfEnemy[] CtfEnemies;
 
-		public CtfPlugIn(IAnnotationService annotations, int enemyCount = 6, bool arrive = false, float baseRadius = 1.5f)
+		public CtfPlugIn(IAnnotationService annotations, int enemyCount = 6, bool arrive = false, float baseRadius = 1.5f, int obstacles = 50)
             :base(annotations)
 		{
 		    _arrive = arrive;
 		    BaseRadius = baseRadius;
+		    _obstacles = obstacles;
 		    CtfEnemies = new CtfEnemy[enemyCount];
 
 			_all = new List<CtfBase>();
@@ -82,7 +84,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
             Demo.Camera.FixedPosition.Y = 60;
             Demo.Camera.FixedPosition.Z = 0;
 
-			CtfBase.InitializeObstacles(BaseRadius);
+            CtfBase.InitializeObstacles(BaseRadius, _obstacles);
 		}
 
 		public override void Update(float currentTime, float elapsedTime)

@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="AssemblyAttributes.cs" />
     <Compile Include="BaseVehicle.cs" />
+    <Compile Include="Helpers\PathwayHelpers.cs" />
     <Compile Include="IAnnotationService.cs" />
     <Compile Include="IFlowField.cs" />
     <Compile Include="ILocalSpaceBasis.cs" />
@@ -71,7 +72,7 @@
     <Compile Include="Database\LocalityQueryProximityDatabase.cs" />
     <Compile Include="NullAnnotationService.cs" />
     <Compile Include="Obstacles\IObstacle.cs" />
-    <Compile Include="Pathway\BasePathway.cs" />
+    <Compile Include="Pathway\IPathway.cs" />
     <Compile Include="Pathway\PolylinePathway.cs" />
     <Compile Include="Pathway\TrianglePathway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -124,46 +124,43 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 	    protected bool Avoiding;
 
 		// dynamic obstacle registry
-		public static void InitializeObstacles(float radius)
+		public static void InitializeObstacles(float radius, int obstacles)
 		{
 			// start with 40% of possible obstacles
 			if (ObstacleCount == -1)
 			{
 				ObstacleCount = 0;
-				for (int i = 0; i < (MAX_OBSTACLE_COUNT * 0.4); i++)
+                for (int i = 0; i < obstacles; i++)
                     AddOneObstacle(radius);
 			}
 		}
 
         public static void AddOneObstacle(float radius)
 		{
-			if (ObstacleCount < MAX_OBSTACLE_COUNT)
+			// pick a random center and radius,
+			// loop until no overlap with other obstacles and the home base
+			float r;
+			Vector3 c;
+			float minClearance;
+			float requiredClearance = Globals.Seeker.Radius * 4; // 2 x diameter
+			do
 			{
-				// pick a random center and radius,
-				// loop until no overlap with other obstacles and the home base
-				float r;
-				Vector3 c;
-				float minClearance;
-				float requiredClearance = Globals.Seeker.Radius * 4; // 2 x diameter
-				do
+				r = RandomHelpers.Random(1.5f, 4);
+				c = Vector3Helpers.RandomVectorOnUnitRadiusXZDisk() * Globals.MAX_START_RADIUS * 1.1f;
+				minClearance = float.MaxValue;
+				System.Diagnostics.Debug.WriteLine(String.Format("[{0}, {1}, {2}]", c.X, c.Y, c.Z));
+				for (int so = 0; so < AllObstacles.Count; so++)
 				{
-					r = RandomHelpers.Random(1.5f, 4);
-					c = Vector3Helpers.RandomVectorOnUnitRadiusXZDisk() * Globals.MAX_START_RADIUS * 1.1f;
-					minClearance = float.MaxValue;
-					System.Diagnostics.Debug.WriteLine(String.Format("[{0}, {1}, {2}]", c.X, c.Y, c.Z));
-					for (int so = 0; so < AllObstacles.Count; so++)
-					{
-						minClearance = TestOneObstacleOverlap(minClearance, r, AllObstacles[so].Radius, c, AllObstacles[so].Center);
-					}
-
-                    minClearance = TestOneObstacleOverlap(minClearance, r, radius - requiredClearance, c, Globals.HomeBaseCenter);
+					minClearance = TestOneObstacleOverlap(minClearance, r, AllObstacles[so].Radius, c, AllObstacles[so].Center);
 				}
-				while (minClearance < requiredClearance);
 
-				// add new non-overlapping obstacle to registry
-				AllObstacles.Add(new SphericalObstacle(r, c));
-				ObstacleCount++;
+                minClearance = TestOneObstacleOverlap(minClearance, r, radius - requiredClearance, c, Globals.HomeBaseCenter);
 			}
+			while (minClearance < requiredClearance);
+
+			// add new non-overlapping obstacle to registry
+			AllObstacles.Add(new SphericalObstacle(r, c));
+			ObstacleCount++;
 		}
 
 		public static void RemoveOneObstacle()
@@ -196,7 +193,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		}
 
 		protected static int ObstacleCount = -1;
-	    private const int MAX_OBSTACLE_COUNT = 100;
 		public static readonly List<SphericalObstacle> AllObstacles = new List<SphericalObstacle>();
 	}
 }

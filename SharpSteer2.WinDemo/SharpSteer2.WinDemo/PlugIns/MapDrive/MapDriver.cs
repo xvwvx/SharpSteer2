@@ -11,6 +11,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Helpers;
+using SharpSteer2.Pathway;
 
 namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 {
@@ -1558,7 +1559,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				Vector3 old = spoke + center;
 
 				// rotate point to next step around circle
-				spoke = Vector3Helpers.RotateAboutGlobalY(spoke, step, ref sin, ref cos);
+				spoke = spoke.RotateAboutGlobalY(step, ref sin, ref cos);
 
 				annotation.Line(spoke + center, old, color);
 			}

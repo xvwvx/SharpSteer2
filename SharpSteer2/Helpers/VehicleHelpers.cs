@@ -51,7 +51,7 @@ namespace SharpSteer2.Helpers
             return vehicle.Velocity - flow.TruncateLength(maxSpeed);
         }
 
-        public static Vector3 SteerToStayOnPath(this IVehicle vehicle, float predictionTime, BasePathway path, float maxSpeed, IAnnotationService annotation = null)
+        public static Vector3 SteerToStayOnPath(this IVehicle vehicle, float predictionTime, IPathway path, float maxSpeed, IAnnotationService annotation = null)
         {
             // predict our future position
             Vector3 futurePosition = vehicle.PredictFuturePosition(predictionTime);
@@ -73,10 +73,10 @@ namespace SharpSteer2.Helpers
             return vehicle.SteerForSeek(onPath, maxSpeed);
         }
 
-        public static Vector3 SteerToFollowPath(this IVehicle vehicle, int direction, float predictionTime, BasePathway path, float maxSpeed, IAnnotationService annotation = null)
+        public static Vector3 SteerToFollowPath(this IVehicle vehicle, bool direction, float predictionTime, IPathway path, float maxSpeed, IAnnotationService annotation = null)
         {
             // our goal will be offset from our path distance by this amount
-            float pathDistanceOffset = direction * predictionTime * vehicle.Speed;
+            float pathDistanceOffset = (direction ? 1 : -1) * predictionTime * vehicle.Speed;
 
             // predict our future position
             Vector3 futurePosition = vehicle.PredictFuturePosition(predictionTime);
@@ -91,9 +91,6 @@ namespace SharpSteer2.Helpers
                                    (nowPathDistance > futurePathDistance));
 
             // find the point on the path nearest the predicted future position
-            // XXX need to improve calling sequence, maybe change to return a
-            // XXX special path-defined object which includes two Vector3s and a 
-            // XXX bool (onPath,tangent (ignored), withinPath)
             Vector3 tangent;
             float outside;
             Vector3 onPath = path.MapPointToPath(futurePosition, out tangent, out outside);

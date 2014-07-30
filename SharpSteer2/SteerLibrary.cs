@@ -65,12 +65,12 @@ namespace SharpSteer2
 	        return this.SteerToFollowFlowField(field, MaxSpeed, predictionTime, annotation);
 	    }
 
-	    protected Vector3 SteerToFollowPath(int direction, float predictionTime, BasePathway path)
+        protected Vector3 SteerToFollowPath(bool direction, float predictionTime, IPathway path)
 	    {
 	        return this.SteerToFollowPath(direction, predictionTime, path, MaxSpeed, annotation);
 	    }
 
-	    protected Vector3 SteerToStayOnPath(float predictionTime, BasePathway path)
+        protected Vector3 SteerToStayOnPath(float predictionTime, IPathway path)
 	    {
 	        return this.SteerToStayOnPath(predictionTime, path, MaxSpeed, annotation);
 	    }

@@ -33,57 +33,67 @@ namespace SharpSteer2.Obstacles
 			Center = c;
 		}
 
-	    // XXX 4-23-03: Temporary work around (see comment above)
-		//
-		// Checks for intersection of the given spherical obstacle with a
-		// volume of "likely future vehicle positions": a cylinder along the
-		// current path, extending minTimeToCollision seconds along the
-		// forward axis from current position.
-		//
-		// If they intersect, a collision is imminent and this function returns
-		// a steering force pointing laterally away from the obstacle's center.
-		//
-		// Returns a zero vector if the obstacle is outside the cylinder
-		//
-		// xxx couldn't this be made more compact using localizePosition?
-
+        // xxx couldn't this be made more compact using localizePosition?
+        /// <summary>
+        /// Checks for intersection of the given spherical obstacle with a
+        /// volume of "likely future vehicle positions": a cylinder along the
+        /// current path, extending minTimeToCollision seconds along the
+        /// forward axis from current position.
+        ///
+        /// If they intersect, a collision is imminent and this function returns
+        /// a steering force pointing laterally away from the obstacle's center.
+        ///
+        /// Returns a zero vector if the obstacle is outside the cylinder
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="minTimeToCollision"></param>
+        /// <returns></returns>
         public Vector3 SteerToAvoid(IVehicle v, float minTimeToCollision)
-		{
-			// minimum distance to obstacle before avoidance is required
-			float minDistanceToCollision = minTimeToCollision * v.Speed;
-			float minDistanceToCenter = minDistanceToCollision + Radius;
+        {
+            // Capsule x Sphere collision detection
+            //http://www.altdev.co/2011/04/26/more-collision-detection-for-dummies/
 
-			// contact distance: sum of radii of obstacle and vehicle
-			float totalRadius = Radius + v.Radius;
+            var capStart = v.Position;
+            var capEnd = v.PredictFuturePosition(minTimeToCollision);
 
-			// obstacle center relative to vehicle position
-			Vector3 localOffset = Center - v.Position;
+            var alongCap = capEnd - capStart;
+            var capLength = alongCap.Length();
 
-			// distance along vehicle's forward axis to obstacle's center
-            float forwardComponent = Vector3.Dot(localOffset, v.Forward);
-			Vector3 forwardOffset = v.Forward * forwardComponent;
-
-			// offset from forward axis to obstacle's center
-			Vector3 offForwardOffset = localOffset - forwardOffset;
-
-			// test to see if sphere overlaps with obstacle-free corridor
-			bool inCylinder = offForwardOffset.Length() < totalRadius;
-			bool nearby = forwardComponent < minDistanceToCenter;
-			bool inFront = forwardComponent > 0;
-
-			// if all three conditions are met, steer away from sphere center
-            if (inCylinder && nearby && inFront)
+            //If the vehicle is going very slowly then simply test vehicle sphere against obstacle sphere
+            if (capLength <= 0.05)
             {
-                var avoidance = Vector3Helpers.PerpendicularComponent(-localOffset, v.Forward);
-                avoidance.Normalize();
-                avoidance *= v.MaxForce;
-                avoidance += v.Forward * v.MaxForce * 0.75f;
-                return avoidance;
-
-                //return offForwardOffset * -1;
+                var distance = Vector3.Distance(Center, v.Position);
+                if (distance < Radius + v.Radius)
+                    return (v.Position - Center);
+                return Vector3.Zero;
             }
 
-            return Vector3.Zero;
+            var capAxis = alongCap / capLength;
+
+            //Project vector onto capsule axis
+            var b = MathHelper.Clamp(Vector3.Dot(Center - capStart, capAxis), 0, capLength);
+
+            //Get point on axis (closest point to sphere center)
+            var r = capStart + capAxis * b;
+
+            //Get distance from circle center to closest point
+            var dist = Vector3.Distance(Center, r);
+
+            //Basic sphere sphere collision about the closest point
+            var inCircle = dist < Radius + v.Radius;
+            if (!inCircle)
+                return Vector3.Zero;
+
+            //avoidance vector calculation
+            Vector3 avoidance = Vector3Helpers.PerpendicularComponent(v.Position - Center, v.Forward);
+            //if no avoidance was calculated this is because the vehicle is moving exactly forward towards the sphere, add in some random sideways deflection
+            if (avoidance == Vector3.Zero)
+                avoidance = -v.Forward + v.Side * 0.01f * RandomHelpers.Random();
+
+            avoidance.Normalize();
+            avoidance *= v.MaxForce;
+            avoidance += v.Forward * v.MaxForce * 0.75f;
+            return avoidance;
 		}
 
         // xxx experiment cwr 9-6-02

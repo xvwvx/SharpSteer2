@@ -48,7 +48,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		}
 
 		// called when steerToAvoidCloseNeighbors decides steering is required
-		// (parameter names commented out to prevent compiler warning from "-W")
 		public void AnnotateAvoidCloseNeighbor(IVehicle other)
 		{
 			// draw the word "Ouch!" above colliding vehicles
@@ -62,7 +61,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 				Drawing.Draw2dTextAt3dLocation(text, location, color);
 		}
 
-		// (parameter names commented out to prevent compiler warning from "-W")
 		public void AnnotateAvoidNeighbor(IVehicle threat, Vector3 ourFuture, Vector3 threatFuture)
 		{
 			Color green = new Color((byte)(255.0f * 0.15f), (byte)(255.0f * 0.6f), 0);
@@ -129,7 +127,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			RandomizeHeadingOnXZPlane();
 
 			// pick a random direction for path following (upstream or downstream)
-			_pathDirection = (RandomHelpers.Random() > 0.5) ? -1 : +1;
+			_pathDirection = RandomHelpers.Random() <= 0.5;
 
 			// trail parameters: 3 seconds with 60 points along the trail
 			_trail = new Trail(3, 60);
@@ -149,12 +147,12 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			{
 				if (Vector3.Distance(Position, Globals.Endpoint0) < _path.Radius)
 				{
-					_pathDirection = +1;
+					_pathDirection = true;
 					annotation.CircleXZ(_path.Radius, Globals.Endpoint0, Color.DarkRed, 20);
 				}
 				if (Vector3.Distance(Position, Globals.Endpoint1) < _path.Radius)
 				{
-					_pathDirection = -1;
+					_pathDirection = false;
 					annotation.CircleXZ(_path.Radius, Globals.Endpoint1, Color.DarkRed, 20);
 				}
 			}
@@ -273,6 +271,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		PolylinePathway _path;
 
 		// direction for path following (upstream or downstream)
-		int _pathDirection;
+		bool _pathDirection;
 	}
 }

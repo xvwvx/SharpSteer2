@@ -19,7 +19,7 @@ namespace SharpSteer2.Pathway
 	/// radius defines a volume for the path which is the union of a sphere at each
 	/// point and a cylinder along each segment.
 	/// </summary>
-	public class PolylinePathway : BasePathway
+	public class PolylinePathway : IPathway
 	{
 	    public int PointCount { get; private set; }
 	    public Vector3[] Points { get; private set; }
@@ -75,7 +75,7 @@ namespace SharpSteer2.Pathway
             }
 		}
 
-        public override Vector3 MapPointToPath(Vector3 point, out Vector3 tangent, out float outside)
+        public Vector3 MapPointToPath(Vector3 point, out Vector3 tangent, out float outside)
 		{
             float minDistance = float.MaxValue;
             Vector3 onPath = Vector3.Zero;
@@ -102,7 +102,7 @@ namespace SharpSteer2.Pathway
 			return onPath;
 		}
 
-        public override float MapPointToPathDistance(Vector3 point)
+        public float MapPointToPathDistance(Vector3 point)
 		{
             float minDistance = float.MaxValue;
 			float segmentLengthTotal = 0;
@@ -125,7 +125,7 @@ namespace SharpSteer2.Pathway
 			return pathDistance;
 		}
 
-        public override Vector3 MapPathDistanceToPoint(float pathDistance)
+        public Vector3 MapPathDistanceToPoint(float pathDistance)
 		{
 			// clip or wrap given path distance according to cyclic flag
 			float remaining = pathDistance;

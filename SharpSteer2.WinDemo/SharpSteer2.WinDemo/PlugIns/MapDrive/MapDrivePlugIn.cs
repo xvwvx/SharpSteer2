@@ -408,7 +408,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 					map.SetMapBit(i, j, false);
 		}
 
-	    static void DrawPathFencesOnMap(TerrainMap map, BasePathway path)
+        static void DrawPathFencesOnMap(TerrainMap map, IPathway path)
 		{
 			float xs = map.XSize / map.Resolution;
 			float zs = map.ZSize / map.Resolution;
