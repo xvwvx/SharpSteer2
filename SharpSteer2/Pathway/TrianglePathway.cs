@@ -21,8 +21,10 @@ namespace SharpSteer2.Pathway
         }
 
         public TrianglePathway(IList<Vector3> triangleStrip, bool cyclic = false)
-            : this(Enumerable.Range(0, triangleStrip.Count - 2)
-                .Select(i => new Triangle(triangleStrip[i], triangleStrip[i + (i % 2 == 0 ? 1 : 2)], triangleStrip[i + (i % 2 == 0 ? 2 : 1)])), cyclic)
+            : this(
+                Enumerable.Range(0, triangleStrip.Count - 2).Select(i => new Triangle(triangleStrip[i], triangleStrip[i + (i % 2 == 0 ? 1 : 2)], triangleStrip[i + (i % 2 == 0 ? 2 : 1)])),
+                cyclic
+            )
         {
         }
 

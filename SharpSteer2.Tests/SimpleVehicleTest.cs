@@ -6,7 +6,7 @@ namespace SharpSteer2.Tests
     [TestClass]
     public class SimpleVehicleTest
     {
-        private readonly TestVehicle _vehicle = new TestVehicle();
+        private readonly SimpleVehicle _vehicle = new SimpleVehicle();
 
         [TestMethod]
         public void Construct()
@@ -24,15 +24,6 @@ namespace SharpSteer2.Tests
             _vehicle.ApplySteeringForce(Vector3.Forward, 1);
 
             Assert.AreEqual(Vector3.Forward * _vehicle.Speed, _vehicle.Velocity);
-        }
-
-        private class TestVehicle
-            : SimpleVehicle
-        {
-            public new void ApplySteeringForce(Vector3 steer, float dt)
-            {
-                base.ApplySteeringForce(steer, dt);
-            }
         }
     }
 }
