@@ -76,53 +76,51 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			bool xxxReturn = true;
 
 			// loop over enemies
-			for (int i = 0; i < Plugin.CtfEnemies.Length; i++)
+			foreach (CtfEnemy e in Plugin.CtfEnemies)
 			{
-				// short name for this enemy
-				CtfEnemy e = Plugin.CtfEnemies[i];
-				float eDistance = Vector3.Distance(Position, e.Position);
-				float timeEstimate = 0.3f * eDistance / e.Speed; //xxx
-				Vector3 eFuture = e.PredictFuturePosition(timeEstimate);
-				Vector3 eOffset = eFuture - Position;
-                float alongCorridor = Vector3.Dot(goalDirection, eOffset);
-				bool inCorridor = ((alongCorridor > -behindThreshold) && (alongCorridor < goalDistance));
-                float eForwardDistance = Vector3.Dot(Forward, eOffset);
+			    float eDistance = Vector3.Distance(Position, e.Position);
+			    float timeEstimate = 0.3f * eDistance / e.Speed; //xxx
+			    Vector3 eFuture = e.PredictFuturePosition(timeEstimate);
+			    Vector3 eOffset = eFuture - Position;
+			    float alongCorridor = Vector3.Dot(goalDirection, eOffset);
+			    bool inCorridor = ((alongCorridor > -behindThreshold) && (alongCorridor < goalDistance));
+			    float eForwardDistance = Vector3.Dot(Forward, eOffset);
 
-				// xxx temp move this up before the conditionals
-				annotation.CircleXZ(e.Radius, eFuture, Globals.ClearPathColor, 20); //xxx
+			    // xxx temp move this up before the conditionals
+			    annotation.CircleXZ(e.Radius, eFuture, Globals.ClearPathColor, 20); //xxx
 
-				// consider as potential blocker if within the corridor
-				if (inCorridor)
-				{
-					Vector3 perp = eOffset - (goalDirection * alongCorridor);
-					float acrossCorridor = perp.Length();
-					if (acrossCorridor < sideThreshold)
-					{
-						// not a blocker if behind us and we are perp to corridor
-						float eFront = eForwardDistance + e.Radius;
+			    // consider as potential blocker if within the corridor
+			    if (inCorridor)
+			    {
+			        Vector3 perp = eOffset - (goalDirection * alongCorridor);
+			        float acrossCorridor = perp.Length();
+			        if (acrossCorridor < sideThreshold)
+			        {
+			            // not a blocker if behind us and we are perp to corridor
+			            float eFront = eForwardDistance + e.Radius;
 
-						//annotation.annotationLine (position, forward*eFront, gGreen); // xxx
-						//annotation.annotationLine (e.position, forward*eFront, gGreen); // xxx
+			            //annotation.annotationLine (position, forward*eFront, gGreen); // xxx
+			            //annotation.annotationLine (e.position, forward*eFront, gGreen); // xxx
 
-						// xxx
-						// std::ostringstream message;
-						// message << "eFront = " << std::setprecision(2)
-						//         << std::setiosflags(std::ios::fixed) << eFront << std::ends;
-						// draw2dTextAt3dLocation (*message.str(), eFuture, gWhite);
+			            // xxx
+			            // std::ostringstream message;
+			            // message << "eFront = " << std::setprecision(2)
+			            //         << std::setiosflags(std::ios::fixed) << eFront << std::ends;
+			            // draw2dTextAt3dLocation (*message.str(), eFuture, gWhite);
 
-						bool eIsBehind = eFront < -behindThreshold;
-						bool eIsWayBehind = eFront < (-2 * behindThreshold);
-						bool safeToTurnTowardsGoal = ((eIsBehind && goalIsAside) || eIsWayBehind);
+			            bool eIsBehind = eFront < -behindThreshold;
+			            bool eIsWayBehind = eFront < (-2 * behindThreshold);
+			            bool safeToTurnTowardsGoal = ((eIsBehind && goalIsAside) || eIsWayBehind);
 
-						if (!safeToTurnTowardsGoal)
-						{
-							// this enemy blocks the path to the goal, so return false
-							annotation.Line(Position, e.Position, Globals.ClearPathColor);
-							// return false;
-							xxxReturn = false;
-						}
-					}
-				}
+			            if (!safeToTurnTowardsGoal)
+			            {
+			                // this enemy blocks the path to the goal, so return false
+			                annotation.Line(Position, e.Position, Globals.ClearPathColor);
+			                // return false;
+			                xxxReturn = false;
+			            }
+			        }
+			    }
 			}
 
 			// no enemies found along path, return true to indicate path is clear
@@ -150,11 +148,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			}
 
 	        // otherwise seek home base and perhaps evade defenders
-	        Vector3 seek;
-	        if (!_arrive)
-	            seek = SteerForSeek(Globals.HomeBaseCenter);
-	        else
-	            seek = this.SteerForArrival(Globals.HomeBaseCenter, MaxSpeed, 10, annotation);
+	        Vector3 seek = !_arrive ? SteerForSeek(Globals.HomeBaseCenter) : this.SteerForArrival(Globals.HomeBaseCenter, MaxSpeed, 10, annotation);
 
 
 	        if (clearPath)
@@ -192,8 +186,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			}
 			else
 			{
-				const float resetDelay = 4;
-				float resetTime = _lastRunningTime + resetDelay;
+				const float RESET_DELAY = 4;
+				float resetTime = _lastRunningTime + RESET_DELAY;
 				if (currentTime > resetTime)
 				{
 					// xxx a royal hack (should do this internal to CTF):
@@ -249,32 +243,31 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			float goalDistance = Vector3.Distance(Globals.HomeBaseCenter, Position);
 
 			// sum up weighted evasion
-			for (int i = 0; i < Plugin.CtfEnemies.Length; i++)
+			foreach (CtfEnemy e in Plugin.CtfEnemies)
 			{
-				CtfEnemy e = Plugin.CtfEnemies[i];
-				Vector3 eOffset = e.Position - Position;
-				float eDistance = eOffset.Length();
+			    Vector3 eOffset = e.Position - Position;
+			    float eDistance = eOffset.Length();
 
-                float eForwardDistance = Vector3.Dot(Forward, eOffset);
-				float behindThreshold = Radius * 2;
-				bool behind = eForwardDistance < behindThreshold;
-				if ((!behind) || (eDistance < 5))
-				{
-					if (eDistance < (goalDistance * 1.2)) //xxx
-					{
-						// const float timeEstimate = 0.5f * eDistance / e.speed;//xxx
-						float timeEstimate = 0.15f * eDistance / e.Speed;//xxx
-						Vector3 future = e.PredictFuturePosition(timeEstimate);
+			    float eForwardDistance = Vector3.Dot(Forward, eOffset);
+			    float behindThreshold = Radius * 2;
+			    bool behind = eForwardDistance < behindThreshold;
+			    if ((!behind) || (eDistance < 5))
+			    {
+			        if (eDistance < (goalDistance * 1.2)) //xxx
+			        {
+			            // const float timeEstimate = 0.5f * eDistance / e.speed;//xxx
+			            float timeEstimate = 0.15f * eDistance / e.Speed;//xxx
+			            Vector3 future = e.PredictFuturePosition(timeEstimate);
 
-						annotation.CircleXZ(e.Radius, future, Globals.EvadeColor, 20); // xxx
+			            annotation.CircleXZ(e.Radius, future, Globals.EvadeColor, 20); // xxx
 
-						Vector3 offset = future - Position;
-                        Vector3 lateral = Vector3Helpers.PerpendicularComponent(offset, Forward);
-						float d = lateral.Length();
-						float weight = -1000 / (d * d);
-						evade += (lateral / d) * weight;
-					}
-				}
+			            Vector3 offset = future - Position;
+			            Vector3 lateral = Vector3Helpers.PerpendicularComponent(offset, Forward);
+			            float d = lateral.Length();
+			            float weight = -1000 / (d * d);
+			            evade += (lateral / d) * weight;
+			        }
+			    }
 			}
 			return evade;
 		}
@@ -283,31 +276,30 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		{
 			// sum up weighted evasion
 			Vector3 evade = Vector3.Zero;
-			for (int i = 0; i < Plugin.CtfEnemies.Length; i++)
+			foreach (CtfEnemy e in Plugin.CtfEnemies)
 			{
-				CtfEnemy e = Plugin.CtfEnemies[i];
-				Vector3 eOffset = e.Position - Position;
-				float eDistance = eOffset.Length();
+			    Vector3 eOffset = e.Position - Position;
+			    float eDistance = eOffset.Length();
 
-				// xxx maybe this should take into account e's heading? xxx
-				float timeEstimate = 0.5f * eDistance / e.Speed; //xxx
-				Vector3 eFuture = e.PredictFuturePosition(timeEstimate);
+			    // xxx maybe this should take into account e's heading? xxx
+			    float timeEstimate = 0.5f * eDistance / e.Speed; //xxx
+			    Vector3 eFuture = e.PredictFuturePosition(timeEstimate);
 
-				// annotation
-				annotation.CircleXZ(e.Radius, eFuture, Globals.EvadeColor, 20);
+			    // annotation
+			    annotation.CircleXZ(e.Radius, eFuture, Globals.EvadeColor, 20);
 
-				// steering to flee from eFuture (enemy's future position)
-				Vector3 flee = SteerForFlee(eFuture);
+			    // steering to flee from eFuture (enemy's future position)
+			    Vector3 flee = SteerForFlee(eFuture);
 
-                float eForwardDistance = Vector3.Dot(Forward, eOffset);
-				float behindThreshold = Radius * -2;
+			    float eForwardDistance = Vector3.Dot(Forward, eOffset);
+			    float behindThreshold = Radius * -2;
 
-				float distanceWeight = 4 / eDistance;
-				float forwardWeight = ((eForwardDistance > behindThreshold) ? 1.0f : 0.5f);
+			    float distanceWeight = 4 / eDistance;
+			    float forwardWeight = ((eForwardDistance > behindThreshold) ? 1.0f : 0.5f);
 
-				Vector3 adjustedFlee = flee * distanceWeight * forwardWeight;
+			    Vector3 adjustedFlee = flee * distanceWeight * forwardWeight;
 
-				evade += adjustedFlee;
+			    evade += adjustedFlee;
 			}
 			return evade;
 		}

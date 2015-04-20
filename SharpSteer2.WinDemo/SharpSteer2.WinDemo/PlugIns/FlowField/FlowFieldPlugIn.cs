@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using SharpSteer2.Database;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
-using SharpSteer2.Database;
 
 namespace SharpSteer2.WinDemo.PlugIns.FlowField
 {
@@ -57,7 +56,7 @@ namespace SharpSteer2.WinDemo.PlugIns.FlowField
             FlowField = GenerateFlowField();
         }
 
-        private IFlowField GenerateFlowField()
+        private static IFlowField GenerateFlowField()
         {
             var f = new SimpleFlowField(50, 1, 50, new Vector3(25, 0.5f, 25));
 
@@ -94,13 +93,13 @@ namespace SharpSteer2.WinDemo.PlugIns.FlowField
             Demo.GridUtility(Vector3.Zero);
 
             //Draw flow field
-            const float range = 50;
-            const int samples = 25;
-            for (int i = 0; i < samples; i++)
+            const float RANGE = 50;
+            const int SAMPLES = 25;
+            for (int i = 0; i < SAMPLES; i++)
             {
-                for (int j = 0; j < samples; j++)
+                for (int j = 0; j < SAMPLES; j++)
                 {
-                    Vector3 location = new Vector3(range / samples * i - range / 2, 0, range / samples * j - range / 2);
+                    Vector3 location = new Vector3(RANGE / SAMPLES * i - RANGE / 2, 0, RANGE / SAMPLES * j - RANGE / 2);
                     var flow = FlowField.Sample(location);
                     Annotations.Line(location, location + flow, Color.Black);
                 }

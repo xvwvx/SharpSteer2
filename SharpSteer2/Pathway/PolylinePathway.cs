@@ -22,7 +22,16 @@ namespace SharpSteer2.Pathway
 	public class PolylinePathway : IPathway
 	{
 	    public int PointCount { get; private set; }
-	    public Vector3[] Points { get; private set; }
+
+	    private readonly Vector3[] _points;
+	    public IEnumerable<Vector3> Points
+	    {
+	        get
+	        {
+	            return _points;
+	        }
+	    }
+
 	    public float Radius { get; private set; }
 	    public bool Cyclic { get; private set; }
 
@@ -48,7 +57,7 @@ namespace SharpSteer2.Pathway
             if (Cyclic)
                 PointCount++;
             _lengths = new float[PointCount];
-            Points = new Vector3[PointCount];
+            _points = new Vector3[PointCount];
             _tangents = new Vector3[PointCount];
 
             // loop over all points
@@ -57,13 +66,13 @@ namespace SharpSteer2.Pathway
                 // copy in point locations, closing cycle when appropriate
                 bool closeCycle = Cyclic && (i == PointCount - 1);
                 int j = closeCycle ? 0 : i;
-                Points[i] = points[j];
+                _points[i] = points[j];
 
                 // for the end of each segment
                 if (i > 0)
                 {
                     // compute the segment length
-                    _tangents[i] = Points[i] - Points[i - 1];
+                    _tangents[i] = _points[i] - _points[i - 1];
                     _lengths[i] = _tangents[i].Length();
 
                     // find the normalized vector parallel to the segment
@@ -86,7 +95,7 @@ namespace SharpSteer2.Pathway
 			{
 			    Vector3 chosen;
 			    float segmentProjection;
-                float d = PointToSegmentDistance(point, Points[i - 1], Points[i], _tangents[i], _lengths[i], out chosen, out segmentProjection);
+                float d = PointToSegmentDistance(point, _points[i - 1], _points[i], _tangents[i], _lengths[i], out chosen, out segmentProjection);
 				if (d < minDistance)
 				{
 					minDistance = d;
@@ -112,7 +121,7 @@ namespace SharpSteer2.Pathway
 			{
 			    Vector3 chosen;
 			    float segmentProjection;
-                float d = PointToSegmentDistance(point, Points[i - 1], Points[i], _tangents[i], _lengths[i], out chosen, out segmentProjection);
+                float d = PointToSegmentDistance(point, _points[i - 1], _points[i], _tangents[i], _lengths[i], out chosen, out segmentProjection);
 				if (d < minDistance)
 				{
 					minDistance = d;
@@ -135,8 +144,8 @@ namespace SharpSteer2.Pathway
 			}
 			else
 			{
-				if (pathDistance < 0) return Points[0];
-				if (pathDistance >= TotalPathLength) return Points[PointCount - 1];
+                if (pathDistance < 0) return _points[0];
+                if (pathDistance >= TotalPathLength) return _points[PointCount - 1];
 			}
 
 			// step through segments, subtracting off segment lengths until
@@ -152,7 +161,7 @@ namespace SharpSteer2.Pathway
 				else
 				{
                     float ratio = remaining / _lengths[i];
-                    result = Vector3.Lerp(Points[i - 1], Points[i], ratio);
+                    result = Vector3.Lerp(_points[i - 1], _points[i], ratio);
 					break;
 				}
 			}

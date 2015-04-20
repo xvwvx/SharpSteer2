@@ -333,8 +333,8 @@ namespace SharpSteer2.WinDemo
 		public static void DrawBasic2dCircularVehicle(IVehicle vehicle, Color color)
 		{
 			// "aspect ratio" of body (as seen from above)
-			const float x = 0.5f;
-			float y = (float)Math.Sqrt(1 - (x * x));
+			const float X = 0.5f;
+			float y = (float)Math.Sqrt(1 - (X * X));
 
 			// radius and position of vehicle
 			float r = vehicle.Radius;
@@ -343,7 +343,7 @@ namespace SharpSteer2.WinDemo
 			// shape of triangular body
 			Vector3 u = new Vector3(0, 1, 0) * r * 0.05f; // slightly up
 			Vector3 f = Vector3.Backward * r;
-			Vector3 s = Vector3.Right * x * r;
+			Vector3 s = Vector3.Right * X * r;
 			Vector3 b = Vector3.Backward * -y * r;
 
 		    var matrix = vehicle.ToMatrix();
@@ -366,8 +366,8 @@ namespace SharpSteer2.WinDemo
 			Vector3 vColor = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
 
 			// "aspect ratio" of body (as seen from above)
-			const float x = 0.5f;
-			float y = (float)Math.Sqrt(1 - (x * x));
+			const float X = 0.5f;
+			float y = (float)Math.Sqrt(1 - (X * X));
 
 			// radius and position of vehicle
 			float r = vehicle.Radius;
@@ -375,8 +375,8 @@ namespace SharpSteer2.WinDemo
 
 			// body shape parameters
 			Vector3 f = vehicle.Forward * r;
-			Vector3 s = vehicle.Side * r * x;
-			Vector3 u = vehicle.Up * r * x * 0.5f;
+			Vector3 s = vehicle.Side * r * X;
+			Vector3 u = vehicle.Up * r * X * 0.5f;
 			Vector3 b = vehicle.Forward * r * -y;
 
 			// vertex positions
@@ -387,13 +387,13 @@ namespace SharpSteer2.WinDemo
 			Vector3 bottom = p + b - u;
 
 			// colors
-			const float j = +0.05f;
-			const float k = -0.05f;
-			Color color1 = new Color(vColor + new Vector3(j, j, k));
-			Color color2 = new Color(vColor + new Vector3(j, k, j));
-			Color color3 = new Color(vColor + new Vector3(k, j, j));
-			Color color4 = new Color(vColor + new Vector3(k, j, k));
-			Color color5 = new Color(vColor + new Vector3(k, k, j));
+			const float J = +0.05f;
+			const float K = -0.05f;
+			Color color1 = new Color(vColor + new Vector3(J, J, K));
+			Color color2 = new Color(vColor + new Vector3(J, K, J));
+			Color color3 = new Color(vColor + new Vector3(K, J, J));
+			Color color4 = new Color(vColor + new Vector3(K, J, K));
+			Color color5 = new Color(vColor + new Vector3(K, K, J));
 
 			// draw body
 			iDrawTriangle(nose, side1, top, color1);  // top, side 1
@@ -410,8 +410,8 @@ namespace SharpSteer2.WinDemo
 			Vector3 vColor = new Vector3(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
 
 			// "aspect ratio" of body (as seen from above)
-			const float x = 0.5f;
-			float y = (float)Math.Sqrt(1 - (x * x));
+			const float X = 0.5f;
+			float y = (float)Math.Sqrt(1 - (X * X));
 
 			// radius and position of vehicle
 			float r = radius;
@@ -419,8 +419,8 @@ namespace SharpSteer2.WinDemo
 
 			// body shape parameters
 			Vector3 f = Vector3.Forward * r;
-			Vector3 s = Vector3.Left * r * x;
-			Vector3 u = Vector3.Up * r * x;
+			Vector3 s = Vector3.Left * r * X;
+			Vector3 u = Vector3.Up * r * X;
 			Vector3 b = Vector3.Forward * r * -y;
 
 			// vertex positions
@@ -431,13 +431,13 @@ namespace SharpSteer2.WinDemo
 			Vector3 bottom = p + b - u;
 
 			// colors
-			const float j = +0.05f;
-			const float k = -0.05f;
-			Color color1 = new Color(vColor + new Vector3(j, j, k));
-			Color color2 = new Color(vColor + new Vector3(j, k, j));
-			Color color3 = new Color(vColor + new Vector3(k, j, j));
-			Color color4 = new Color(vColor + new Vector3(k, j, k));
-			Color color5 = new Color(vColor + new Vector3(k, k, j));
+			const float J = +0.05f;
+			const float K = -0.05f;
+			Color color1 = new Color(vColor + new Vector3(J, J, K));
+			Color color2 = new Color(vColor + new Vector3(J, K, J));
+			Color color3 = new Color(vColor + new Vector3(K, J, J));
+			Color color4 = new Color(vColor + new Vector3(K, J, K));
+			Color color5 = new Color(vColor + new Vector3(K, K, J));
 
 			// draw body
 			iDrawTriangle(nose, side1, top, color1);  // top, side 1

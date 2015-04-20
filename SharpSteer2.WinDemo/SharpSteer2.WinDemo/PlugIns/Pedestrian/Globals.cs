@@ -39,23 +39,23 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		{
 			if (_testPath == null)
 			{
-				const float pathRadius = 2;
+				const float PATH_RADIUS = 2;
 
-				const int pathPointCount = 7;
-				const float size = 30;
-				const float top = 2 * size;
-				const float gap = 1.2f * size;
-				const float outter = 2 * size;
-				const float h = 0.5f;
-				Vector3[] pathPoints = new Vector3[pathPointCount]
+				const int PATH_POINT_COUNT = 7;
+				const float SIZE = 30;
+				const float TOP = 2 * SIZE;
+				const float GAP = 1.2f * SIZE;
+				const float OUTTER = 2 * SIZE;
+				const float H = 0.5f;
+				Vector3[] pathPoints = new Vector3[PATH_POINT_COUNT]
 					{
-						new Vector3 (h+gap-outter,  0,  h+top-outter), // 0 a
-						new Vector3 (h+gap,         0,  h+top),        // 1 b
-						new Vector3 (h+gap+(top/2), 0,  h+top/2),      // 2 c
-						new Vector3 (h+gap,         0,  h),            // 3 d
-						new Vector3 (h,             0,  h),            // 4 e
-						new Vector3 (h,             0,  h+top),        // 5 f
-						new Vector3 (h+gap,         0,  h+top/2)       // 6 g
+						new Vector3 (H+GAP-OUTTER,  0,  H+TOP-OUTTER), // 0 a
+						new Vector3 (H+GAP,         0,  H+TOP),        // 1 b
+						new Vector3 (H+GAP+(TOP/2), 0,  H+TOP/2),      // 2 c
+						new Vector3 (H+GAP,         0,  H),            // 3 d
+						new Vector3 (H,             0,  H),            // 4 e
+						new Vector3 (H,             0,  H+TOP),        // 5 f
+						new Vector3 (H+GAP,         0,  H+TOP/2)       // 6 g
 					};
 
 				Obstacle1.Center = Vector3.Lerp(pathPoints[0], pathPoints[1], 0.2f);
@@ -66,10 +66,10 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 				Obstacles.Add(Obstacle2);
 
 				Endpoint0 = pathPoints[0];
-				Endpoint1 = pathPoints[pathPointCount - 1];
+				Endpoint1 = pathPoints[PATH_POINT_COUNT - 1];
 
 				_testPath = new PolylinePathway(pathPoints,
-												 pathRadius,
+												 PATH_RADIUS,
 												 false);
 			}
 			return _testPath;

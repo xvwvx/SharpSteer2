@@ -7,7 +7,7 @@ namespace SharpSteer2.Tests
     [TestClass]
     public class LocalSpaceBasisHelpersTest
     {
-        private ILocalSpaceBasis Basis(Matrix m)
+        private static ILocalSpaceBasis Basis(Matrix m)
         {
             return new LocalSpace(m);
         }

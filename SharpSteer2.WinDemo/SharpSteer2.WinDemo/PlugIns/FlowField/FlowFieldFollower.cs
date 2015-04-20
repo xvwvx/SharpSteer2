@@ -11,7 +11,7 @@ namespace SharpSteer2.WinDemo.PlugIns.FlowField
         : SimpleVehicle
     {
         private readonly FlowFieldPlugIn _plugin;
-        public Trail Trail;
+        private Trail _trail;
 
         private readonly ITokenForProximityDatabase<IVehicle> _proximityToken;
 
@@ -32,8 +32,8 @@ namespace SharpSteer2.WinDemo.PlugIns.FlowField
 
             RandomizeStartingPositionAndHeading();  // new starting position
 
-            Trail = new Trail(7.5f, 600);
-            Trail.Clear();
+            _trail = new Trail(7.5f, 600);
+            _trail.Clear();
         }
 
         private void RandomizeStartingPositionAndHeading()
@@ -51,7 +51,7 @@ namespace SharpSteer2.WinDemo.PlugIns.FlowField
             ApplySteeringForce(SteeringForce(), elapsedTime);
 
             annotation.VelocityAcceleration(this);
-            Trail.Record(currentTime, Position);
+            _trail.Record(currentTime, Position);
 
             _proximityToken.UpdateForNewPosition(Position);
         }
@@ -63,18 +63,18 @@ namespace SharpSteer2.WinDemo.PlugIns.FlowField
 
             var flowField = SteerToFollowFlowField(_plugin.FlowField, _plugin.PredictionTime);
 
-			const float caLeadTime = 3;
+			const float CA_LEAD_TIME = 3;
 
 			// find all neighbors within maxRadius using proximity database
 			// (radius is largest distance between vehicles traveling head-on
 			// where a collision is possible within caLeadTime seconds.)
-			float maxRadius = caLeadTime * MaxSpeed * 2;
+			float maxRadius = CA_LEAD_TIME * MaxSpeed * 2;
             var neighbours = new List<IVehicle>();
 			_proximityToken.FindNeighbors(Position, maxRadius, neighbours);
 
             if (neighbours.Count > 0)
             {
-                var avoid = SteerToAvoidNeighbors(caLeadTime, neighbours) * 10;
+                var avoid = SteerToAvoidNeighbors(CA_LEAD_TIME, neighbours) * 10;
                 if (avoid != Vector3.Zero)
                     return avoid;
             }
@@ -90,7 +90,7 @@ namespace SharpSteer2.WinDemo.PlugIns.FlowField
         internal void Draw()
         {
             Drawing.DrawBasic2dCircularVehicle(this, Color.GhostWhite);
-            Trail.Draw(annotation);
+            _trail.Draw(annotation);
         }
     }
 }

@@ -258,7 +258,7 @@ namespace SharpSteer2.WinDemo
 			foreach (IVehicle vehicle in vehicles)
 			{
 				// distance from this vehicle's center to the selection line:
-				float d = Vector3Helpers.DistanceFromLine(vehicle.Position, Camera.Position, direction);
+				float d = vehicle.Position.DistanceFromLine(Camera.Position, direction);
 
 				// if this vehicle-to-line distance is the smallest so far,
 				// store it and this vehicle in the selection registers.
@@ -338,16 +338,7 @@ namespace SharpSteer2.WinDemo
 				int i = Array.FindIndex(all, v => v != null && v == SelectedVehicle);
 				if (i >= 0 && i < all.Length)
 				{
-                    if (i == all.Length - 1)
-					{
-						// if we are at the end of the container, select the first vehicle
-						SelectedVehicle = all[0];
-					}
-					else
-					{
-						// normally select the next vehicle in container
-						SelectedVehicle = all[i + 1];
-					}
+                    SelectedVehicle = i == all.Length - 1 ? all[0] : all[i + 1];
 				}
 				else
 				{

@@ -66,13 +66,13 @@ namespace SharpSteer2.Tests
         [TestMethod]
         public void RotateVectorAboutGlobalYClockwiseWithCache()
         {
-            const float angle = MathHelper.PiOver2;
-            float sin = (float)Math.Sin(angle);
-            float cos = (float)Math.Cos(angle);
+            const float ANGLE = MathHelper.PiOver2;
+            float sin = (float)Math.Sin(ANGLE);
+            float cos = (float)Math.Cos(ANGLE);
 
             float computedSin = 0;
             float computedCos = 0;
-            AssertVectorEquality(new Vector3(1, 1, 0), new Vector3(0, 1, 1).RotateAboutGlobalY(angle, ref computedSin, ref computedCos), 0.0000001f);
+            AssertVectorEquality(new Vector3(1, 1, 0), new Vector3(0, 1, 1).RotateAboutGlobalY(ANGLE, ref computedSin, ref computedCos), 0.0000001f);
 
             Assert.AreEqual(sin, computedSin);
             Assert.AreEqual(cos, computedCos);
@@ -81,13 +81,13 @@ namespace SharpSteer2.Tests
         [TestMethod]
         public void RotateVectorAboutGlobalYAntiClockwiseWithCache()
         {
-            const float angle = -MathHelper.PiOver2;
-            float sin = (float)Math.Sin(angle);
-            float cos = (float)Math.Cos(angle);
+            const float ANGLE = -MathHelper.PiOver2;
+            float sin = (float)Math.Sin(ANGLE);
+            float cos = (float)Math.Cos(ANGLE);
 
             float computedSin = 0;
             float computedCos = 0;
-            AssertVectorEquality(new Vector3(1, 1, 0), new Vector3(0, 1, -1).RotateAboutGlobalY(angle, ref computedSin, ref computedCos), 0.0000001f);
+            AssertVectorEquality(new Vector3(1, 1, 0), new Vector3(0, 1, -1).RotateAboutGlobalY(ANGLE, ref computedSin, ref computedCos), 0.0000001f);
 
             Assert.AreEqual(sin, computedSin);
             Assert.AreEqual(cos, computedCos);
@@ -99,9 +99,9 @@ namespace SharpSteer2.Tests
             Vector3 pos = new Vector3(10, 11, 12);
 
             Vector3 center = Vector3.Zero;
-            const float radius = 20;
+            const float RADIUS = 20;
 
-            Assert.AreEqual(pos, pos.SphericalWrapAround(center, radius));
+            Assert.AreEqual(pos, pos.SphericalWrapAround(center, RADIUS));
         }
 
         [TestMethod]
@@ -110,9 +110,9 @@ namespace SharpSteer2.Tests
             Vector3 pos = new Vector3(0, 0, 30);
 
             Vector3 center = Vector3.Zero;
-            const float radius = 20;
+            const float RADIUS = 20;
 
-            Assert.AreEqual(new Vector3(0, 0, -10), pos.SphericalWrapAround(center, radius));
+            Assert.AreEqual(new Vector3(0, 0, -10), pos.SphericalWrapAround(center, RADIUS));
         }
 
         [TestMethod]
@@ -121,12 +121,12 @@ namespace SharpSteer2.Tests
             Vector3 pos = new Vector3(0, 0, 90);
 
             Vector3 center = Vector3.Zero;
-            const float radius = 20;
+            const float RADIUS = 20;
 
-            Assert.AreEqual(new Vector3(0, 0, 10), pos.SphericalWrapAround(center, radius));
+            Assert.AreEqual(new Vector3(0, 0, 10), pos.SphericalWrapAround(center, RADIUS));
         }
 
-        private void BitsetDirections(Vector3 a, ref int bitset)
+        private static void BitsetDirections(Vector3 a, ref int bitset)
         {
             bitset |= (a.X > 0 ? 1 : 2);
             bitset |= (a.Y > 0 ? 4 : 8);

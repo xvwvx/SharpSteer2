@@ -84,12 +84,12 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			Demo.UpdateCamera(elapsedTime, _vehicle);
 
 			// draw "ground plane"  (make it 4x map size)
-			const float s = MapDriver.WORLD_SIZE * 2;
-			const float u = -0.2f;
-			Drawing.DrawQuadrangle(new Vector3(+s, u, +s),
-							new Vector3(+s, u, -s),
-							new Vector3(-s, u, -s),
-							new Vector3(-s, u, +s),
+			const float S = MapDriver.WORLD_SIZE * 2;
+			const float U = -0.2f;
+			Drawing.DrawQuadrangle(new Vector3(+S, U, +S),
+							new Vector3(+S, U, -S),
+							new Vector3(-S, U, -S),
+							new Vector3(-S, U, +S),
 							new Color((byte)(255.0f * 0.8f), (byte)(255.0f * 0.7f), (byte)(255.0f * 0.5f))); // "sand"
 
 			// draw map and path
@@ -100,15 +100,15 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			_vehicle.Draw();
 
 			// QQQ mark origin to help spot artifacts
-			const float tick = 2;
-			Drawing.DrawLine(new Vector3(tick, 0, 0), new Vector3(-tick, 0, 0), Color.Green);
-			Drawing.DrawLine(new Vector3(0, 0, tick), new Vector3(0, 0, -tick), Color.Green);
+			const float TICK = 2;
+			Drawing.DrawLine(new Vector3(TICK, 0, 0), new Vector3(-TICK, 0, 0), Color.Green);
+			Drawing.DrawLine(new Vector3(0, 0, TICK), new Vector3(0, 0, -TICK), Color.Green);
 
 			// compute conversion factor miles-per-hour to meters-per-second
-			const float metersPerMile = 1609.344f;
-			const float secondsPerHour = 3600;
+			const float METERS_PER_MILE = 1609.344f;
+			const float SECONDS_PER_HOUR = 3600;
 // ReSharper disable InconsistentNaming
-			const float MPSperMPH = metersPerMile / secondsPerHour;
+			const float MPSperMPH = METERS_PER_MILE / SECONDS_PER_HOUR;
 // ReSharper restore InconsistentNaming
 
 			// display status in the upper left corner of the window
@@ -139,28 +139,16 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 			if (2 == MapDriver.DemoSelect)
 			{
 				status.Append("\n[F2] path following direction: ");
-				if (_vehicle.PathFollowDirection > 0)
-					status.Append("+1");
-				else
-					status.Append("-1");
-				status.Append("\n[F3] path fence: ");
-				if (_usePathFences)
-					status.Append("on");
-				else
-					status.Append("off");
+			    status.Append(_vehicle.PathFollowDirection > 0 ? "+1" : "-1");
+			    status.Append("\n[F3] path fence: ");
+			    status.Append(_usePathFences ? "on" : "off");
 			}
 
 			status.Append("\n[F4] rocks: ");
-			if (_useRandomRocks)
-				status.Append("on");
-			else
-				status.Append("off");
-			status.Append("\n[F5] prediction: ");
-			if (_vehicle.CurvedSteering)
-				status.Append("curved");
-			else
-				status.Append("linear");
-			if (2 == MapDriver.DemoSelect)
+		    status.Append(_useRandomRocks ? "on" : "off");
+		    status.Append("\n[F5] prediction: ");
+		    status.Append(_vehicle.CurvedSteering ? "curved" : "linear");
+		    if (2 == MapDriver.DemoSelect)
 			{
 				status.AppendFormat("\n\nLap {0} (completed: {1}%)",
 					_vehicle.LapsStarted,
@@ -184,27 +172,27 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			{
 				float v = Drawing.GetWindowHeight() - 5;
-				const float m = 10;
+				const float M = 10;
 				float w = Drawing.GetWindowWidth();
-				float f = w - (2 * m);
+				float f = w - (2 * M);
 
 				// limit tick mark
 				float l = _vehicle.AnnoteMaxRelSpeed;
-				Drawing.Draw2dLine(new Vector3(m + (f * l), v - 3, 0), new Vector3(m + (f * l), v + 3, 0), Color.Black);
+				Drawing.Draw2dLine(new Vector3(M + (f * l), v - 3, 0), new Vector3(M + (f * l), v + 3, 0), Color.Black);
 				// two "inverse speedometers" showing limits due to curvature and
 				// path alignment
-				if (l != 0)
+				if (Math.Abs(l) > float.Epsilon)
 				{
 					float c = _vehicle.AnnoteMaxRelSpeedCurve;
 					float p = _vehicle.AnnoteMaxRelSpeedPath;
-					Drawing.Draw2dLine(new Vector3(m + (f * c), v + 1, 0), new Vector3(w - m, v + 1, 0), Color.Red);
-					Drawing.Draw2dLine(new Vector3(m + (f * p), v - 2, 0), new Vector3(w - m, v - 1, 0), Color.Green);
+					Drawing.Draw2dLine(new Vector3(M + (f * c), v + 1, 0), new Vector3(w - M, v + 1, 0), Color.Red);
+					Drawing.Draw2dLine(new Vector3(M + (f * p), v - 2, 0), new Vector3(w - M, v - 1, 0), Color.Green);
 				}
 				// speedometer: horizontal line with length proportional to speed
-				Drawing.Draw2dLine(new Vector3(m, v, 0), new Vector3(m + (f * s), v, 0), Color.White);
+				Drawing.Draw2dLine(new Vector3(M, v, 0), new Vector3(M + (f * S), v, 0), Color.White);
 				// min and max tick marks
-				Drawing.Draw2dLine(new Vector3(m, v, 0), new Vector3(m, v - 2, 0), Color.White);
-				Drawing.Draw2dLine(new Vector3(w - m, v, 0), new Vector3(w - m, v - 2, 0), Color.White);
+				Drawing.Draw2dLine(new Vector3(M, v, 0), new Vector3(M, v - 2, 0), Color.White);
+				Drawing.Draw2dLine(new Vector3(w - M, v, 0), new Vector3(w - M, v - 2, 0), Color.White);
 			}
 		}
 
@@ -248,15 +236,14 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 
 			case Keys.F6: // QQQ draw an enclosed "pen" of obstacles to test cycle-stuck
 				{
-					const float m = MapDriver.WORLD_SIZE * 0.4f; // main diamond size
-					const float n = MapDriver.WORLD_SIZE / 8; // notch size
-					Vector3 q = new Vector3(0, 0, m - n);
-					Vector3 s = new Vector3(2 * n, 0, 0);
+					const float M = MapDriver.WORLD_SIZE * 0.4f; // main diamond size
+					const float N = MapDriver.WORLD_SIZE / 8; // notch size
+					Vector3 q = new Vector3(0, 0, M - N);
+					Vector3 s = new Vector3(2 * N, 0, 0);
 					Vector3 c = s - q;
 					Vector3 d =s + q;
-					const int pathPointCount = 2;
-					float[] pathRadii = new float[] { 10, 10 };
-					Vector3[] pathPoints = new Vector3[] { c, d };
+				    float[] pathRadii = { 10, 10 };
+					Vector3[] pathPoints = { c, d };
 					GCRoute r = new GCRoute(pathPoints, pathRadii, false);
 					DrawPathFencesOnMap(_vehicle.Map, r);
 					break;
@@ -352,20 +339,20 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 		{
 			if (_useRandomRocks)
 			{
-				const int spread = 4;
+				const int SPREAD = 4;
 				int r = map.Cellwidth();
 				int k = RandomHelpers.RandomInt(50, 150);
 
 				for (int p = 0; p < k; p++)
 				{
-					int i = RandomHelpers.RandomInt(0, r - spread);
-					int j = RandomHelpers.RandomInt(0, r - spread);
+					int i = RandomHelpers.RandomInt(0, r - SPREAD);
+					int j = RandomHelpers.RandomInt(0, r - SPREAD);
 					int c = RandomHelpers.RandomInt(0, 10);
 
 					for (int q = 0; q < c; q++)
 					{
-						int m = RandomHelpers.RandomInt(0, spread);
-						int n = RandomHelpers.RandomInt(0, spread);
+						int m = RandomHelpers.RandomInt(0, SPREAD);
+						int n = RandomHelpers.RandomInt(0, SPREAD);
 						map.SetMapBit(i + m, j + n, true);
 					}
 				}
@@ -420,14 +407,14 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 				for (int i = 0; i < map.Resolution; i++)
 				{
 					float outside = path.HowFarOutsidePath(g);
-					const float wallThickness = 1.0f;
+					const float WALL_THICKNESS = 1.0f;
 
 					// set map cells adjacent to the outside edge of the path
-					if ((outside > 0) && (outside < wallThickness))
+					if ((outside > 0) && (outside < WALL_THICKNESS))
 						map.SetMapBit(i, j, true);
 
 					// clear all other off-path map cells 
-					if (outside > wallThickness) map.SetMapBit(i, j, false);
+					if (outside > WALL_THICKNESS) map.SetMapBit(i, j, false);
 
 					g += alongRow;
 				}

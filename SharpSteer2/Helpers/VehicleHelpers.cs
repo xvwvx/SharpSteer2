@@ -448,9 +448,9 @@ namespace SharpSteer2.Helpers
             {
                 // parallel: +1, perpendicular: 0, anti-parallel: -1
                 float parallelness = Vector3.Dot(vehicle.Forward, threat.Forward);
-                const float angle = 0.707f;
+                const float ANGLE = 0.707f;
 
-                if (parallelness < -angle)
+                if (parallelness < -ANGLE)
                 {
                     // anti-parallel "head on" paths:
                     // steer away from future threat position
@@ -460,7 +460,7 @@ namespace SharpSteer2.Helpers
                 }
                 else
                 {
-                    if (parallelness > angle)
+                    if (parallelness > ANGLE)
                     {
                         // parallel paths: steer away from threat
                         Vector3 offset = threat.Position - vehicle.Position;

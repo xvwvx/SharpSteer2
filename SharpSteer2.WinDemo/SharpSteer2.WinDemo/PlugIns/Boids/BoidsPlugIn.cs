@@ -61,14 +61,12 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 
 		public override void Update(float currentTime, float elapsedTime)
 		{
-			// update flock simulation for each boid
-			for (int i = 0; i < _flock.Count; i++)
-			{
-				_flock[i].Update(currentTime, elapsedTime);
-			}
+		    // update flock simulation for each boid
+		    foreach (Boid boid in _flock)
+		        boid.Update(currentTime, elapsedTime);
 		}
 
-		public override void Redraw(float currentTime, float elapsedTime)
+	    public override void Redraw(float currentTime, float elapsedTime)
 		{
 			// selected vehicle (user can mouse click to select another)
 			IVehicle selected = Demo.SelectedVehicle;
@@ -82,10 +80,10 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 			DrawObstacles();
 
 			// draw each boid in flock
-			for (int i = 0; i < _flock.Count; i++)
-                _flock[i].Draw();
+			foreach (Boid boid in _flock)
+			    boid.Draw();
 
-			// highlight vehicle nearest mouse
+	        // highlight vehicle nearest mouse
 			Demo.DrawCircleHighlightOnVehicle(nearMouse, 1, Color.LightGray);
 
 			// highlight selected vehicle
@@ -123,10 +121,10 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		public override void Reset()
 		{
             // reset each boid in flock
-            for (int i = 0; i < _flock.Count; i++)
-                _flock[i].Reset();
+            foreach (Boid boid in _flock)
+                boid.Reset();
 
-            // reset camera position
+		    // reset camera position
             Demo.Position3dCamera(Demo.SelectedVehicle);
 
             // make camera jump immediately to new position
@@ -139,25 +137,26 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 	    private void NextPD()
 		{
 	        // allocate new PD
-			const int totalPD = 1;
-			switch (_cyclePD = (_cyclePD + 1) % totalPD)
+			const int TOTAL_PD = 1;
+			switch (_cyclePD = (_cyclePD + 1) % TOTAL_PD)
 			{
 			case 0:
 				{
 					Vector3 center = Vector3.Zero;
-					const float div = 10.0f;
-					Vector3 divisions = new Vector3(div, div, div);
-					const float diameter = Boid.WORLD_RADIUS * 1.1f * 2;
-					Vector3 dimensions = new Vector3(diameter, diameter, diameter);
+					const float DIV = 10.0f;
+					Vector3 divisions = new Vector3(DIV, DIV, DIV);
+					const float DIAMETER = Boid.WORLD_RADIUS * 1.1f * 2;
+					Vector3 dimensions = new Vector3(DIAMETER, DIAMETER, DIAMETER);
 					_pd = new LocalityQueryProximityDatabase<IVehicle>(center, dimensions, divisions);
 					break;
 				}
 			}
 
 			// switch each boid to new PD
-			for (int i = 0; i < _flock.Count; i++) _flock[i].NewPD(_pd);
+			foreach (Boid boid in _flock)
+			    boid.NewPD(_pd);
 
-			// delete old PD (if any)
+	        // delete old PD (if any)
 		}
 
 		public override void HandleFunctionKeys(Keys key)
@@ -228,16 +227,16 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 	    private int _cyclePD;
 
 	    private static void DrawObstacles()
-		{
-			//Color color = new Color((byte)(255.0f * 0.8f), (byte)(255.0f * 0.6f), (byte)(255.0f * 0.4f));
+	    {
+	        //Color color = new Color((byte)(255.0f * 0.8f), (byte)(255.0f * 0.6f), (byte)(255.0f * 0.4f));
 			List<SphericalObstacle> allSO = Boid.AllObstacles;
-			for (int so = 0; so < allSO.Count; so++)
-			{
-				//Drawing.DrawBasic3dSphere(allSO[so].Center, allSO[so].Radius, Color.Red);
-				Drawing.Draw3dCircleOrDisk(allSO[so].Radius, allSO[so].Center, Vector3.UnitY, Color.Red, 10, true);
-				Drawing.Draw3dCircleOrDisk(allSO[so].Radius, allSO[so].Center, Vector3.UnitX, Color.Red, 10, true);
-				Drawing.Draw3dCircleOrDisk(allSO[so].Radius, allSO[so].Center, Vector3.UnitZ, Color.Red, 10, true);
-			}
-		}
+	        foreach (SphericalObstacle obstacle in allSO)
+	        {
+                //Drawing.DrawBasic3dSphere(allSO[so].Center, allSO[so].Radius, Color.Red);
+	            Drawing.Draw3dCircleOrDisk(obstacle.Radius, obstacle.Center, Vector3.UnitY, Color.Red, 10, true);
+	            Drawing.Draw3dCircleOrDisk(obstacle.Radius, obstacle.Center, Vector3.UnitX, Color.Red, 10, true);
+	            Drawing.Draw3dCircleOrDisk(obstacle.Radius, obstacle.Center, Vector3.UnitZ, Color.Red, 10, true);
+	        }
+	    }
 	}
 }

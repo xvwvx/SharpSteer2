@@ -43,10 +43,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			Position = new Vector3(_imTeamA ? RandomHelpers.Random() * 20 : -RandomHelpers.Random() * 20, 0, (RandomHelpers.Random() - 0.5f) * 20);
 			if (_myID < 9)
 			{
-				if (_imTeamA)
-					Position = (Globals.PlayerPosition[_myID]);
-				else
-					Position = (new Vector3(-Globals.PlayerPosition[_myID].X, Globals.PlayerPosition[_myID].Y, Globals.PlayerPosition[_myID].Z));
+				Position = _imTeamA ? (Globals.PlayerPosition[_myID]) : (new Vector3(-Globals.PlayerPosition[_myID].X, Globals.PlayerPosition[_myID].Y, Globals.PlayerPosition[_myID].Z));
 			}
 			_home = Position;
 

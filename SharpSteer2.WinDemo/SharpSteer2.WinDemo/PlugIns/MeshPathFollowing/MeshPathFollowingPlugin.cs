@@ -47,7 +47,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
                 points.Add(new Vector3(xOffset + 3, 0, i));
             }
 
-            _path = new TrianglePathway(points, false);
+            _path = new TrianglePathway(points);
         }
 
         public override void Update(float currentTime, float elapsedTime)

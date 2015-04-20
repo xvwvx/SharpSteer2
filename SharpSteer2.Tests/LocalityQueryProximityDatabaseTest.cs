@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
@@ -33,7 +31,7 @@ namespace SharpSteer2.Tests
             token.UpdateForNewPosition(Vector3.Zero);
         }
 
-        private ITokenForProximityDatabase<object> CreateToken(LocalityQueryProximityDatabase<object> db, Vector3 position, Dictionary<object, Vector3> lookup)
+        private static ITokenForProximityDatabase<object> CreateToken(IProximityDatabase<object> db, Vector3 position, IDictionary<object, Vector3> lookup)
         {
             var obj = new object();
 
@@ -53,23 +51,23 @@ namespace SharpSteer2.Tests
 
             Dictionary<object, Vector3> positionLookup = new Dictionary<object, Vector3>();
 
-            var x0y0z0 = CreateToken(db, new Vector3(0, 0, 0), positionLookup);
-            var x1y0z0 = CreateToken(db, new Vector3(1, 0, 0), positionLookup);
-            var x3y0z0 = CreateToken(db, new Vector3(3, 0, 0), positionLookup);
+            var xyz000 = CreateToken(db, new Vector3(0, 0, 0), positionLookup);
+            var xyz100 = CreateToken(db, new Vector3(1, 0, 0), positionLookup);
+            CreateToken(db, new Vector3(3, 0, 0), positionLookup);
 
             var list = new List<object>();
-            x0y0z0.FindNeighbors(Vector3.Zero, 2, list);
+            xyz000.FindNeighbors(Vector3.Zero, 2, list);
 
             Assert.AreEqual(2, list.Count);
             Assert.AreEqual(1, list.Count(a => positionLookup[a] == new Vector3(0, 0, 0)));
             Assert.AreEqual(1, list.Count(a => positionLookup[a] == new Vector3(1, 0, 0)));
 
             //Check tokens handle being disposed twice
-            x0y0z0.Dispose();
-            x0y0z0.Dispose();
+            xyz000.Dispose();
+            xyz000.Dispose();
 
             list.Clear();
-            x1y0z0.FindNeighbors(Vector3.Zero, 1.5f, list);
+            xyz100.FindNeighbors(Vector3.Zero, 1.5f, list);
 
             Assert.AreEqual(1, list.Count);
             Assert.AreEqual(new Vector3(1, 0, 0), positionLookup[list[0]]);
@@ -82,20 +80,20 @@ namespace SharpSteer2.Tests
 
             Dictionary<object, Vector3> positionLookup = new Dictionary<object, Vector3>();
 
-            var x0y0z0 = CreateToken(db, new Vector3(0, 0, 0), positionLookup);
-            var x3y0z0 = CreateToken(db, new Vector3(3, 0, 0), positionLookup);
-            var x4y0z0 = CreateToken(db, new Vector3(4, 0, 0), positionLookup);
+            var token = CreateToken(db, new Vector3(0, 0, 0), positionLookup);
+            CreateToken(db, new Vector3(3, 0, 0), positionLookup);
+            CreateToken(db, new Vector3(4, 0, 0), positionLookup);
 
             var list = new List<object>();
-            x0y0z0.FindNeighbors(Vector3.Zero, 2, list);
+            token.FindNeighbors(Vector3.Zero, 2, list);
             Assert.AreEqual(1, list.Count);
 
             list.Clear();
-            x0y0z0.FindNeighbors(new Vector3(3, 0, 0), 0.1f, list);
+            token.FindNeighbors(new Vector3(3, 0, 0), 0.1f, list);
             Assert.AreEqual(1, list.Count);
 
             list.Clear();
-            x0y0z0.FindNeighbors(new Vector3(3, 0, 0),1.1f, list);
+            token.FindNeighbors(new Vector3(3, 0, 0),1.1f, list);
             Assert.AreEqual(2, list.Count);
         }
 

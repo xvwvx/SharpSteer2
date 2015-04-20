@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Database;
 using SharpSteer2.Helpers;
@@ -100,44 +101,42 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		// basic flocking
 	    private Vector3 SteerToFlock()
 		{
-			const float separationRadius = 5.0f;
-			const float separationAngle = -0.707f;
-			const float separationWeight = 12.0f;
+			const float SEPARATION_RADIUS = 5.0f;
+			const float SEPARATION_ANGLE = -0.707f;
+			const float SEPARATION_WEIGHT = 12.0f;
 
-			const float alignmentRadius = 7.5f;
-			const float alignmentAngle = 0.7f;
-			const float alignmentWeight = 8.0f;
+			const float ALIGNMENT_RADIUS = 7.5f;
+			const float ALIGNMENT_ANGLE = 0.7f;
+			const float ALIGNMENT_WEIGHT = 8.0f;
 
-			const float cohesionRadius = 9.0f;
-			const float cohesionAngle = -0.15f;
-			const float cohesionWeight = 8.0f;
+			const float COHESION_RADIUS = 9.0f;
+			const float COHESION_ANGLE = -0.15f;
+			const float COHESION_WEIGHT = 8.0f;
 
-			float maxRadius = Math.Max(separationRadius, Math.Max(alignmentRadius, cohesionRadius));
+			float maxRadius = Math.Max(SEPARATION_RADIUS, Math.Max(ALIGNMENT_RADIUS, COHESION_RADIUS));
 
 			// find all flockmates within maxRadius using proximity database
 			_neighbors.Clear();
 			_proximityToken.FindNeighbors(Position, maxRadius, _neighbors);
 
 			// determine each of the three component behaviors of flocking
-			Vector3 separation = SteerForSeparation(separationRadius, separationAngle, _neighbors);
-			Vector3 alignment = SteerForAlignment(alignmentRadius, alignmentAngle, _neighbors);
-			Vector3 cohesion = SteerForCohesion(cohesionRadius, cohesionAngle, _neighbors);
+			Vector3 separation = SteerForSeparation(SEPARATION_RADIUS, SEPARATION_ANGLE, _neighbors);
+			Vector3 alignment = SteerForAlignment(ALIGNMENT_RADIUS, ALIGNMENT_ANGLE, _neighbors);
+			Vector3 cohesion = SteerForCohesion(COHESION_RADIUS, COHESION_ANGLE, _neighbors);
 
 			// apply weights to components (save in variables for annotation)
-			Vector3 separationW = separation * separationWeight;
-			Vector3 alignmentW = alignment * alignmentWeight;
-			Vector3 cohesionW = cohesion * cohesionWeight;
+			Vector3 separationW = separation * SEPARATION_WEIGHT;
+			Vector3 alignmentW = alignment * ALIGNMENT_WEIGHT;
+			Vector3 cohesionW = cohesion * COHESION_WEIGHT;
 
 			Vector3 avoidance = SteerToAvoidObstacles(AVOIDANCE_PREDICT_TIME_MIN, AllObstacles);
 
 			// saved for annotation
 			bool avoiding = (avoidance != Vector3.Zero);
 			Vector3 steer = separationW + alignmentW + cohesionW;
+
 			if (avoiding)
-			{
 				steer = avoidance;
-				System.Diagnostics.Debug.WriteLine(String.Format("Avoiding: [{0}, {1}, {2}]", avoidance.X, avoidance.Y, avoidance.Z));
-			}
 #if IGNORED
 			// annotation
 			const float s = 0.1f;
@@ -200,8 +199,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 		// cycle through various boundary conditions
 		public static void NextBoundaryCondition()
 		{
-			const int max = 2;
-			BoundaryCondition = (BoundaryCondition + 1) % max;
+			const int MAX = 2;
+			BoundaryCondition = (BoundaryCondition + 1) % MAX;
 		}
 
 		// dynamic obstacle registry
@@ -244,14 +243,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Boids
 
 		public float MinDistanceToObstacle(Vector3 point)
 		{
-			const float r = 0;
+			const float R = 0;
 			Vector3 c = point;
-			float minClearance = float.MaxValue;
-			for (int so = 0; so < AllObstacles.Count; so++)
-			{
-				minClearance = TestOneObstacleOverlap(minClearance, r, AllObstacles[so].Radius, c, AllObstacles[so].Center);
-			}
-			return minClearance;
+		    return AllObstacles.Aggregate(float.MaxValue, (current, obstacle) => TestOneObstacleOverlap(current, R, obstacle.Radius, c, obstacle.Center));
 		}
 
 		static float TestOneObstacleOverlap(float minClearance, float r, float radius, Vector3 c, Vector3 center)

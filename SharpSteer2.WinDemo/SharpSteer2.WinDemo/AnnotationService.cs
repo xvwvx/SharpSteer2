@@ -135,9 +135,8 @@ namespace SharpSteer2.WinDemo
 
 		public void VelocityAcceleration(IVehicle vehicle, float maxLengthAcceleration, float maxLengthVelocity)
 		{
-			const byte desat = 102;
-			Color vColor = new Color(255, desat, 255); // pinkish
-			Color aColor = new Color(desat, desat, 255); // bluish
+			Color vColor = new Color(255, 102, 255); // pinkish
+			Color aColor = new Color(102, 102, 255); // bluish
 
 			float aScale = maxLengthAcceleration / vehicle.MaxForce;
 			float vScale = maxLengthVelocity / vehicle.MaxSpeed;

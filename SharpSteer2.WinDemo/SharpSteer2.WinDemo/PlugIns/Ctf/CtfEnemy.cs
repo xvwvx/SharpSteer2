@@ -46,10 +46,7 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 				// saved for annotation
 				Avoiding = (avoidance == Vector3.Zero);
 
-				if (Avoiding)
-					steer = SteerForPursuit(Globals.Seeker, maxPredictionTime);
-				else
-					steer = avoidance;
+				steer = Avoiding ? SteerForPursuit(Globals.Seeker, maxPredictionTime) : avoidance;
 			}
 			else
 			{

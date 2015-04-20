@@ -9,7 +9,7 @@ namespace SharpSteer2.Tests
     {
         private readonly SphericalObstacle _obstacle = new SphericalObstacle(10, Vector3.Zero);
 
-        private readonly SimpleVehicle _vehicle = new SimpleVehicle(null);
+        private readonly SimpleVehicle _vehicle = new SimpleVehicle();
 
         [TestMethod]
         public void SteerToAvoidReturnsZeroVectorIfThereIsNoIntersection()

@@ -196,8 +196,8 @@ namespace SharpSteer2.WinDemo
 					Vector3 globalOffset = v.GlobalizeDirection(PovOffset);
 					newPosition = futurePosition + globalOffset;
 					// XXX hack to improve smoothing between modes (no effect on aim)
-					const float l = 10;
-					newTarget = newPosition + (v.Forward * l);
+					const float L = 10;
+					newTarget = newPosition + (v.Forward * L);
 					break;
 				}
 			}

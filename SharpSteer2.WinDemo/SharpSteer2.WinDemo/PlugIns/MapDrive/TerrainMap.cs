@@ -96,11 +96,11 @@ namespace SharpSteer2.WinDemo.PlugIns.MapDrive
 						// drawLine (g, g+spikeTop, gWhite);
 
 						// squares
-						const float rockHeight = 0;
-						Vector3 v1 = new Vector3(+xs / 2, rockHeight, +zs / 2);
-						Vector3 v2 = new Vector3(+xs / 2, rockHeight, -zs / 2);
-						Vector3 v3 = new Vector3(-xs / 2, rockHeight, -zs / 2);
-						Vector3 v4 = new Vector3(-xs / 2, rockHeight, +zs / 2);
+						const float ROCK_HEIGHT = 0;
+						Vector3 v1 = new Vector3(+xs / 2, ROCK_HEIGHT, +zs / 2);
+						Vector3 v2 = new Vector3(+xs / 2, ROCK_HEIGHT, -zs / 2);
+						Vector3 v3 = new Vector3(-xs / 2, ROCK_HEIGHT, -zs / 2);
+						Vector3 v4 = new Vector3(-xs / 2, ROCK_HEIGHT, +zs / 2);
 						// Vector3 redRockColor (0.6f, 0.1f, 0.0f);
 						Color orangeRockColor = new Color((byte)(255.0f * 0.5f), (byte)(255.0f * 0.2f), (byte)(255.0f * 0.0f));
 						Drawing.DrawQuadrangle(g + v1, g + v2, g + v3, g + v4, orangeRockColor);

@@ -29,9 +29,6 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		public const float AVOIDANCE_PREDICT_TIME_MAX = 2;
 		public static float AvoidancePredictTime = AVOIDANCE_PREDICT_TIME_MIN;
 
-		public static bool EnableAttackSeek = true; // for testing (perhaps retain for UI control?)
-		public static bool EnableAttackEvade = true; // for testing (perhaps retain for UI control?)
-
 		public static CtfSeeker Seeker = null;
 
 		// count the number of times the simulation has reset (e.g. for overnight runs)

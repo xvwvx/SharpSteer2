@@ -89,17 +89,15 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 
 		public override void Update(float currentTime, float elapsedTime)
 		{
-			// update the seeker
+		    // update the seeker
 			CtfSeeker.Update(currentTime, elapsedTime);
 
 			// update each enemy
-			for (int i = 0; i < CtfEnemies.Length; i++)
-			{
-				CtfEnemies[i].Update(currentTime, elapsedTime);
-			}
+		    foreach (CtfEnemy enemy in CtfEnemies)
+		        enemy.Update(currentTime, elapsedTime);
 		}
 
-		public override void Redraw(float currentTime, float elapsedTime)
+	    public override void Redraw(float currentTime, float elapsedTime)
 		{
 			// selected vehicle (user can mouse click to select another)
 			IVehicle selected = Demo.SelectedVehicle;
@@ -126,9 +124,10 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			DrawHomeBase();
 
 			// draw each enemy
-			for (int i = 0; i < CtfEnemies.Length; i++) CtfEnemies[i].Draw();
+			foreach (CtfEnemy enemy in CtfEnemies)
+			    enemy.Draw();
 
-			// highlight vehicle nearest mouse
+	        // highlight vehicle nearest mouse
 			Demo.HighlightVehicleUtility(nearMouse);
 		}
 
@@ -154,9 +153,10 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 
 			// reset the seeker ("hero"/"attacker") and enemies
 			CtfSeeker.Reset();
-			for (int i = 0; i < CtfEnemies.Length; i++) CtfEnemies[i].Reset();
+			foreach (CtfEnemy enemy in CtfEnemies)
+			    enemy.Reset();
 
-			// reset camera position
+		    // reset camera position
 			Demo.Position2dCamera(CtfSeeker);
 
 			// make camera jump immediately to new position
@@ -205,10 +205,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 		{
 			Color color = new Color((byte)(255.0f * 0.8f), (byte)(255.0f * 0.6f), (byte)(255.0f * 0.4f));
 			List<SphericalObstacle> allSO = CtfBase.AllObstacles;
-			for (int so = 0; so < allSO.Count; so++)
-			{
-				Drawing.DrawXZCircle(allSO[so].Radius, allSO[so].Center, color, 40);
-			}
+			foreach (SphericalObstacle soObstacle in allSO)
+			    Drawing.DrawXZCircle(soObstacle.Radius, soObstacle.Center, color, 40);
 		}
 
 		// a group (STL vector) of all vehicles in the PlugIn

@@ -175,14 +175,14 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			// probability that a lower priority behavior will be given a
 			// chance to "drive" even if a higher priority behavior might
 			// otherwise be triggered.
-			const float leakThrough = 0.1f;
+			const float LEAK_THROUGH = 0.1f;
 
 			// determine if obstacle avoidance is required
 			Vector3 obstacleAvoidance = Vector3.Zero;
-			if (leakThrough < RandomHelpers.Random())
+			if (LEAK_THROUGH < RandomHelpers.Random())
 			{
-				const float oTime = 6; // minTimeToCollision = 6 seconds
-				obstacleAvoidance = SteerToAvoidObstacles(oTime, Globals.Obstacles);
+				const float O_TIME = 6; // minTimeToCollision = 6 seconds
+				obstacleAvoidance = SteerToAvoidObstacles(O_TIME, Globals.Obstacles);
 			}
 
 			// if obstacle avoidance is needed, do it
@@ -194,17 +194,17 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			{
 				// otherwise consider avoiding collisions with others
 				Vector3 collisionAvoidance = Vector3.Zero;
-				const float caLeadTime = 3;
+				const float CA_LEAD_TIME = 3;
 
 				// find all neighbors within maxRadius using proximity database
 				// (radius is largest distance between vehicles traveling head-on
 				// where a collision is possible within caLeadTime seconds.)
-				float maxRadius = caLeadTime * MaxSpeed * 2;
+				float maxRadius = CA_LEAD_TIME * MaxSpeed * 2;
 				_neighbors.Clear();
 				_proximityToken.FindNeighbors(Position, maxRadius, _neighbors);
 
-				if (_neighbors.Count > 0 && leakThrough < RandomHelpers.Random())
-					collisionAvoidance = SteerToAvoidNeighbors(caLeadTime, _neighbors) * 10;
+				if (_neighbors.Count > 0 && LEAK_THROUGH < RandomHelpers.Random())
+					collisionAvoidance = SteerToAvoidNeighbors(CA_LEAD_TIME, _neighbors) * 10;
 
 				// if collision avoidance is needed, do it
 				if (collisionAvoidance != Vector3.Zero)
@@ -218,11 +218,11 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 						steeringForce += SteerForWander(elapsedTime);
 
 					// do (interactively) selected type of path following
-					const float pfLeadTime = 3;
+					const float PF_LEAD_TIME = 3;
 					Vector3 pathFollow =
 						(Globals.UseDirectedPathFollowing ?
-						 SteerToFollowPath(_pathDirection, pfLeadTime, _path) :
-						 SteerToStayOnPath(pfLeadTime, _path));
+						 SteerToFollowPath(_pathDirection, PF_LEAD_TIME, _path) :
+						 SteerToStayOnPath(PF_LEAD_TIME, _path));
 
 					// add in to steeringForce
 					steeringForce += pathFollow * 0.5f;

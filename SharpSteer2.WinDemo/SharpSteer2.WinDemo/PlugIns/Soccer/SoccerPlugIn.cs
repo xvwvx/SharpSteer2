@@ -38,8 +38,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			// Make a ball
 			_ball = new Ball(_bbox);
 			// Build team A
-			const int playerCountA = 8;
-			for (int i = 0; i < playerCountA; i++)
+			const int PLAYER_COUNT_A = 8;
+			for (int i = 0; i < PLAYER_COUNT_A; i++)
 			{
                 Player pMicTest = new Player(_teamA, _allPlayers, _ball, true, i, Annotations);
 				Demo.SelectedVehicle = pMicTest;
@@ -47,8 +47,8 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 				_allPlayers.Add(pMicTest);
 			}
 			// Build Team B
-			const int playerCountB = 8;
-			for (int i = 0; i < playerCountB; i++)
+			const int PLAYER_COUNT_B = 8;
+			for (int i = 0; i < PLAYER_COUNT_B; i++)
 			{
                 Player pMicTest = new Player(_teamB, _allPlayers, _ball, false, i, Annotations);
 				Demo.SelectedVehicle = pMicTest;
@@ -67,11 +67,11 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 		public override void Update(float currentTime, float elapsedTime)
 		{
 			// update simulation of test vehicle
-			for (int i = 0; i < _teamA.Count; i++)
-				_teamA[i].Update(elapsedTime);
-			for (int i = 0; i < _teamB.Count; i++)
-				_teamB[i].Update(elapsedTime);
-			_ball.Update(currentTime, elapsedTime);
+			foreach (Player player in _teamA)
+			    player.Update(elapsedTime);
+		    foreach (Player player in _teamB)
+		        player.Update(elapsedTime);
+		    _ball.Update(currentTime, elapsedTime);
 
 			if (_teamAGoal.IsInsideX(_ball.Position) && _teamAGoal.IsInsideZ(_ball.Position))
 			{
@@ -91,11 +91,11 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 			Demo.GridUtility(Vector3.Zero);
 
 			// draw test vehicle
-			for (int i = 0; i < _teamA.Count; i++)
-				_teamA[i].Draw();
-			for (int i = 0; i < _teamB.Count; i++)
-				_teamB[i].Draw();
-			_ball.Draw();
+			foreach (Player player in _teamA)
+			    player.Draw();
+		    foreach (Player player in _teamB)
+		        player.Draw();
+		    _ball.Draw();
 			_bbox.Draw();
 			_teamAGoal.Draw();
 			_teamBGoal.Draw();
@@ -131,11 +131,11 @@ namespace SharpSteer2.WinDemo.PlugIns.Soccer
 		public override void Reset()
 		{
 			// reset vehicle
-			for (int i = 0; i < _teamA.Count; i++)
-				_teamA[i].Reset();
-			for (int i = 0; i < _teamB.Count; i++)
-				_teamB[i].Reset();
-			_ball.Reset();
+			foreach (Player player in _teamA)
+			    player.Reset();
+		    foreach (Player player in _teamB)
+			    player.Reset();
+		    _ball.Reset();
 		}
 
 		//const AVGroup& allVehicles () {return (const AVGroup&) TeamA;}

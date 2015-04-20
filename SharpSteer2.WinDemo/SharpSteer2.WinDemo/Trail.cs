@@ -9,7 +9,6 @@ namespace SharpSteer2.WinDemo
 	public class Trail
 	{
 		int _currentIndex;			// Array index of most recently recorded point
-	    readonly float _duration;				// Duration (in seconds) of entire trail
 	    readonly float _sampleInterval;		// Desired interval between taking samples
 		float _lastSampleTime;		// Global time when lat sample was taken
 		int _dottedPhase;			// Dotted line: draw segment or not
@@ -34,12 +33,10 @@ namespace SharpSteer2.WinDemo
 		/// <param name="vertexCount">The number of smaples along the trails length.</param>
 		public Trail(float duration, int vertexCount)
 		{
-			_duration = duration;
-
-			// Set internal trail state
+		    // Set internal trail state
 			_currentIndex = 0;
 			_lastSampleTime = 0;
-			_sampleInterval = _duration / vertexCount;
+			_sampleInterval = duration / vertexCount;
 			_dottedPhase = 1;
 
 			// Initialize ring buffers
@@ -114,9 +111,9 @@ namespace SharpSteer2.WinDemo
 					else
 					{
 						// draw trail segments with opacity decreasing with age
-						const float minO = 0.05f; // minimum opacity
+						const float MIN_O = 0.05f; // minimum opacity
 						float fraction = (float)j / _vertices.Length;
-						float opacity = (fraction * (1 - minO)) + minO;
+						float opacity = (fraction * (1 - MIN_O)) + MIN_O;
                         annotation.Line(_vertices[index], _vertices[next], color, opacity);
 					}
 				}

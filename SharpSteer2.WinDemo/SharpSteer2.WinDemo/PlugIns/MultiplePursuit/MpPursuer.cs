@@ -39,8 +39,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 			float r = Radius + _wanderer.Radius;
 			if (d < r) Reset();
 
-			const float maxTime = 20; // xxx hard-to-justify value
-			ApplySteeringForce(SteerForPursuit(_wanderer, maxTime), elapsedTime);
+			const float MAX_TIME = 20; // xxx hard-to-justify value
+			ApplySteeringForce(SteerForPursuit(_wanderer, MAX_TIME), elapsedTime);
 
 			// for annotation
 			Trail.Record(currentTime, Position);
@@ -51,9 +51,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 		{
 			// randomize position on a ring between inner and outer radii
 			// centered around the home base
-			const float inner = 20;
-			const float outer = 30;
-			float radius = RandomHelpers.Random(inner, outer);
+			const float INNER = 20;
+			const float OUTER = 30;
+			float radius = RandomHelpers.Random(INNER, OUTER);
 			Vector3 randomOnRing = Vector3Helpers.RandomUnitVectorOnXZPlane() * radius;
 			Position = (_wanderer.Position + randomOnRing);
 

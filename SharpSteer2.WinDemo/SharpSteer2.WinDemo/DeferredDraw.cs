@@ -78,10 +78,6 @@ namespace SharpSteer2.WinDemo
 				_deferredCircleArray[_index]._in3D = in3D;
 				_index++;
 			}
-			else
-			{
-				System.Diagnostics.Debug.WriteLine("overflow in deferredDrawCircle buffer");
-			}
 		}
 
 		public static void DrawAll()

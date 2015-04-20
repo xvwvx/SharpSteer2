@@ -31,8 +31,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 			_allMp.Add(_wanderer);
 
 			// create the specified number of pursuers, save pointers to them
-			const int pursuerCount = 30;
-			for (int i = 0; i < pursuerCount; i++)
+			const int PURSUER_COUNT = 30;
+			for (int i = 0; i < PURSUER_COUNT; i++)
                 _allMp.Add(new MpPursuer(_wanderer, Annotations));
 			//pBegin = allMP.begin() + 1;  // iterator pointing to first pursuer
 			//pEnd = allMP.end();          // iterator pointing to last pursuer
@@ -71,9 +71,10 @@ namespace SharpSteer2.WinDemo.PlugIns.MultiplePursuit
 			Demo.GridUtility(selected.Position);
 
 			// draw each vehicles
-			for (int i = 0; i < _allMp.Count; i++) _allMp[i].Draw();
+			foreach (MpBase mp in _allMp)
+			    mp.Draw();
 
-			// highlight vehicle nearest mouse
+		    // highlight vehicle nearest mouse
 			Demo.HighlightVehicleUtility(nearMouse);
 			Demo.CircleHighlightVehicleUtility(selected);
 		}

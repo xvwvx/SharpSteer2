@@ -8,8 +8,8 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using SharpSteer2.Helpers;
 using SharpSteer2.Obstacles;
@@ -147,14 +147,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 			{
 				r = RandomHelpers.Random(1.5f, 4);
 				c = Vector3Helpers.RandomVectorOnUnitRadiusXZDisk() * Globals.MAX_START_RADIUS * 1.1f;
-				minClearance = float.MaxValue;
-				System.Diagnostics.Debug.WriteLine(String.Format("[{0}, {1}, {2}]", c.X, c.Y, c.Z));
-				for (int so = 0; so < AllObstacles.Count; so++)
-				{
-					minClearance = TestOneObstacleOverlap(minClearance, r, AllObstacles[so].Radius, c, AllObstacles[so].Center);
-				}
+			    minClearance = AllObstacles.Aggregate(float.MaxValue, (current, t) => TestOneObstacleOverlap(current, r, t.Radius, c, t.Center));
 
-                minClearance = TestOneObstacleOverlap(minClearance, r, radius - requiredClearance, c, Globals.HomeBaseCenter);
+			    minClearance = TestOneObstacleOverlap(minClearance, r, radius - requiredClearance, c, Globals.HomeBaseCenter);
 			}
 			while (minClearance < requiredClearance);
 
@@ -174,14 +169,9 @@ namespace SharpSteer2.WinDemo.PlugIns.Ctf
 
 	    private static float MinDistanceToObstacle(Vector3 point)
 		{
-			const float r = 0;
+			const float R = 0;
 			Vector3 c = point;
-			float minClearance = float.MaxValue;
-			for (int so = 0; so < AllObstacles.Count; so++)
-			{
-				minClearance = TestOneObstacleOverlap(minClearance, r, AllObstacles[so].Radius, c, AllObstacles[so].Center);
-			}
-			return minClearance;
+	        return AllObstacles.Aggregate(float.MaxValue, (current, t) => TestOneObstacleOverlap(current, R, t.Radius, c, t.Center));
 		}
 
 		static float TestOneObstacleOverlap(float minClearance, float r, float radius, Vector3 c, Vector3 center)

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SharpSteer2.Database;
 using SharpSteer2.Helpers;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SharpSteer2.WinDemo.PlugIns.AirCombat
 {
@@ -75,10 +74,10 @@ namespace SharpSteer2.WinDemo.PlugIns.AirCombat
         private void CreateDatabase()
         {
             Vector3 center = Vector3.Zero;
-            const float div = 10.0f;
-            Vector3 divisions = new Vector3(div, div, div);
-            const float diameter = Fighter.WORLD_RADIUS * 2;
-            Vector3 dimensions = new Vector3(diameter, diameter, diameter);
+            const float DIV = 10.0f;
+            Vector3 divisions = new Vector3(DIV, DIV, DIV);
+            const float DIAMETER = Fighter.WORLD_RADIUS * 2;
+            Vector3 dimensions = new Vector3(DIAMETER, DIAMETER, DIAMETER);
             _pd = new LocalityQueryProximityDatabase<IVehicle>(center, dimensions, divisions);
         }
 

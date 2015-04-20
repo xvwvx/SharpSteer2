@@ -55,14 +55,12 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 
 		public override void Update(float currentTime, float elapsedTime)
 		{
-			// update each Pedestrian
-			for (int i = 0; i < _crowd.Count; i++)
-			{
-				_crowd[i].Update(currentTime, elapsedTime);
-			}
+		    // update each Pedestrian
+		    foreach (Pedestrian pedestrian in _crowd)
+		        pedestrian.Update(currentTime, elapsedTime);
 		}
 
-		public override void Redraw(float currentTime, float elapsedTime)
+        public override void Redraw(float currentTime, float elapsedTime)
 		{
 			// selected Pedestrian (user can mouse click to select another)
 			IVehicle selected = Demo.SelectedVehicle;
@@ -78,9 +76,10 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			Demo.GridUtility(_gridCenter);
 
 			// draw and annotate each Pedestrian
-			for (int i = 0; i < _crowd.Count; i++) _crowd[i].Draw();
+			foreach (Pedestrian pedestrian in _crowd)
+			    pedestrian.Draw();
 
-			// draw the path they follow and obstacles they avoid
+            // draw the path they follow and obstacles they avoid
 			DrawPathAndObstacles();
 
 			// highlight Pedestrian nearest mouse
@@ -114,14 +113,10 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			case 1: status.Append("brute force"); break;
 			}
 			status.Append("\n[F4] ");
-			if (Globals.UseDirectedPathFollowing)
-				status.Append("Directed path following.");
-			else
-				status.Append("Stay on the path.");
-			status.Append("\n[F5] Wander: ");
-			if (Globals.WanderSwitch) status.Append("yes");
-			else status.Append("no");
-			status.Append("\n");
+            status.Append(Globals.UseDirectedPathFollowing ? "Directed path following." : "Stay on the path.");
+            status.Append("\n[F5] Wander: ");
+            status.Append(Globals.WanderSwitch ? "yes" : "no");
+            status.Append("\n");
 			Vector3 screenLocation = new Vector3(15, 50, 0);
 			Drawing.Draw2dTextAt2dLocation(status.ToString(), screenLocation, Color.LightGray);
 		}
@@ -132,21 +127,20 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 			// screen position when it is near the selected vehicle or mouse.
 			if (selected != null)//FIXME: && IsAnnotationEnabled)
 			{
-				for (int i = 0; i < _crowd.Count; i++)
+				foreach (IVehicle vehicle in _crowd)
 				{
-					IVehicle vehicle = _crowd[i];
-					const float nearDistance = 6;
-					Vector3 vp = vehicle.Position;
-					//Vector3 np = nearMouse.Position;
-					if ((Vector3.Distance(vp, selected.Position) < nearDistance)/* ||
+				    const float NEAR_DISTANCE = 6;
+				    Vector3 vp = vehicle.Position;
+				    //Vector3 np = nearMouse.Position;
+				    if ((Vector3.Distance(vp, selected.Position) < NEAR_DISTANCE)/* ||
 						(nearMouse != null && (Vector3.Distance(vp, np) < nearDistance))*/)
-					{
-						String sn = String.Format("#{0}", vehicle.GetHashCode());
-						Color textColor = new Color((byte)(255.0f * 0.8f), (byte)(255.0f * 1), (byte)(255.0f * 0.8f));
-						Vector3 textOffset = new Vector3(0, 0.25f, 0);
-						Vector3 textPos = vehicle.Position + textOffset;
-						Drawing.Draw2dTextAt3dLocation(sn, textPos, textColor);
-					}
+				    {
+				        String sn = String.Format("#{0}", vehicle.GetHashCode());
+				        Color textColor = new Color((byte)(255.0f * 0.8f), (byte)(255.0f * 1), (byte)(255.0f * 0.8f));
+				        Vector3 textOffset = new Vector3(0, 0.25f, 0);
+				        Vector3 textPos = vehicle.Position + textOffset;
+				        Drawing.Draw2dTextAt3dLocation(sn, textPos, textColor);
+				    }
 				}
 			}
 		}
@@ -172,9 +166,10 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		public override void Reset()
 		{
 			// reset each Pedestrian
-			for (int i = 0; i < _crowd.Count; i++) _crowd[i].Reset();
+			foreach (Pedestrian pedestrian in _crowd)
+			    pedestrian.Reset();
 
-			// reset camera position
+		    // reset camera position
 			Demo.Position2dCamera(Demo.SelectedVehicle);
 
 			// make camera jump immediately to new position
@@ -239,24 +234,24 @@ namespace SharpSteer2.WinDemo.PlugIns.Pedestrian
 		void NextPD()
 		{
 		    // allocate new PD
-			const int totalPD = 1;
-			switch (_cyclePD = (_cyclePD + 1) % totalPD)
+			const int TOTAL_PD = 1;
+			switch (_cyclePD = (_cyclePD + 1) % TOTAL_PD)
 			{
 			case 0:
 				{
 					Vector3 center = Vector3.Zero;
-					const float div = 20.0f;
-					Vector3 divisions = new Vector3(div, 1.0f, div);
-					const float diameter = 80.0f; //XXX need better way to get this
-					Vector3 dimensions = new Vector3(diameter, diameter, diameter);
+					const float DIV = 20.0f;
+					Vector3 divisions = new Vector3(DIV, 1.0f, DIV);
+					const float DIAMETER = 80.0f; //XXX need better way to get this
+					Vector3 dimensions = new Vector3(DIAMETER, DIAMETER, DIAMETER);
 					_pd = new LocalityQueryProximityDatabase<IVehicle>(center, dimensions, divisions);
 					break;
 				}
 			}
 
 			// switch each boid to new PD
-			for (int i = 0; i < _crowd.Count; i++)
-                _crowd[i].NewPD(_pd);
+			foreach (Pedestrian pedestrian in _crowd)
+			    pedestrian.NewPD(_pd);
 		}
 
         public override IEnumerable<IVehicle> Vehicles

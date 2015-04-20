@@ -55,14 +55,12 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 
 		public override void Update(float currentTime, float elapsedTime)
 		{
-			// update, draw and annotate each agent
-			for (int i = 0; i < _all.Count; i++)
-			{
-				_all[i].Update(currentTime, elapsedTime);
-			}
+		    // update, draw and annotate each agent
+		    foreach (LowSpeedTurn t in _all)
+		        t.Update(currentTime, elapsedTime);
 		}
 
-		public override void Redraw(float currentTime, float elapsedTime)
+	    public override void Redraw(float currentTime, float elapsedTime)
 		{
 			// selected vehicle (user can mouse click to select another)
 			IVehicle selected = Demo.SelectedVehicle;
@@ -77,18 +75,16 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 			Demo.GridUtility(selected.Position);
 
 			// update, draw and annotate each agent
-			for (int i = 0; i < _all.Count; i++)
+			foreach (LowSpeedTurn agent in _all)
 			{
-				// draw this agent
-				LowSpeedTurn agent = _all[i];
-				agent.Draw();
+			    agent.Draw();
 
-				// display speed near agent's screen position
-				Color textColor = new Color(new Vector3(0.8f, 0.8f, 1.0f));
-				Vector3 textOffset = new Vector3(0, 0.25f, 0);
-				Vector3 textPosition = agent.Position + textOffset;
-				String annote = String.Format("{0:0.00}", agent.Speed);
-				Drawing.Draw2dTextAt3dLocation(annote, textPosition, textColor);
+			    // display speed near agent's screen position
+			    Color textColor = new Color(new Vector3(0.8f, 0.8f, 1.0f));
+			    Vector3 textOffset = new Vector3(0, 0.25f, 0);
+			    Vector3 textPosition = agent.Position + textOffset;
+			    String annote = String.Format("{0:0.00}", agent.Speed);
+			    Drawing.Draw2dTextAt3dLocation(annote, textPosition, textColor);
 			}
 
 			// highlight vehicle nearest mouse
@@ -102,12 +98,13 @@ namespace SharpSteer2.WinDemo.PlugIns.LowSpeedTurn
 
 		public override void Reset()
 		{
-			// reset each agent
+		    // reset each agent
 			LowSpeedTurn.ResetStarts();
-			for (int i = 0; i < _all.Count; i++) _all[i].Reset();
+		    foreach (LowSpeedTurn t in _all)
+		        t.Reset();
 		}
 
-        public override IEnumerable<IVehicle> Vehicles
+	    public override IEnumerable<IVehicle> Vehicles
 		{
 			get { return _all.ConvertAll<IVehicle>(v => (IVehicle) v); }
 		}
