@@ -9,7 +9,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
         private readonly IPathway _path;
 
         public override float MaxForce { get { return 32; } }
-        public override float MaxSpeed { get { return 4; } }
+        public override float MaxSpeed { get { return 8; } }
 
         public PathWalker(IPathway path, IAnnotationService annotation)
             :base(annotation)

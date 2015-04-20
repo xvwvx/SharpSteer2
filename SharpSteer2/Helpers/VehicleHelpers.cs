@@ -75,6 +75,12 @@ namespace SharpSteer2.Helpers
 
         public static Vector3 SteerToFollowPath(this IVehicle vehicle, bool direction, float predictionTime, IPathway path, float maxSpeed, IAnnotationService annotation = null)
         {
+            float pathDistance;
+            return SteerToFollowPath(vehicle, direction, predictionTime, path, maxSpeed, out pathDistance, annotation);
+        }
+
+        public static Vector3 SteerToFollowPath(this IVehicle vehicle, bool direction, float predictionTime, IPathway path, float maxSpeed, out float currentPathDistance, IAnnotationService annotation = null)
+        {
             // our goal will be offset from our path distance by this amount
             float pathDistanceOffset = (direction ? 1 : -1) * predictionTime * vehicle.Speed;
 
@@ -82,13 +88,13 @@ namespace SharpSteer2.Helpers
             Vector3 futurePosition = vehicle.PredictFuturePosition(predictionTime);
 
             // measure distance along path of our current and predicted positions
-            float nowPathDistance = path.MapPointToPathDistance(vehicle.Position);
+            currentPathDistance = path.MapPointToPathDistance(vehicle.Position);
             float futurePathDistance = path.MapPointToPathDistance(futurePosition);
 
             // are we facing in the correction direction?
             bool rightway = ((pathDistanceOffset > 0) ?
-                                   (nowPathDistance < futurePathDistance) :
-                                   (nowPathDistance > futurePathDistance));
+                            (currentPathDistance < futurePathDistance) :
+                            (currentPathDistance > futurePathDistance));
 
             // find the point on the path nearest the predicted future position
             Vector3 tangent;
@@ -102,7 +108,7 @@ namespace SharpSteer2.Helpers
 
             // otherwise we need to steer towards a target point obtained
             // by adding pathDistanceOffset to our current path position
-            float targetPathDistance = nowPathDistance + pathDistanceOffset;
+            float targetPathDistance = currentPathDistance + pathDistanceOffset;
             Vector3 target = path.MapPathDistanceToPoint(targetPathDistance);
 
             if (annotation != null)

@@ -1,270 +1,280 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Diagnostics;
-//using System.Linq;
-//using System.Text;
-//using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-//namespace SharpSteer2.Pathway
-//{
-//    /// <summary>
-//    /// A pathway made out of triangular segments
-//    /// </summary>
-//    public class TrianglePathway
-//        :BasePathway
-//    {
-//        private readonly TriangleData[] _path;
-//        private readonly bool _cyclic;
-//        private readonly float _totalPathLength;
+namespace SharpSteer2.Pathway
+{
+    /// <summary>
+    /// A pathway made out of triangular segments
+    /// </summary>
+    public class TrianglePathway
+        : IPathway
+    {
+        private readonly Triangle[] _path;
+        private readonly bool _cyclic;
+        private readonly float _totalPathLength;
 
-//        public TrianglePathway(IEnumerable<TriangleData> path, bool cyclic = false)
-//        {
-//            _path = path.ToArray();
-//            _cyclic = cyclic;
-//            for (int i = 0; i < _path.Length; i++)
-//            {
-//                var aIndex = i;
-//                var a = _path[aIndex];
-//                var bIndex = cyclic ? ((i + 1) % _path.Length) : Math.Min(i, _path.Length - 1);
-//                var b = _path[bIndex];
+        public IEnumerable<Triangle> Triangles
+        {
+            get { return _path; }
+        }
 
-//                _path[aIndex].VectorToNextTriangle = b.Center - a.Center;
-//                _path[aIndex].Length = a.VectorToNextTriangle.Length();
-//                _path[aIndex].Tangent = a.VectorToNextTriangle / a.Length;
-//                _totalPathLength += a.Length;
-//            }
-//        }
+        public TrianglePathway(IList<Vector3> triangleStrip, bool cyclic = false)
+            : this(Enumerable.Range(0, triangleStrip.Count - 2)
+                .Select(i => new Triangle(triangleStrip[i], triangleStrip[i + (i % 2 == 0 ? 1 : 2)], triangleStrip[i + (i % 2 == 0 ? 2 : 1)])), cyclic)
+        {
+        }
 
-//        public override Vector3 MapPointToPath(Vector3 point, out Vector3 tangent, out float outside)
-//        {
-//            int index;
-//            return MapPointToPath(point, out tangent, out outside, out index);
-//        }
+        public TrianglePathway(IEnumerable<Triangle> path, bool cyclic = false)
+        {
+            _path = path.ToArray();
+            _cyclic = cyclic;
+            for (int i = 0; i < _path.Length; i++)
+            {
+                var aIndex = i;
+                var a = _path[aIndex];
+                var bIndex = cyclic ? ((i + 1) % _path.Length) : Math.Min(i + 1, _path.Length - 1);
 
-//        private Vector3 MapPointToPath(Vector3 point, out Vector3 tangent, out float outside, out int segmentIndex)
-//        {
-//            TriangleData? closest = null;
-//            float distanceSqr = float.PositiveInfinity;
-//            Vector3 closestPoint= Vector3.Zero;
-//            bool inside = false;
-//            segmentIndex = -1;
+                var vectorToNextTriangle = _path[bIndex].Center - a.Center;
+                a.Length = vectorToNextTriangle.Length();
+                a.Tangent = vectorToNextTriangle / a.Length;
+                _totalPathLength += a.Length;
 
-//            for (int i = 0; i < _path.Length; i++)
-//            {
-//                var triangleData = _path[i];
+                _path[aIndex] = a;
+            }
+        }
 
-//                bool isInside;
-//                var p = ClosestPointOnTriangle(triangleData, point, out isInside);
+        public Vector3 MapPointToPath(Vector3 point, out Vector3 tangent, out float outside)
+        {
+            int index;
+            return MapPointToPath(point, out tangent, out outside, out index);
+        }
 
-//                var normal = (point - p);
-//                var dSqr = normal.LengthSquared();
+        private Vector3 MapPointToPath(Vector3 point, out Vector3 tangent, out float outside, out int segmentIndex)
+        {
+            float distanceSqr = float.PositiveInfinity;
+            Vector3 closestPoint = Vector3.Zero;
+            bool inside = false;
+            segmentIndex = -1;
 
-//                if (dSqr < distanceSqr)
-//                {
-//                    distanceSqr = dSqr;
-//                    closestPoint = p;
-//                    closest = triangleData;
-//                    inside = isInside;
-//                    segmentIndex = i;
-//                }
-//            }
+            for (int i = 0; i < _path.Length; i++)
+            {
+                var triangleData = _path[i];
 
-//            Debug.Assert(closest != null);
-//            tangent = closest.Value.Tangent;
-//            outside = (float) Math.Sqrt(distanceSqr) * (inside ? -1 : 1);
-//            return closestPoint;
-//        }
+                bool isInside;
+                var p = ClosestPointOnTriangle(triangleData, point, out isInside);
 
-//        public override Vector3 MapPathDistanceToPoint(float pathDistance)
-//        {
-//            // clip or wrap given path distance according to cyclic flag
-//            if (_cyclic)
-//                pathDistance = pathDistance % _totalPathLength;
-//            else
-//            {
-//                if (pathDistance < 0)
-//                    return _path[0].Center;
-//                if (pathDistance >= _totalPathLength)
-//                    return _path[_path.Length - 1].Center;
-//            }
+                var normal = (point - p);
+                var dSqr = normal.LengthSquared();
 
-//            // step through segments, subtracting off segment lengths until
-//            // locating the segment that contains the original pathDistance.
-//            // Interpolate along that segment to find 3d point value to return.
-//            Vector3 result = Vector3.Zero;
-//            for (int i = 1; i < _path.Length; i++)
-//            {
-//                var segment = _path[i];
-//                if (segment.Length < pathDistance)
-//                {
-//                    pathDistance -= segment.Length;
-//                }
-//                else
-//                {
-//                    float ratio = pathDistance / segment.Length;
-//                    result = Vector3.Lerp(segment.Center, segment.Center + segment.VectorToNextTriangle, ratio);
-//                    break;
-//                }
-//            }
-//            return result;
-//        }
+                if (dSqr < distanceSqr)
+                {
+                    distanceSqr = dSqr;
+                    closestPoint = p;
+                    inside = isInside;
+                    segmentIndex = i;
+                }
+            }
 
-//        public override float MapPointToPathDistance(Vector3 point)
-//        {
-//            Vector3 tangent;
-//            float outside;
-//            int index;
-//            MapPointToPath(point, out tangent, out outside, out index);
+            if (segmentIndex == -1)
+                throw new InvalidOperationException("Closest Path Segment Not Found (Zero Length Path?");
 
-//            float accumulatedLength = 0;
-//            for (int i = 0; i < index - 1; i++)
-//                accumulatedLength += _path[i].Length;
+            tangent = _path[segmentIndex].Tangent;
+            outside = (float)Math.Sqrt(distanceSqr) * (inside ? -1 : 1);
+            return closestPoint;
+        }
 
-//            return accumulatedLength;
-//        }
+        public Vector3 MapPathDistanceToPoint(float pathDistance)
+        {
+            // clip or wrap given path distance according to cyclic flag
+            if (_cyclic)
+                pathDistance = pathDistance % _totalPathLength;
+            else
+            {
+                if (pathDistance < 0)
+                    return _path[0].Center;
+                if (pathDistance >= _totalPathLength)
+                    return _path[_path.Length - 1].Center;
+            }
 
-//        public struct TriangleData
-//        {
-//            internal readonly Vector3 A;
+            // step through segments, subtracting off segment lengths until
+            // locating the segment that contains the original pathDistance.
+            // Interpolate along that segment to find 3d point value to return.
+            Vector3 result = Vector3.Zero;
+            for (int i = 1; i < _path.Length; i++)
+            {
+                if (_path[i].Length < pathDistance)
+                {
+                    pathDistance -= _path[i].Length;
+                }
+                else
+                {
+                    float ratio = pathDistance / _path[i].Length;
 
-//            internal readonly Vector3 Edge0;
-//            internal readonly Vector3 Edge1;
+                    var nextIndex = i + 1;
+                    if (i == _path.Length)
+                        nextIndex = _cyclic ? nextIndex%_path.Length : nextIndex - 1;
 
-//            internal Vector3 VectorToNextTriangle;
-//            internal float Length;
-//            internal Vector3 Tangent;
-//            internal readonly Vector3 Center;
+                    result = Vector3.Lerp(_path[i].Center, _path[nextIndex].Center, ratio);
+                    break;
+                }
+            }
+            return result;
+        }
 
-//            internal readonly float Edge0LengthSquared;
-//            internal readonly float Edge0DotEdge1;
-//            internal readonly float Edge1LengthSquared;
+        public float MapPointToPathDistance(Vector3 point)
+        {
+            Vector3 tangent;
+            float outside;
+            int index;
+            MapPointToPath(point, out tangent, out outside, out index);
 
-//            internal readonly float Determinant;
+            float accumulatedLength = 0;
+            for (int i = 0; i < index - 1; i++)
+                accumulatedLength += _path[i].Length;
 
-//            public TriangleData(Vector3 a, Vector3 b, Vector3 c)
-//            {
-//                A = a;
+            return accumulatedLength;
+        }
 
-//                Center = (a + b + c) / 3f;
+        public struct Triangle
+        {
+            public readonly Vector3 A;
+            public readonly Vector3 Edge0;
+            public readonly Vector3 Edge1;
 
-//                VectorToNextTriangle = Vector3.Zero;
-//                Tangent = Vector3.Zero;
-//                Length = 0;
+            internal float Length;
+            internal Vector3 Tangent;
+            internal readonly Vector3 Center;
 
-//                Edge0 = b - a;
-//                Edge1 = c - a;
+            internal readonly float Determinant;
 
-//                Edge0LengthSquared = Vector3.Dot(Edge0, Edge0);
-//                Edge0DotEdge1 = Vector3.Dot(Edge0, Edge1);
-//                Edge1LengthSquared = Vector3.Dot(Edge1, Edge1);
+            public Triangle(Vector3 a, Vector3 b, Vector3 c)
+            {
+                A = a;
+                Edge0 = b - a;
+                Edge1 = c - a;
 
-//                Determinant = Edge0LengthSquared * Edge1LengthSquared - Edge0DotEdge1 * Edge0DotEdge1;
-//            }
-//        }
+                Center = (a + b + c) / 3f;
 
-//        internal static Vector3 ClosestPointOnTriangle(TriangleData triangle, Vector3 sourcePosition, out bool inside)
-//        {
-//            float a, b;
-//            return ClosestPointOnTriangle(triangle, sourcePosition, out a, out b, out inside);
-//        }
+                Tangent = Vector3.Zero;
+                Length = 0;
 
-//        internal static Vector3 ClosestPointOnTriangle(TriangleData triangle, Vector3 sourcePosition, out float edge0Distance, out float edge1Distance, out bool inside)
-//        {
-//            Vector3 v0 = triangle.A - sourcePosition;
+                // ReSharper disable once ImpureMethodCallOnReadonlyValueField
+                var edge0LengthSquared = Edge0.LengthSquared();
 
-//            float a = triangle.Edge0LengthSquared;
-//            float b = triangle.Edge0DotEdge1;
-//            float c = triangle.Edge1LengthSquared;
-//            float d = Vector3.Dot(triangle.Edge0, v0);
-//            float e = Vector3.Dot(triangle.Edge1, v0);
+                var edge0DotEdge1 = Vector3.Dot(Edge0, Edge1);
+                var edge1LengthSquared = Vector3.Dot(Edge1, Edge1);
 
-//            float det = triangle.Determinant;
-//            float s = b * e - c * d;
-//            float t = b * d - a * e;
+                Determinant = edge0LengthSquared * edge1LengthSquared - edge0DotEdge1 * edge0DotEdge1;
+            }
+        }
 
-//            inside = false;
-//            if (s + t < det)
-//            {
-//                if (s < 0)
-//                {
-//                    if (t < 0)
-//                    {
-//                        if (d < 0)
-//                        {
-//                            s = MathHelper.Clamp(-d / a, 0, 1);
-//                            t = 0;
-//                        }
-//                        else
-//                        {
-//                            s = 0;
-//                            t = MathHelper.Clamp(-e / c, 0, 1);
-//                        }
-//                    }
-//                    else
-//                    {
-//                        s = 0;
-//                        t = MathHelper.Clamp(-e / c, 0, 1);
-//                    }
-//                }
-//                else if (t < 0)
-//                {
-//                    s = MathHelper.Clamp(-d / a, 0, 1);
-//                    t = 0;
-//                }
-//                else
-//                {
-//                    float invDet = 1 / det;
-//                    s *= invDet;
-//                    t *= invDet;
-//                    inside = true;
-//                }
-//            }
-//            else
-//            {
-//                if (s < 0)
-//                {
-//                    float tmp0 = b + d;
-//                    float tmp1 = c + e;
-//                    if (tmp1 > tmp0)
-//                    {
-//                        float numer = tmp1 - tmp0;
-//                        float denom = a - 2 * b + c;
-//                        s = MathHelper.Clamp(numer / denom, 0, 1);
-//                        t = 1 -s;
-//                    }
-//                    else
-//                    {
-//                        t = MathHelper.Clamp(-e/c, 0, 1);
-//                        s = 0;
-//                    }
-//                }
-//                else if (t < 0)
-//                {
-//                    if (a + d > b + e)
-//                    {
-//                        float numer = c + e - b - d;
-//                        float denom = a - 2 * b + c;
-//                        s = MathHelper.Clamp(numer / denom, 0, 1);
-//                        t = 1 - s;
-//                    }
-//                    else
-//                    {
-//                        s = MathHelper.Clamp(-e / c, 0, 1);
-//                        t = 0;
-//                    }
-//                }
-//                else
-//                {
-//                    float numer = c+e-b-d;
-//                    float denom = a-2*b+c;
-//                    s = MathHelper.Clamp(numer / denom, 0, 1);
-//                    t = 1 - s;
-//                }
-//            }
+        internal static Vector3 ClosestPointOnTriangle(Triangle triangle, Vector3 sourcePosition, out bool inside)
+        {
+            float a, b;
+            return ClosestPointOnTriangle(triangle, sourcePosition, out a, out b, out inside);
+        }
 
-//            edge0Distance = s;
-//            edge1Distance = t;
-//            return triangle.A + s * triangle.Edge0 + t * triangle.Edge1;
-//        }
-//    }
-//}
+        internal static Vector3 ClosestPointOnTriangle(Triangle triangle, Vector3 sourcePosition, out float edge0Distance, out float edge1Distance, out bool inside)
+        {
+            Vector3 v0 = triangle.A - sourcePosition;
+
+            // ReSharper disable once ImpureMethodCallOnReadonlyValueField
+            float a = triangle.Edge0.LengthSquared();
+            float b = Vector3.Dot(triangle.Edge0, triangle.Edge1);
+            // ReSharper disable once ImpureMethodCallOnReadonlyValueField
+            float c = triangle.Edge1.LengthSquared();
+            float d = Vector3.Dot(triangle.Edge0, v0);
+            float e = Vector3.Dot(triangle.Edge1, v0);
+
+            float det = triangle.Determinant;
+            float s = b * e - c * d;
+            float t = b * d - a * e;
+
+            inside = false;
+            if (s + t < det)
+            {
+                if (s < 0)
+                {
+                    if (t < 0)
+                    {
+                        if (d < 0)
+                        {
+                            s = MathHelper.Clamp(-d / a, 0, 1);
+                            t = 0;
+                        }
+                        else
+                        {
+                            s = 0;
+                            t = MathHelper.Clamp(-e / c, 0, 1);
+                        }
+                    }
+                    else
+                    {
+                        s = 0;
+                        t = MathHelper.Clamp(-e / c, 0, 1);
+                    }
+                }
+                else if (t < 0)
+                {
+                    s = MathHelper.Clamp(-d / a, 0, 1);
+                    t = 0;
+                }
+                else
+                {
+                    float invDet = 1 / det;
+                    s *= invDet;
+                    t *= invDet;
+                    inside = true;
+                }
+            }
+            else
+            {
+                if (s < 0)
+                {
+                    float tmp0 = b + d;
+                    float tmp1 = c + e;
+                    if (tmp1 > tmp0)
+                    {
+                        float numer = tmp1 - tmp0;
+                        float denom = a - 2 * b + c;
+                        s = MathHelper.Clamp(numer / denom, 0, 1);
+                        t = 1 - s;
+                    }
+                    else
+                    {
+                        t = MathHelper.Clamp(-e / c, 0, 1);
+                        s = 0;
+                    }
+                }
+                else if (t < 0)
+                {
+                    if (a + d > b + e)
+                    {
+                        float numer = c + e - b - d;
+                        float denom = a - 2 * b + c;
+                        s = MathHelper.Clamp(numer / denom, 0, 1);
+                        t = 1 - s;
+                    }
+                    else
+                    {
+                        s = MathHelper.Clamp(-e / c, 0, 1);
+                        t = 0;
+                    }
+                }
+                else
+                {
+                    float numer = c + e - b - d;
+                    float denom = a - 2 * b + c;
+                    s = MathHelper.Clamp(numer / denom, 0, 1);
+                    t = 1 - s;
+                }
+            }
+
+            edge0Distance = s;
+            edge1Distance = t;
+            return triangle.A + s * triangle.Edge0 + t * triangle.Edge1;
+        }
+    }
+}
