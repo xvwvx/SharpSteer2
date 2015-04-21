@@ -77,6 +77,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
             Vector3 t;
             var pop = _walker.Path.MapPointToPath(_walker.Position, out t, out o);
             Drawing.Draw3dCircle(0.1f, pop, Vector3.Up, Color.Red, 5);
+
+            Drawing.Draw2dTextAt3dLocation("Distance:" + _walker.Path.MapPointToPathDistance(_walker.Position), _walker.Position, Color.White);
         }
 
         public override void Close()

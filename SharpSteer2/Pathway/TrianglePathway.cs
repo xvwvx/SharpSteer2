@@ -20,6 +20,8 @@ namespace SharpSteer2.Pathway
             get { return _path; }
         }
 
+        private readonly PolylinePathway _centerline;
+
         public TrianglePathway(IList<Vector3> triangleStrip, bool cyclic = false)
             : this(
                 Enumerable.Range(0, triangleStrip.Count - 2).Select(i => new Triangle(triangleStrip[i], triangleStrip[i + (i % 2 == 0 ? 1 : 2)], triangleStrip[i + (i % 2 == 0 ? 2 : 1)])),
@@ -58,6 +60,8 @@ namespace SharpSteer2.Pathway
 
                 _totalPathLength += l;
             }
+
+            _centerline = new PolylinePathway(_path.Select(a => a.PointOnPath).ToArray(), 0.1f, cyclic);
         }
 
         public Vector3 MapPointToPath(Vector3 point, out Vector3 tangent, out float outside)
@@ -136,16 +140,7 @@ namespace SharpSteer2.Pathway
 
         public float MapPointToPathDistance(Vector3 point)
         {
-            Vector3 tangent;
-            float outside;
-            int index;
-            MapPointToPath(point, out tangent, out outside, out index);
-
-            float accumulatedLength = 0;
-            for (int i = 0; i < index - 1; i++)
-                accumulatedLength += _path[i].Length;
-
-            return accumulatedLength;
+            return _centerline.MapPointToPathDistance(point);
         }
 
         public struct Triangle
