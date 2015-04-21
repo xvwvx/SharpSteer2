@@ -6,20 +6,20 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
     public class PathWalker
         :SimpleVehicle
     {
-        private readonly IPathway _path;
+        public readonly IPathway Path;
 
-        public override float MaxForce { get { return 32; } }
+        public override float MaxForce { get { return 1; } }
         public override float MaxSpeed { get { return 8; } }
 
         public PathWalker(IPathway path, IAnnotationService annotation)
             :base(annotation)
         {
-            _path = path;
+            Path = path;
         }
 
         public void Update(float dt)
         {
-            ApplySteeringForce(SteerToFollowPath(true, 3, _path), dt);
+            ApplySteeringForce(SteerToFollowPath(true, 3, Path), dt);
 
             annotation.VelocityAcceleration(this);
         }

@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SharpSteer2.Pathway;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
 {
@@ -27,7 +28,9 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
         public override void Open()
         {
             GeneratePath();
-            _walker = new PathWalker(_path, Annotations);
+            _walker = new PathWalker(_path, Annotations) {
+                Position = new Vector3(10, 0, 0)
+            };
         }
 
         private void GeneratePath()
@@ -38,13 +41,13 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
             float xOffset = 0;
 
             var points = new List<Vector3>();
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < 200; i++)
             {
-                xOffsetDeriv += (float)rand.NextDouble() - (xOffsetDeriv * xOffsetDeriv * 0.025f);
+                xOffsetDeriv = MathHelper.Clamp((float)rand.NextDouble() - (xOffsetDeriv * 0.0125f), -15, 15);
                 xOffset += xOffsetDeriv;
 
-                points.Add(new Vector3(xOffset - 3, 0, i));
-                points.Add(new Vector3(xOffset + 3, 0, i));
+                points.Add(new Vector3(xOffset + 1, 0, i));
+                points.Add(new Vector3(xOffset - 1, 0, i));
             }
 
             _path = new TrianglePathway(points);
@@ -60,17 +63,20 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
             Demo.UpdateCamera(elapsedTime, _walker);
             _walker.Draw();
 
-            float o;
-            Vector3 t;
-            var pop = _path.MapPointToPath(_walker.Position, out t, out o);
-            Drawing.Draw3dCircle(1, pop, Vector3.Up, Color.Red, 5);
-
-            foreach (var triangle in _path.Triangles)
+            var tri = _path.Triangles.ToArray();
+            for (int i = 0; i < tri.Length; i++)
             {
+                var triangle = tri[i];
+
                 Drawing.Draw2dLine(triangle.A, triangle.A + triangle.Edge0, Color.Black);
                 Drawing.Draw2dLine(triangle.A, triangle.A + triangle.Edge1, Color.Black);
                 Drawing.Draw2dLine(triangle.A + triangle.Edge0, triangle.A + triangle.Edge1, Color.Black);
             }
+
+            float o;
+            Vector3 t;
+            var pop = _walker.Path.MapPointToPath(_walker.Position, out t, out o);
+            Drawing.Draw3dCircle(0.1f, pop, Vector3.Up, Color.Red, 5);
         }
 
         public override void Close()

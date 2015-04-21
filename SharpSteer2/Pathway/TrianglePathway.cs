@@ -32,18 +32,31 @@ namespace SharpSteer2.Pathway
         {
             _path = path.ToArray();
             _cyclic = cyclic;
+
+            //Calculate center points
             for (int i = 0; i < _path.Length; i++)
             {
-                var aIndex = i;
-                var a = _path[aIndex];
+                if (i % 2 == 0)
+                    _path[i].PointOnPath = (2 * _path[i].A + _path[i].Edge0) / 2;
+                else
+                    _path[i].PointOnPath = (2 * _path[i].A + _path[i].Edge1) / 2;
+            }
+
+            //Calculate tangents along path
+            for (int i = 0; i < _path.Length; i++)
+            {
                 var bIndex = cyclic ? ((i + 1) % _path.Length) : Math.Min(i + 1, _path.Length - 1);
 
-                var vectorToNextTriangle = _path[bIndex].Center - a.Center;
-                a.Length = vectorToNextTriangle.Length();
-                a.Tangent = vectorToNextTriangle / a.Length;
-                _totalPathLength += a.Length;
+                var vectorToNextTriangle = _path[bIndex].PointOnPath - _path[i].PointOnPath;
+                var l = vectorToNextTriangle.Length();
 
-                _path[aIndex] = a;
+                _path[i].Length = l;
+                _path[i].Tangent = vectorToNextTriangle / l;
+
+                if (Math.Abs(l) < float.Epsilon)
+                    _path[i].Tangent = Vector3.Zero;
+
+                _totalPathLength += l;
             }
         }
 
@@ -62,10 +75,8 @@ namespace SharpSteer2.Pathway
 
             for (int i = 0; i < _path.Length; i++)
             {
-                var triangleData = _path[i];
-
                 bool isInside;
-                var p = ClosestPointOnTriangle(triangleData, point, out isInside);
+                var p = ClosestPointOnTriangle(ref _path[i], point, out isInside);
 
                 var normal = (point - p);
                 var dSqr = normal.LengthSquared();
@@ -77,6 +88,9 @@ namespace SharpSteer2.Pathway
                     inside = isInside;
                     segmentIndex = i;
                 }
+
+                if (isInside)
+                    break;
             }
 
             if (segmentIndex == -1)
@@ -95,15 +109,14 @@ namespace SharpSteer2.Pathway
             else
             {
                 if (pathDistance < 0)
-                    return _path[0].Center;
+                    return _path[0].PointOnPath;
                 if (pathDistance >= _totalPathLength)
-                    return _path[_path.Length - 1].Center;
+                    return _path[_path.Length - 1].PointOnPath;
             }
 
             // step through segments, subtracting off segment lengths until
             // locating the segment that contains the original pathDistance.
             // Interpolate along that segment to find 3d point value to return.
-            Vector3 result = Vector3.Zero;
             for (int i = 1; i < _path.Length; i++)
             {
                 if (_path[i].Length < pathDistance)
@@ -114,15 +127,11 @@ namespace SharpSteer2.Pathway
                 {
                     float ratio = pathDistance / _path[i].Length;
 
-                    var nextIndex = i + 1;
-                    if (i == _path.Length)
-                        nextIndex = _cyclic ? nextIndex%_path.Length : nextIndex - 1;
-
-                    result = Vector3.Lerp(_path[i].Center, _path[nextIndex].Center, ratio);
-                    break;
+                    return Vector3.Lerp(_path[i].PointOnPath, _path[i].PointOnPath + _path[i].Tangent * _path[i].Length, ratio);
                 }
             }
-            return result;
+
+            return Vector3.Zero;
         }
 
         public float MapPointToPathDistance(Vector3 point)
@@ -147,7 +156,7 @@ namespace SharpSteer2.Pathway
 
             internal float Length;
             internal Vector3 Tangent;
-            internal readonly Vector3 Center;
+            internal Vector3 PointOnPath;
 
             internal readonly float Determinant;
 
@@ -157,8 +166,7 @@ namespace SharpSteer2.Pathway
                 Edge0 = b - a;
                 Edge1 = c - a;
 
-                Center = (a + b + c) / 3f;
-
+                PointOnPath = Vector3.Zero;
                 Tangent = Vector3.Zero;
                 Length = 0;
 
@@ -172,13 +180,13 @@ namespace SharpSteer2.Pathway
             }
         }
 
-        internal static Vector3 ClosestPointOnTriangle(Triangle triangle, Vector3 sourcePosition, out bool inside)
+        private static Vector3 ClosestPointOnTriangle(ref Triangle triangle, Vector3 sourcePosition, out bool inside)
         {
             float a, b;
-            return ClosestPointOnTriangle(triangle, sourcePosition, out a, out b, out inside);
+            return ClosestPointOnTriangle(ref triangle, sourcePosition, out a, out b, out inside);
         }
 
-        internal static Vector3 ClosestPointOnTriangle(Triangle triangle, Vector3 sourcePosition, out float edge0Distance, out float edge1Distance, out bool inside)
+        internal static Vector3 ClosestPointOnTriangle(ref Triangle triangle, Vector3 sourcePosition, out float edge0Distance, out float edge1Distance, out bool inside)
         {
             Vector3 v0 = triangle.A - sourcePosition;
 

@@ -9,7 +9,7 @@ namespace SharpSteer2.Tests
     public class MeshPathwayTest
     {
         #region MeshPath.TriangleData
-        readonly TrianglePathway.Triangle _triangle = new TrianglePathway.Triangle(
+        TrianglePathway.Triangle _triangle = new TrianglePathway.Triangle(
             new Vector3(0, 0, 0),
             new Vector3(0, 0, 1),
             new Vector3(1, 0, 0)
@@ -21,7 +21,7 @@ namespace SharpSteer2.Tests
             float s;
             float t;
             bool inside;
-            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(_triangle, new Vector3(-1, 0, 0.5f), out s, out t, out inside);
+            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(ref _triangle, new Vector3(-1, 0, 0.5f), out s, out t, out inside);
 
             Assert.IsFalse(inside);
             Assert.AreEqual(0.0f, closest.X, float.Epsilon);
@@ -37,7 +37,7 @@ namespace SharpSteer2.Tests
             float s;
             float t;
             bool inside;
-            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(_triangle, new Vector3(0.6f, 0, 0.6f), out s, out t, out inside);
+            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(ref _triangle, new Vector3(0.6f, 0, 0.6f), out s, out t, out inside);
 
             Assert.IsFalse(inside);
             Assert.AreEqual(0.5f, closest.X, float.Epsilon);
@@ -53,7 +53,7 @@ namespace SharpSteer2.Tests
             float s;
             float t;
             bool inside;
-            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(_triangle, new Vector3(0.5f, 0, -1f), out s, out t, out inside);
+            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(ref _triangle, new Vector3(0.5f, 0, -1f), out s, out t, out inside);
 
             Assert.IsFalse(inside);
             Assert.AreEqual(0.5f, closest.X, float.Epsilon);
@@ -69,7 +69,7 @@ namespace SharpSteer2.Tests
             float s;
             float t;
             bool inside;
-            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(_triangle, new Vector3(-1f, 0, -1f), out s, out t, out inside);
+            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(ref _triangle, new Vector3(-1f, 0, -1f), out s, out t, out inside);
 
             Assert.IsFalse(inside);
             Assert.AreEqual(0.0f, closest.X, float.Epsilon);
@@ -85,7 +85,7 @@ namespace SharpSteer2.Tests
             float s;
             float t;
             bool inside;
-            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(_triangle, new Vector3(0f, 0, 2f), out s, out t, out inside);
+            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(ref _triangle, new Vector3(0f, 0, 2f), out s, out t, out inside);
 
             Assert.IsFalse(inside);
             Assert.AreEqual(0.0f, closest.X, float.Epsilon);
@@ -101,7 +101,7 @@ namespace SharpSteer2.Tests
             float s;
             float t;
             bool inside;
-            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(_triangle, new Vector3(2f, 0, 0f), out s, out t, out inside);
+            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(ref _triangle, new Vector3(2f, 0, 0f), out s, out t, out inside);
 
             Assert.IsFalse(inside);
             Assert.AreEqual(1.0f, closest.X, float.Epsilon);
@@ -117,7 +117,7 @@ namespace SharpSteer2.Tests
             float s;
             float t;
             bool inside;
-            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(_triangle, new Vector3(0.1f, 0, 0.5f), out s, out t, out inside);
+            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(ref _triangle, new Vector3(0.1f, 0, 0.5f), out s, out t, out inside);
 
             Assert.IsTrue(inside);
             Assert.AreEqual(0.1f, closest.X, float.Epsilon);
@@ -133,7 +133,7 @@ namespace SharpSteer2.Tests
             float s;
             float t;
             bool inside;
-            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(_triangle, new Vector3(0.4f, 0, 0.4f), out s, out t, out inside);
+            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(ref _triangle, new Vector3(0.4f, 0, 0.4f), out s, out t, out inside);
 
             Assert.IsTrue(inside);
             Assert.AreEqual(0.4f, closest.X, float.Epsilon);
@@ -149,7 +149,7 @@ namespace SharpSteer2.Tests
             float s;
             float t;
             bool inside;
-            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(_triangle, new Vector3(0.5f, 0, 0.1f), out s, out t, out inside);
+            Vector3 closest = TrianglePathway.ClosestPointOnTriangle(ref _triangle, new Vector3(0.5f, 0, 0.1f), out s, out t, out inside);
 
             Assert.IsTrue(inside);
             Assert.AreEqual(0.5f, closest.X, float.Epsilon);
