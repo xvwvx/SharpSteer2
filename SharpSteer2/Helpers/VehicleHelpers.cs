@@ -103,8 +103,30 @@ namespace SharpSteer2.Helpers
 
             // no steering is required if (a) our future position is inside
             // the path tube and (b) we are facing in the correct direction
-            if ((outside < 0) && rightway)
-                return Vector3.Zero; //all is well, return zero steering
+            if ((outside <= 0) && rightway)
+            {
+                //We're going at max speed, in the right direction. don't need to do anything
+                if (vehicle.Speed >= maxSpeed)
+                    return Vector3.Zero;
+
+                //Predict vehicle position and sample multiple times, incresingly far along the path
+                var seek = path.MapPointToPath(vehicle.PredictFuturePosition(predictionTime / 3), out tangent, out outside);
+                for (int i = 0; i < 3; i++)
+                {
+                    var s = path.MapPointToPath(seek + tangent * vehicle.Speed / (i + 1), out tangent, out outside);
+
+                    //terminate search if we wander outside the path
+                    if (outside > 0)
+                        break;
+                    seek = s;
+
+                    if (annotation != null)
+                        annotation.Circle3D(0.3f, seek, Vector3.Up, Color.Green, 6);
+                }
+
+                //Steer towards future path point
+                return vehicle.SteerForSeek(seek, maxSpeed, annotation);
+            }
 
             // otherwise we need to steer towards a target point obtained
             // by adding pathDistanceOffset to our current path position

@@ -10,7 +10,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
         :PlugIn
     {
         private TrianglePathway _path;
-        private PathWalker _walker;
+        private List<PathWalker> _walkers = new List<PathWalker>();
 
         public override bool RequestInitialSelection
         {
@@ -28,9 +28,15 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
         public override void Open()
         {
             GeneratePath();
-            _walker = new PathWalker(_path, Annotations) {
-                Position = new Vector3(10, 0, 0)
-            };
+
+            Random r = new Random();
+            for (int i = 0; i < 20; i++)
+            {
+                _walkers.Add(new PathWalker(_path, Annotations)
+                {
+                    Position = new Vector3(20 * (float)r.NextDouble(), 0, 0)
+                });
+            }
         }
 
         private void GeneratePath()
@@ -46,8 +52,8 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
                 xOffsetDeriv = MathHelper.Clamp((float)rand.NextDouble() - (xOffsetDeriv * 0.0125f), -15, 15);
                 xOffset += xOffsetDeriv;
 
-                points.Add(new Vector3(xOffset + 1, 0, i));
-                points.Add(new Vector3(xOffset - 1, 0, i));
+                points.Add(new Vector3(xOffset + 1, 0, i) * 5);
+                points.Add(new Vector3(xOffset - 1, 0, i) * 5);
             }
 
             _path = new TrianglePathway(points);
@@ -55,13 +61,15 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
 
         public override void Update(float currentTime, float elapsedTime)
         {
-            _walker.Update(elapsedTime);
+            foreach (var walker in _walkers)
+                walker.Update(elapsedTime);
         }
 
         public override void Redraw(float currentTime, float elapsedTime)
         {
-            Demo.UpdateCamera(elapsedTime, _walker);
-            _walker.Draw();
+            Demo.UpdateCamera(elapsedTime, _walkers[0]);
+            foreach (var walker in _walkers)
+                walker.Draw();
 
             var tri = _path.Triangles.ToArray();
             for (int i = 0; i < tri.Length; i++)
@@ -72,13 +80,6 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
                 Drawing.Draw2dLine(triangle.A, triangle.A + triangle.Edge1, Color.Black);
                 Drawing.Draw2dLine(triangle.A + triangle.Edge0, triangle.A + triangle.Edge1, Color.Black);
             }
-
-            float o;
-            Vector3 t;
-            var pop = _walker.Path.MapPointToPath(_walker.Position, out t, out o);
-            Drawing.Draw3dCircle(0.1f, pop, Vector3.Up, Color.Red, 5);
-
-            Drawing.Draw2dTextAt3dLocation("Distance:" + _walker.Path.MapPointToPathDistance(_walker.Position), _walker.Position, Color.White);
         }
 
         public override void Close()
@@ -93,7 +94,10 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
 
         public override IEnumerable<IVehicle> Vehicles
         {
-            get { yield return _walker; }
+            get
+            {
+                return _walkers;
+            }
         }
     }
 }

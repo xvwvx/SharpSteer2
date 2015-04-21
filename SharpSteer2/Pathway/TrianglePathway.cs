@@ -107,6 +107,8 @@ namespace SharpSteer2.Pathway
 
         public Vector3 MapPathDistanceToPoint(float pathDistance)
         {
+            var c = _centerline.MapPathDistanceToPoint(pathDistance);
+
             // clip or wrap given path distance according to cyclic flag
             if (_cyclic)
                 pathDistance = pathDistance % _totalPathLength;
@@ -131,7 +133,8 @@ namespace SharpSteer2.Pathway
                 {
                     float ratio = pathDistance / _path[i].Length;
 
-                    return Vector3.Lerp(_path[i].PointOnPath, _path[i].PointOnPath + _path[i].Tangent * _path[i].Length, ratio);
+                    var l = Vector3.Lerp(_path[i].PointOnPath, _path[i].PointOnPath + _path[i].Tangent * _path[i].Length, ratio);
+                    return l;
                 }
             }
 
