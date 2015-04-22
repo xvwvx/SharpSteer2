@@ -10,7 +10,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
         :PlugIn
     {
         private TrianglePathway _path;
-        private List<PathWalker> _walkers = new List<PathWalker>();
+        private readonly List<PathWalker> _walkers = new List<PathWalker>();
 
         public override bool RequestInitialSelection
         {
@@ -29,12 +29,13 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
         {
             GeneratePath();
 
-            Random r = new Random();
-            for (int i = 0; i < 20; i++)
+            _walkers.Clear();
+            for (int i = 0; i < 10; i++)
             {
-                _walkers.Add(new PathWalker(_path, Annotations)
+                _walkers.Add(new PathWalker(_path, Annotations, _walkers)
                 {
-                    Position = new Vector3(20 * (float)r.NextDouble(), 0, 0)
+                    Position = new Vector3(i * 1, 0, 0),
+                    Forward = new Vector3(0, 0, 1)
                 });
             }
         }
@@ -79,6 +80,12 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
                 Drawing.Draw2dLine(triangle.A, triangle.A + triangle.Edge0, Color.Black);
                 Drawing.Draw2dLine(triangle.A, triangle.A + triangle.Edge1, Color.Black);
                 Drawing.Draw2dLine(triangle.A + triangle.Edge0, triangle.A + triangle.Edge1, Color.Black);
+            }
+
+            var points = _path.Centerline.Points.ToArray();
+            for (int i = 0; i < points.Length - 1; i++)
+            {
+                Drawing.Draw2dLine(points[i], points[i + 1], Color.Gray);
             }
         }
 

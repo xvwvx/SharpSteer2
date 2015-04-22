@@ -21,10 +21,17 @@ namespace SharpSteer2.Pathway
         }
 
         private readonly PolylinePathway _centerline;
+        public PolylinePathway Centerline
+        {
+            get
+            {
+                return _centerline;
+            }
+        }
 
         public TrianglePathway(IList<Vector3> triangleStrip, bool cyclic = false)
             : this(
-                Enumerable.Range(0, triangleStrip.Count - 2).Select(i => new Triangle(triangleStrip[i], triangleStrip[i + (i % 2 == 0 ? 1 : 2)], triangleStrip[i + (i % 2 == 0 ? 2 : 1)])),
+                Enumerable.Range(0, triangleStrip.Count - 2).Select(i => new Triangle(triangleStrip[i], triangleStrip[i + 1], triangleStrip[i + 2])),
                 cyclic
             )
         {
@@ -37,12 +44,7 @@ namespace SharpSteer2.Pathway
 
             //Calculate center points
             for (int i = 0; i < _path.Length; i++)
-            {
-                if (i % 2 == 0)
-                    _path[i].PointOnPath = (2 * _path[i].A + _path[i].Edge0) / 2;
-                else
-                    _path[i].PointOnPath = (2 * _path[i].A + _path[i].Edge1) / 2;
-            }
+                _path[i].PointOnPath = (2 * _path[i].A + _path[i].Edge0) / 2;
 
             //Calculate tangents along path
             for (int i = 0; i < _path.Length; i++)
