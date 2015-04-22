@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.IO;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,14 +28,6 @@ namespace SharpSteer2.Pathway
             {
                 return _centerline;
             }
-        }
-
-        public TrianglePathway(IList<Vector3> triangleStrip, bool cyclic = false)
-            : this(
-                Enumerable.Range(0, triangleStrip.Count - 2).Select(i => new Triangle(triangleStrip[i], triangleStrip[i + 1], triangleStrip[i + 2])),
-                cyclic
-            )
-        {
         }
 
         public TrianglePathway(IEnumerable<Triangle> path, bool cyclic = false)
@@ -109,38 +102,38 @@ namespace SharpSteer2.Pathway
 
         public Vector3 MapPathDistanceToPoint(float pathDistance)
         {
-            var c = _centerline.MapPathDistanceToPoint(pathDistance);
+            return _centerline.MapPathDistanceToPoint(pathDistance);
 
-            // clip or wrap given path distance according to cyclic flag
-            if (_cyclic)
-                pathDistance = pathDistance % _totalPathLength;
-            else
-            {
-                if (pathDistance < 0)
-                    return _path[0].PointOnPath;
-                if (pathDistance >= _totalPathLength)
-                    return _path[_path.Length - 1].PointOnPath;
-            }
+            //// clip or wrap given path distance according to cyclic flag
+            //if (_cyclic)
+            //    pathDistance = pathDistance % _totalPathLength;
+            //else
+            //{
+            //    if (pathDistance < 0)
+            //        return _path[0].PointOnPath;
+            //    if (pathDistance >= _totalPathLength)
+            //        return _path[_path.Length - 1].PointOnPath;
+            //}
 
-            // step through segments, subtracting off segment lengths until
-            // locating the segment that contains the original pathDistance.
-            // Interpolate along that segment to find 3d point value to return.
-            for (int i = 1; i < _path.Length; i++)
-            {
-                if (_path[i].Length < pathDistance)
-                {
-                    pathDistance -= _path[i].Length;
-                }
-                else
-                {
-                    float ratio = pathDistance / _path[i].Length;
+            //// step through segments, subtracting off segment lengths until
+            //// locating the segment that contains the original pathDistance.
+            //// Interpolate along that segment to find 3d point value to return.
+            //for (int i = 1; i < _path.Length; i++)
+            //{
+            //    if (_path[i].Length < pathDistance)
+            //    {
+            //        pathDistance -= _path[i].Length;
+            //    }
+            //    else
+            //    {
+            //        float ratio = pathDistance / _path[i].Length;
 
-                    var l = Vector3.Lerp(_path[i].PointOnPath, _path[i].PointOnPath + _path[i].Tangent * _path[i].Length, ratio);
-                    return l;
-                }
-            }
+            //        var l = Vector3.Lerp(_path[i].PointOnPath, _path[i].PointOnPath + _path[i].Tangent * _path[i].Length, ratio);
+            //        return l;
+            //    }
+            //}
 
-            return Vector3.Zero;
+            //return Vector3.Zero;
         }
 
         public float MapPointToPathDistance(Vector3 point)

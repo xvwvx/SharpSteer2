@@ -30,11 +30,11 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
             GeneratePath();
 
             _walkers.Clear();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 7; i++)
             {
                 _walkers.Add(new PathWalker(_path, Annotations, _walkers)
                 {
-                    Position = new Vector3(i * 1, 0, 0),
+                    Position = new Vector3(i * 1 * 2, 0, 0),
                     Forward = new Vector3(0, 0, 1)
                 });
             }
@@ -50,14 +50,14 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
             var points = new List<Vector3>();
             for (var i = 0; i < 200; i++)
             {
-                xOffsetDeriv = MathHelper.Clamp((float)rand.NextDouble() - (xOffsetDeriv * 0.0125f), -15, 15);
+                xOffsetDeriv = MathHelper.Clamp((float)rand.NextDouble() * 2 - (xOffsetDeriv * 0.0125f), -15, 15);
                 xOffset += xOffsetDeriv;
 
                 points.Add(new Vector3(xOffset + 1, 0, i) * 5);
                 points.Add(new Vector3(xOffset - 1, 0, i) * 5);
             }
 
-            _path = new TrianglePathway(points);
+            _path = new TrianglePathway(Enumerable.Range(0, points.Count - 2).Select(i => new TrianglePathway.Triangle(points[i], points[i + 1], points[i + 2])));
         }
 
         public override void Update(float currentTime, float elapsedTime)
