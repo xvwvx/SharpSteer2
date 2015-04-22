@@ -128,6 +128,7 @@
     <Compile Include="PlugIns\Ctf\Globals.cs" />
     <Compile Include="PlugIns\FlowField\FlowFieldFollower.cs" />
     <Compile Include="PlugIns\FlowField\FlowFieldPlugIn.cs" />
+    <Compile Include="PlugIns\GatewayPathFollowing\GatewayPathFollowingPlugin.cs" />
     <Compile Include="PlugIns\LowSpeedTurn\LowSpeedTurn.cs" />
     <Compile Include="PlugIns\LowSpeedTurn\LowSpeedTurnPlugIn.cs" />
     <Compile Include="PlugIns\MapDrive\GCRoute.cs" />

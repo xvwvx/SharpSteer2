@@ -14,7 +14,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
         private readonly List<PathWalker> _vehicles;
 
         public override float MaxForce { get { return 1; } }
-        public override float MaxSpeed { get { return 6; } }
+        public override float MaxSpeed { get { return 10; } }
 
         private readonly Trail _trail = new Trail(30, 300);
 
@@ -42,7 +42,7 @@ namespace SharpSteer2.WinDemo.PlugIns.MeshPathFollowing
 
             //If the vehicle leaves the path, penalise it by applying a braking force
             if (Path.HowFarOutsidePath(Position) > 0)
-                ApplyBrakingForce(0.1f, dt);
+                ApplyBrakingForce(0.3f, dt);
 
             _time += dt;
             _trail.Record(_time, Position);

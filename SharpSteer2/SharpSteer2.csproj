@@ -72,6 +72,7 @@
     <Compile Include="Database\LocalityQueryProximityDatabase.cs" />
     <Compile Include="NullAnnotationService.cs" />
     <Compile Include="Obstacles\IObstacle.cs" />
+    <Compile Include="Pathway\GatewayPathway.cs" />
     <Compile Include="Pathway\IPathway.cs" />
     <Compile Include="Pathway\PolylinePathway.cs" />
     <Compile Include="Pathway\TrianglePathway.cs" />

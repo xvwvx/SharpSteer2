@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +12,6 @@ namespace SharpSteer2.Pathway
         : IPathway
     {
         private readonly Triangle[] _path;
-        private readonly bool _cyclic;
-        private readonly float _totalPathLength;
 
         public IEnumerable<Triangle> Triangles
         {
@@ -33,7 +30,6 @@ namespace SharpSteer2.Pathway
         public TrianglePathway(IEnumerable<Triangle> path, bool cyclic = false)
         {
             _path = path.ToArray();
-            _cyclic = cyclic;
 
             //Calculate center points
             for (int i = 0; i < _path.Length; i++)
@@ -47,13 +43,10 @@ namespace SharpSteer2.Pathway
                 var vectorToNextTriangle = _path[bIndex].PointOnPath - _path[i].PointOnPath;
                 var l = vectorToNextTriangle.Length();
 
-                _path[i].Length = l;
                 _path[i].Tangent = vectorToNextTriangle / l;
 
                 if (Math.Abs(l) < float.Epsilon)
                     _path[i].Tangent = Vector3.Zero;
-
-                _totalPathLength += l;
             }
 
             _centerline = new PolylinePathway(_path.Select(a => a.PointOnPath).ToArray(), 0.1f, cyclic);
@@ -147,7 +140,6 @@ namespace SharpSteer2.Pathway
             public readonly Vector3 Edge0;
             public readonly Vector3 Edge1;
 
-            internal float Length;
             internal Vector3 Tangent;
             internal Vector3 PointOnPath;
 
@@ -161,7 +153,6 @@ namespace SharpSteer2.Pathway
 
                 PointOnPath = Vector3.Zero;
                 Tangent = Vector3.Zero;
-                Length = 0;
 
                 // ReSharper disable once ImpureMethodCallOnReadonlyValueField
                 var edge0LengthSquared = Edge0.LengthSquared();

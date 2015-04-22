@@ -22,6 +22,7 @@ using SharpSteer2.WinDemo.PlugIns.Arrival;
 using SharpSteer2.WinDemo.PlugIns.Boids;
 using SharpSteer2.WinDemo.PlugIns.Ctf;
 using SharpSteer2.WinDemo.PlugIns.FlowField;
+using SharpSteer2.WinDemo.PlugIns.GatewayPathFollowing;
 using SharpSteer2.WinDemo.PlugIns.LowSpeedTurn;
 using SharpSteer2.WinDemo.PlugIns.MapDrive;
 using SharpSteer2.WinDemo.PlugIns.MeshPathFollowing;
@@ -98,6 +99,7 @@ namespace SharpSteer2.WinDemo
 		    new FlowFieldPlugIn(_annotations);
 		    new ArrivalPlugIn(_annotations);
 		    new MeshPathFollowingPlugin(_annotations);
+		    new GatewayPathFollowingPlugin(_annotations);
 		    new AirCombatPlugin(_annotations);
             new BoidsPlugIn(_annotations);
             new LowSpeedTurnPlugIn(_annotations);
