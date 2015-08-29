@@ -9,7 +9,7 @@
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+using System.Numerics;
 
 namespace SharpSteer2.Pathway
 {

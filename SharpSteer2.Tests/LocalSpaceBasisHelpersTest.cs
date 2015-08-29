@@ -1,5 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Numerics;
 using SharpSteer2.Helpers;
 
 namespace SharpSteer2.Tests
@@ -7,7 +8,10 @@ namespace SharpSteer2.Tests
     [TestClass]
     public class LocalSpaceBasisHelpersTest
     {
-        private static ILocalSpaceBasis Basis(Matrix m)
+        // ReSharper disable once InconsistentNaming
+        public const float PiOver2 = (float)Math.PI / 2f;
+
+        private static ILocalSpaceBasis Basis(Matrix4x4 m)
         {
             return new LocalSpace(m);
         }
@@ -15,7 +19,7 @@ namespace SharpSteer2.Tests
         [TestMethod]
         public void GlobalizeDirectionTest()
         {
-            Matrix m = Matrix.CreateRotationX(-MathHelper.PiOver2);
+            Matrix4x4 m = Matrix4x4.CreateRotationX(-PiOver2);
             ILocalSpaceBasis basis = Basis(m);
 
             var v = Vector3.Normalize(new Vector3(1, 2, 3));
@@ -25,7 +29,7 @@ namespace SharpSteer2.Tests
         [TestMethod]
         public void GlobalizePositionTest()
         {
-            Matrix m = Matrix.CreateRotationX(-MathHelper.PiOver2) * Matrix.CreateTranslation(10, 20, 30);
+            Matrix4x4 m = Matrix4x4.CreateRotationX(-PiOver2) * Matrix4x4.CreateTranslation(10, 20, 30);
             ILocalSpaceBasis basis = Basis(m);
 
             var v = Vector3.Normalize(new Vector3(1, 2, 3));
@@ -35,21 +39,25 @@ namespace SharpSteer2.Tests
         [TestMethod]
         public void LocalizeDirectionTest()
         {
-            Matrix m = Matrix.CreateRotationX(-MathHelper.PiOver2);
+            Matrix4x4 m = Matrix4x4.CreateRotationX(-PiOver2);
             ILocalSpaceBasis basis = Basis(m);
 
             var v = Vector3.Normalize(new Vector3(1, 2, 3));
-            Assert.AreEqual(Vector3.TransformNormal(v, Matrix.Invert(m)), basis.LocalizeDirection(v));
+            Matrix4x4 inv;
+            Matrix4x4.Invert(m, out inv);
+            Assert.AreEqual(Vector3.TransformNormal(v, inv), basis.LocalizeDirection(v));
         }
 
         [TestMethod]
         public void LocalizePositionTest()
         {
-            Matrix m = Matrix.CreateRotationX(-MathHelper.PiOver2) * Matrix.CreateTranslation(10, 20, 30);
+            Matrix4x4 m = Matrix4x4.CreateRotationX(-PiOver2) * Matrix4x4.CreateTranslation(10, 20, 30);
             ILocalSpaceBasis basis = Basis(m);
 
             var v = Vector3.Normalize(new Vector3(1, 2, 3));
-            Assert.AreEqual(Vector3.Transform(v, Matrix.Invert(m)), basis.LocalizePosition(v));
+            Matrix4x4 inv;
+            Matrix4x4.Invert(m, out inv);
+            Assert.AreEqual(Vector3.Transform(v, inv), basis.LocalizePosition(v));
         }
 
         [TestMethod]

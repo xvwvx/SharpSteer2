@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Numerics;
 using SharpSteer2.Pathway;
 
 namespace SharpSteer2.Helpers

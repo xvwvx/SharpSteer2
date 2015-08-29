@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
+using System.Numerics;
 using SharpSteer2.Helpers;
 
 namespace SharpSteer2.Tests
@@ -139,7 +139,7 @@ namespace SharpSteer2.Tests
             float smoothedValue = 1;
             Utilities.BlendIntoAccumulator(0.5f, 2, ref smoothedValue);
 
-            Assert.AreEqual(MathHelper.Lerp(1, 2, 0.5f), smoothedValue);
+            Assert.AreEqual(Utilities.Lerp(1, 2, 0.5f), smoothedValue);
         }
 
         [TestMethod]

@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
+using System.Numerics;
 using SharpSteer2.Helpers;
 
 namespace SharpSteer2.Tests
@@ -8,6 +8,9 @@ namespace SharpSteer2.Tests
     [TestClass]
     public class Vector3HelpersTest
     {
+        // ReSharper disable once InconsistentNaming
+        public const float PiOver2 = (float)Math.PI / 2;
+
         private static void AssertVectorEquality(Vector3 expected, Vector3 actual, float epsilon = float.Epsilon)
         {
             Func<string> err = () => string.Format("expected {0} but got {1}", expected, actual);
@@ -20,7 +23,7 @@ namespace SharpSteer2.Tests
         [TestMethod]
         public void ParallelComponentTest()
         {
-            var basis = Vector3.Up;
+            var basis = Vector3.UnitY;
             var v = Vector3.Normalize(new Vector3(1, 1, 0));
 
             var result = Vector3Helpers.ParallelComponent(v, basis);
@@ -31,7 +34,7 @@ namespace SharpSteer2.Tests
         [TestMethod]
         public void PerpendicularComponentTest()
         {
-            var basis = Vector3.Up;
+            var basis = Vector3.UnitY;
             var v = Vector3.Normalize(new Vector3(1, 1, 0));
 
             var result = Vector3Helpers.PerpendicularComponent(v, basis);
@@ -42,31 +45,31 @@ namespace SharpSteer2.Tests
         [TestMethod]
         public void TruncateVectorLengthDoesNotTruncateShortVector()
         {
-            AssertVectorEquality(Vector3.Up, Vector3.Up.TruncateLength(2));
+            AssertVectorEquality(Vector3.UnitY, Vector3.UnitY.TruncateLength(2));
         }
 
         [TestMethod]
         public void TruncateVectorLengthTruncatesLongVector()
         {
-            AssertVectorEquality(Vector3.Up * 0.5f, Vector3.Up.TruncateLength(0.5f));
+            AssertVectorEquality(Vector3.UnitY * 0.5f, Vector3.UnitY.TruncateLength(0.5f));
         }
 
         [TestMethod]
         public void RotateVectorAboutGlobalYClockwise()
         {
-            AssertVectorEquality(new Vector3(1, 1, 0), new Vector3(0, 1, 1).RotateAboutGlobalY(MathHelper.PiOver2), 0.0000001f);
+            AssertVectorEquality(new Vector3(1, 1, 0), new Vector3(0, 1, 1).RotateAboutGlobalY(PiOver2), 0.0000001f);
         }
 
         [TestMethod]
         public void RotateVectorAboutGlobalYAntiClockwise()
         {
-            AssertVectorEquality(new Vector3(1, 1, 0), new Vector3(0, 1, -1).RotateAboutGlobalY(-MathHelper.PiOver2), 0.0000001f);
+            AssertVectorEquality(new Vector3(1, 1, 0), new Vector3(0, 1, -1).RotateAboutGlobalY(-PiOver2), 0.0000001f);
         }
 
         [TestMethod]
         public void RotateVectorAboutGlobalYClockwiseWithCache()
         {
-            const float ANGLE = MathHelper.PiOver2;
+            const float ANGLE = PiOver2;
             float sin = (float)Math.Sin(ANGLE);
             float cos = (float)Math.Cos(ANGLE);
 
@@ -81,7 +84,7 @@ namespace SharpSteer2.Tests
         [TestMethod]
         public void RotateVectorAboutGlobalYAntiClockwiseWithCache()
         {
-            const float ANGLE = -MathHelper.PiOver2;
+            const float ANGLE = -PiOver2;
             float sin = (float)Math.Sin(ANGLE);
             float cos = (float)Math.Cos(ANGLE);
 
@@ -230,7 +233,7 @@ namespace SharpSteer2.Tests
                 var vector = Vector3Helpers.RandomUnitVector();
 
                 var basis = Vector3Helpers.RandomUnitVector();
-                var angle = RandomHelpers.Random(0.1f, MathHelper.PiOver2);
+                var angle = RandomHelpers.Random(0.1f, PiOver2);
                 var cosAngle = (float)Math.Cos(angle);
 
                 var result = vector.LimitMaxDeviationAngle(cosAngle, basis);
@@ -247,7 +250,7 @@ namespace SharpSteer2.Tests
                 var vector = Vector3Helpers.RandomUnitVector();
 
                 var basis = Vector3Helpers.RandomUnitVector();
-                var angle = RandomHelpers.Random(0.1f, MathHelper.PiOver2);
+                var angle = RandomHelpers.Random(0.1f, PiOver2);
                 var cosAngle = (float)Math.Cos(angle);
 
                 var result = vector.LimitMinDeviationAngle(cosAngle, basis);
@@ -259,25 +262,19 @@ namespace SharpSteer2.Tests
         [TestMethod]
         public void ClipWithinConeReturnsZeroLengthVectors()
         {
-            Assert.AreEqual(Vector3.Zero, Vector3.Zero.LimitMaxDeviationAngle(0.2f, Vector3.Up));
+            Assert.AreEqual(Vector3.Zero, Vector3.Zero.LimitMaxDeviationAngle(0.2f, Vector3.UnitY));
         }
 
         [TestMethod]
         public void ClipBackwardsVectorIsZero()
         {
-            Assert.AreEqual(Vector3.Zero, Vector3.Backward.LimitMaxDeviationAngle(0.2f, Vector3.Forward));
+            Assert.AreEqual(Vector3.Zero, Vector3.UnitZ.LimitMaxDeviationAngle(0.2f, -Vector3.UnitZ));
         }
 
         [TestMethod]
         public void ClipWithoutConeReturnsZeroLengthVectors()
         {
-            Assert.AreEqual(Vector3.Zero, Vector3.Zero.LimitMinDeviationAngle(0.2f, Vector3.Up));
-        }
-
-        [TestMethod]
-        public void MyTestMethod()
-        {
-            Assert.AreEqual(Vector3.Zero, Vector3.Forward.LimitMinDeviationAngle(0.2f, Vector3.Forward));
+            Assert.AreEqual(Vector3.Zero, Vector3.Zero.LimitMinDeviationAngle(0.2f, Vector3.UnitY));
         }
     }
 }

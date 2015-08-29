@@ -9,7 +9,7 @@
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
 using System;
-using Microsoft.Xna.Framework;
+using System.Numerics;
 
 namespace SharpSteer2.Helpers
 {
@@ -162,10 +162,7 @@ namespace SharpSteer2.Helpers
         /// <returns></returns>
         public static Vector3 RandomUnitVector()
         {
-            Vector3 temp = RandomVectorInUnitRadiusSphere();
-            temp.Normalize();
-
-            return temp;
+            return Vector3.Normalize(RandomVectorInUnitRadiusSphere());
         }
 
         /// <summary>
@@ -177,9 +174,8 @@ namespace SharpSteer2.Helpers
         public static Vector3 RandomUnitVectorOnXZPlane()
         {
             Vector3 temp = RandomVectorInUnitRadiusSphere();
-
             temp.Y = 0;
-            temp.Normalize();
+            temp = Vector3.Normalize(temp);
 
             return temp;
         }
@@ -248,8 +244,7 @@ namespace SharpSteer2.Helpers
                 return Vector3.Zero;
 
             // normalize that perpendicular
-            Vector3 unitPerp = perp;
-            unitPerp.Normalize();
+            Vector3 unitPerp = Vector3.Normalize(perp);
 
             // construct a new vector whose length equals the source vector,
             // and lies on the intersection of a plane (formed the source and
@@ -287,9 +282,9 @@ namespace SharpSteer2.Helpers
             Vector3 result;     // the computed perpendicular to be returned
 
             // three mutually perpendicular basis vectors
-            Vector3 i = Vector3.Right;
-            Vector3 j = Vector3.Up;
-            Vector3 k = Vector3.Backward;
+            Vector3 i = Vector3.UnitX;
+            Vector3 j = Vector3.UnitY;
+            Vector3 k = Vector3.UnitZ;
 
             // measure the projection of "direction" onto each of the axes
             float id = Vector3.Dot(i, direction);
@@ -306,7 +301,7 @@ namespace SharpSteer2.Helpers
 
             // return the cross product (direction x quasiPerp)
             // which is guaranteed to be perpendicular to both of them
-            Vector3.Cross(ref direction, ref quasiPerp, out result);
+            result = Vector3.Cross(direction, quasiPerp);
 
             return result;
         }

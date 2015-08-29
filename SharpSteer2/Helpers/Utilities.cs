@@ -8,13 +8,41 @@
 // you should have received as part of this distribution. The terms
 // are also available at http://www.codeplex.com/SharpSteer/Project/License.aspx.
 
-using Microsoft.Xna.Framework;
+using System.Numerics;
 
 namespace SharpSteer2.Helpers
 {
 	public class Utilities
 	{
         /// <summary>
+        /// Linearly interpolate from A to B by amount T
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
+	    public static float Lerp(float a, float b, float t)
+        {
+            return a + (b - a) * t;
+        }
+
+        /// <summary>
+        /// Clamp value between min and max
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+	    public static float Clamp(float value, float min, float max)
+        {
+            if (value < min)
+                return min;
+            if (value > max)
+                return max;
+            return value;
+        }
+
+	    /// <summary>
         /// remap a value specified relative to a pair of bounding values to the corresponding value relative to another pair of bounds.
         /// </summary>
         /// <remarks>Inspired by (dyna:remap-interval y y0 y1 z0 z1)</remarks>
@@ -30,7 +58,7 @@ namespace SharpSteer2.Helpers
 			float relative = (x - in0) / (in1 - in0);
 
 			// now interpolate between output interval based on relative x
-			return MathHelper.Lerp(out0, out1, relative);
+			return Lerp(out0, out1, relative);
 		}
 
         /// <summary>
@@ -48,14 +76,8 @@ namespace SharpSteer2.Helpers
 			float relative = (x - in0) / (in1 - in0);
 
 			// now interpolate between output interval based on relative x
-            return MathHelper.Lerp(out0, out1, MathHelper.Clamp(relative, 0, 1));
+            return Lerp(out0, out1, Clamp(relative, 0, 1));
 		}
-
-		// ----------------------------------------------------------------------------
-		// classify a value relative to the interval between two bounds:
-		//     returns -1 when below the lower bound
-		//     returns  0 when between the bounds (inside the interval)
-		//     returns +1 when above the upper bound
 
         /// <summary>
         /// classify a value relative to the interval between two bounds:
@@ -98,12 +120,12 @@ namespace SharpSteer2.Helpers
 		/// <example>blendIntoAccumulator (dt * 0.4f, currentFPS, smoothedFPS)</example>
 		public static void BlendIntoAccumulator(float smoothRate, float newValue, ref float smoothedAccumulator)
 		{
-            smoothedAccumulator = MathHelper.Lerp(smoothedAccumulator, newValue, MathHelper.Clamp(smoothRate, 0, 1));
+            smoothedAccumulator = Lerp(smoothedAccumulator, newValue, Clamp(smoothRate, 0, 1));
 		}
 
 		public static void BlendIntoAccumulator(float smoothRate, Vector3 newValue, ref Vector3 smoothedAccumulator)
 		{
-            smoothedAccumulator = Vector3.Lerp(smoothedAccumulator, newValue, MathHelper.Clamp(smoothRate, 0, 1));
+            smoothedAccumulator = Vector3.Lerp(smoothedAccumulator, newValue, Clamp(smoothRate, 0, 1));
 		}
 	}
 }

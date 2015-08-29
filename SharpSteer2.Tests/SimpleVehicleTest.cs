@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
+using System.Numerics;
 
 namespace SharpSteer2.Tests
 {
@@ -12,7 +12,7 @@ namespace SharpSteer2.Tests
         public void Construct()
         {
             Assert.AreEqual(Vector3.Zero, _vehicle.Acceleration);
-            Assert.AreEqual(Vector3.Forward, _vehicle.Forward);
+            Assert.AreEqual(-Vector3.UnitZ, _vehicle.Forward);
             Assert.AreEqual(Vector3.Zero, _vehicle.Velocity);
             Assert.AreEqual(0, _vehicle.Speed);
             Assert.AreEqual(Vector3.Zero, _vehicle.SmoothedPosition);
@@ -21,9 +21,9 @@ namespace SharpSteer2.Tests
         [TestMethod]
         public void ApplyForce()
         {
-            _vehicle.ApplySteeringForce(Vector3.Forward, 1);
+            _vehicle.ApplySteeringForce(-Vector3.UnitZ, 1);
 
-            Assert.AreEqual(Vector3.Forward * _vehicle.Speed, _vehicle.Velocity);
+            Assert.AreEqual(-Vector3.UnitZ * _vehicle.Speed, _vehicle.Velocity);
         }
     }
 }
