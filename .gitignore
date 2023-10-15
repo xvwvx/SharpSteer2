@@ -8,6 +8,9 @@
 *.ncrunchsolution
 *.vsmdi
 *.testsettings
+obj/
+bin/
+.idea/
 SharpSteer2/bin
 SharpSteer2/obj
 Demo/bin
